@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <title>Absys</title>
+    </head>
+    <body>
+        <h1>Eine Schülerliste</h1>
+        <div>
+            <h2>########SCHLEIFE BEGINNT##########</h2>
+            
+            {% for schueler in schueler %}
+               
+                <div>
+                    <h1><a href=""> {{ schueler.pk }} </a></h1>
+                    <p> {{ schueler.nname }} </a></p>
+                    <p> {{ schueler.geburtsdatum|linebreaks }} </p>
+                    <p> {{ schueler.created_date|linebreaks }} </p>
+                    <h2>#######NEUER SCHLEIFENDURCHLAUF#########</h2>
+                </div>
+                
+            {% endfor %}
+            
+        </div>
+    </body>
+</html>
