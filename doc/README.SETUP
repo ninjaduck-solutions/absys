@@ -1,0 +1,19 @@
+#Dokumentation für das Setup der Django-Umgebung für Absys
+
+##1. Voraussetzungen
+
+* Ubuntu Server
+* python 2.7.6
+
+##2. Systemvorbereitung
+
+* Installation von "virtualenv" um unabhängig von lokalen Paketabhängikeiten/-updates eine konsistente Laufzeitumgebung für die Django-Applikation vorzuhalten
+ * aptitude install virtualenv
+* Erstellung eines lokalen Clones des GIT-Repositorys, welches die Anwendung enthält  
+ * git clone ssh://git@h2516835.stratoserver.net:2050/srv/git/absys.git
+
+##3. Inbetriebnahme
+* absys/src/manage.py runserver 
+
+ 
+
