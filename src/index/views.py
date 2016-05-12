@@ -8,3 +8,7 @@ def schueler_list(request):
 
 def index(request):
     return render(request, 'index/index.html')
+
+def base(request):
+    schueler = Schueler.objects.order_by('nname')
+    return render(request, 'index/base.html', {'schueler': schueler})

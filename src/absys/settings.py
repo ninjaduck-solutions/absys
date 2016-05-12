@@ -20,13 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'p_@hc=g(-0_3yiflxz5d$)==ylcc0gr#scq)x%dbec75n)r4)1'
+SECRET_KEY = '8$^^s*7+1+^t%wq7828u$d(cit0obx&vl(9nn#blxm*usi_b+9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-#BSP FUER IN PRPODUKTION: ALLOWED_HOSTS = ['absys.lzh.sachsen.de', [...]]
 
 
 # Application definition
@@ -38,8 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # SPAETER AKTIVIEREN!'django-debug-toolbar',
-    'index',
+    'index'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -54,7 +52,6 @@ MIDDLEWARE_CLASSES = [
 ]
 
 ROOT_URLCONF = 'absys.urls'
-
 
 TEMPLATES = [
     {

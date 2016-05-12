@@ -17,7 +17,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
-    #ALTE ADMINSITE url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls),
+
     url(r'^backendadmin/', admin.site.urls),
     
     # von normalem Seitenaufruf nach Index weiterleiten
