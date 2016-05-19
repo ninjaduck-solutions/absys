@@ -13,7 +13,10 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+# Settings Path
+SETTINGS_PATH = os.path.dirname(os.path.dirname(__file__))
 
 
 # Quick-start development settings - unsuitable for production
@@ -106,13 +109,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
 LANGUAGE_CODE = 'de-de'
-
 TIME_ZONE = 'Europe/Berlin'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -120,3 +119,41 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#TEMPLATES = [
+#    {
+#        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+#        'DIRS': [
+#            [
+#            os.path.dirname(BASE_DIR), "static", "templates",
+#            ]
+#        ],
+#        'APP_DIRS': True,
+#        'OPTIONS': {
+#            'context_processors': [
+#                # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
+#                # list if you haven't customized them:
+#                'django.contrib.auth.context_processors.auth',
+#                'django.template.context_processors.debug',
+#                'django.template.context_processors.i18n',
+#                'django.template.context_processors.media',
+#                'django.template.context_processors.static',
+#                'django.template.context_processors.tz',
+#                'django.contrib.messages.context_processors.messages',
+#            ],
+#        },
+#    },
+#]
+
+
+
+#TEMPLATE_DIRS = (
+#        os.path.join(os.path.dirname(BASE_DIR), "static", "templates"),
+#)
+
+if DEBUG:
+    MEDIA_URL = '/media/'
+    STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static", "static-only")
+    MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static", "media")
+    STATICFILES_DIRS = (os.path.join(os.path.dirname(BASE_DIR), "static", "static"),)
+    

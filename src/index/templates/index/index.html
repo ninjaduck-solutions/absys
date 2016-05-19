@@ -1,12 +1,18 @@
-<html>
-    <head>
-        <title>Absys</title>
-    </head>
-    <body>
-        <div>
-            <p>Es geht!</p>
-            <a href="schueler_list">Eine Schülerliste anzeigen lassen.</a>
-            <a href="base">whatever</a>
-        </div>
-    </body>
-</html>
+{% extends 'index/base.html' %}
+{% load staticfiles %}
+{% block content %}
+
+         <div>
+                  <center>
+                           <h1>Abrechnungssystem</h1>
+                           <img src="/static/index/logo_lbs.jpg" alt="Logo LBS">
+                  </center>
+         </div>
+         <br><br><br><br><br><br><br><br>
+         <div>
+                  <center>
+                           <a href="schueler_list">Eine Schülerliste anzeigen lassen.</a>
+                  </center>
+         </div>
+   
+{% endblock %}

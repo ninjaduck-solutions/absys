@@ -1,24 +1,27 @@
-<html>
-    <head>
-        <title>Absys</title>
-    </head>
-    <body>
+{% extends 'index/base.html' %}
+{% load staticfiles %}
+
+
+{% block content %}
+    <center>
         <h1>Eine Schülerliste</h1>
         <div>
-            <h2>########SCHLEIFE BEGINNT##########</h2>
-            
+            <br><br>
+                  
             {% for schueler in schueler %}
                
                 <div>
-                    <h1><a href=""> {{ schueler.pk }} </a></h1>
-                    <p> {{ schueler.nname }} </a></p>
-                    <p> {{ schueler.geburtsdatum|linebreaks }} </p>
-                    <p> {{ schueler.created_date|linebreaks }} </p>
-                    <h2>#######NEUER SCHLEIFENDURCHLAUF#########</h2>
+                    <h6>#######NEUER SCHLEIFENDURCHLAUF#########</h6>
+                    <p> Schueler-ID: {{ schueler.pk }} </p>
+                    <p> Schuelernachname: {{ schueler.nname }} </p>
+                    <p> Schuelervorname: {{ schueler.vname }} </p>
+                    <p> Geburtsdatum: {{ schueler.geburtsdatum }} </p>
+                    <p> Datensatz angelegt: {{ schueler.created_date }} </p>
+                    
                 </div>
                 
             {% endfor %}
             
         </div>
-    </body>
-</html>
+        
+{% endblock %}

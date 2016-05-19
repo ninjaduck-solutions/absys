@@ -12,5 +12,10 @@ class Schueler(models.Model):
     created_date = models.DateTimeField(
             default=timezone.now)
     
-    def __str__(self):
-        return self.nname
+    
+    
+    def __unicode__(self):
+        return (self.nname)
+    
+    #def __unicode__(self):
+    #    reutrn self.vname
