@@ -15,8 +15,7 @@ class Gruppe(models.Model):
     
     class Meta:
       verbose_name_plural="Gruppen"
-      verbose_name="Gruppe"
-      managed=True
+      verbose_name="Gruppe"  
     
     def __unicode__(self):
        return self.gruppenname
@@ -34,7 +33,6 @@ class Stufe(models.Model):
     class Meta:
       verbose_name_plural="Stufen"
       verbose_name="Stufe"
-      managed=True
       
     def __unicode__(self):
         return self.stufenname
@@ -56,8 +54,7 @@ class Einrichtung(models.Model):
         
     class Meta:
       verbose_name_plural="Einrichtungen"
-      verbose_name="Einrichtung"
-      managed=True
+      verbose_name="Einrichtung"  
     
     def __unicode__(self):
         return self.einrichtungsname
@@ -77,7 +74,6 @@ class Sozialamt(models.Model):
     class Meta:
       verbose_name_plural="Sozialaemter"
       verbose_name="Sozialamt"
-      managed=True
     
     def __unicode__(self):
         return self.sozialamtname
@@ -96,7 +92,6 @@ class Schliesstag(models.Model):
     class Meta:
       verbose_name_plural="Schliesstage"
       verbose_name="Schliesstag"
-      managed=True
     
     def __unicode__(self):
         return ugettext("%(datum)s") % {
@@ -117,7 +112,6 @@ class Ferien(models.Model):
     class Meta:
       verbose_name_plural="Ferien"
       verbose_name="Ferien"
-      managed=True
     
     def __unicode__(self):
         return (self.ferienname) + ' ' + ugettext("vom %(startdatum)s bis %(enddatum)s") % {
@@ -144,8 +138,7 @@ class Schueler(models.Model):
     class Meta:
       verbose_name_plural="Schueler"
       verbose_name="Schueler"
-      managed=True
-    
+
     def __unicode__(self):
         return (self.nachname) + ', ' + (self.vorname)
 
@@ -167,7 +160,6 @@ class SchuelerInEinrichtung(models.Model):
     class Meta:
         verbose_name="Schueler in der Einrichtung"
         verbose_name_plural="Schueler in der Einrichtung"
-        managed=True
         
     def __unicode__(self):
         return ugettext("%(schueler)s in %(einrichtung)s") % {
