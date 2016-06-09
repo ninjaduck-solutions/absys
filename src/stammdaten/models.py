@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from django.db import models
-from django.utils.timezone import datetime
+from django.utils.timezone import now
 
 
 # TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs)
@@ -129,3 +129,20 @@ class SchuelerInEinrichtung(models.Model):
         
     def __unicode__(self):
         return '{s.schueler} in {s.einrichtung} ({s.eintritt} - {s.austritt}) '.format(s=self)
+    
+    
+class Anwesenheit(models.Model):
+    
+    schueler = models.ForeignKey(Schueler)
+    anwesend = models.BooleanField(default=True)
+    datum = models.DateField(default=now)
+    
+    class Meta:
+        verbose_name_plural = "Anwesenheiten"
+        verbose_name = "Anwesenheit"
+        unique_together = ('schueler', 'datum')
+        
+    def __unicode__(self):
+        return '{s.schueler} ({s.datum}) '.format(s=self)
+    
+    
