@@ -8,7 +8,6 @@ db.sqlite3
 media
 
 ###TopLevelFiles###
-
 *.tar
 bin
 lib
