@@ -6,13 +6,13 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import *
+from . import models
 
-admin.site.register(Gruppe)
-admin.site.register(Stufe)
-admin.site.register(Einrichtung)
-admin.site.register(Sozialamt)
-admin.site.register(Schliesstag)
-admin.site.register(Ferien)
-admin.site.register(Schueler)
-admin.site.register(SchuelerInEinrichtung)
+admin.site.register(models.Gruppe)
+admin.site.register(models.Stufe)
+admin.site.register(models.Einrichtung)
+admin.site.register(models.Ferien)
+admin.site.register(models.Sozialamt)
+admin.site.register(models.Schliesstag)
+admin.site.register(models.Schueler)
+admin.site.register(models.SchuelerInEinrichtung)
