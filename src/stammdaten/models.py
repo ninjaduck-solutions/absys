@@ -1,9 +1,22 @@
 from __future__ import unicode_literals
 from django.db import models
-from django.utils.timezone import datetime
-
+from django.utils.timezone import now
+from django.utils.functional import cached_property
 
 # TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs)
+
+class FehltageErlaubt(models.Model):
+
+    werte = models.CommaSeparatedIntegerField(max_length=35) # TODO: Clean-Methode als Constraint fuer Falscheingaben einbauen
+    jahr = models.PositiveIntegerField (unique=True)
+    
+    class Meta:
+        verbose_name_plural = "Erlaubte Fehltage"
+        verbose_name = "Erlaubte Fehltage"
+
+    def __unicode__(self):
+        return str(self.jahr)
+
 
 class Gruppe(models.Model):
     name = models.CharField(max_length=400, default="")
@@ -99,9 +112,10 @@ class Schueler(models.Model):
     stufe = models.ForeignKey(Stufe)
     gruppe = models.ForeignKey(Gruppe)
     sozialamt = models.ForeignKey(Sozialamt)
+    fehltage_erlaubt = models.ForeignKey(FehltageErlaubt)
     einrichtungen = models.ManyToManyField(Einrichtung, through='SchuelerInEinrichtung')
     erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
-        
+    
     class Meta:
       verbose_name_plural="Schueler"
       verbose_name="Schueler"
@@ -109,6 +123,12 @@ class Schueler(models.Model):
     def __unicode__(self):
         return '{s.nachname}, {s.vorname}'.format(s=self)
 
+    def pflegesatz(self, datum=None):
+        if self.pers_pflegesatz:
+            return self.pers_pflegesatz
+        if not datum:
+            datum = now().date
+        return SchuelerInEinrichtung.objects.filter(schueler=self, austritt__lte=datum).first().einrichtung.pflegesatz
 
 #TODO: class PflegesatzDesSchuelers mittels model manager und class realisieren
 
@@ -126,6 +146,22 @@ class SchuelerInEinrichtung(models.Model):
         unique_together = ('schueler', 'einrichtung', 'eintritt', 'austritt')
         verbose_name_plural = "Schueler in den Einrichtungen"
         verbose_name = "Schueler in der Einrichtung"
+        ordering = ("schueler__nachname", "schueler__vorname", "-austritt")
         
     def __unicode__(self):
         return '{s.schueler} in {s.einrichtung} ({s.eintritt} - {s.austritt}) '.format(s=self)
+    
+    
+class Anwesenheit(models.Model):
+    
+    schueler = models.ForeignKey(Schueler)
+    anwesend = models.BooleanField(default=True)
+    datum = models.DateField(default=now)
+    
+    class Meta:
+        verbose_name_plural = "Anwesenheiten"
+        verbose_name = "Anwesenheit"
+        unique_together = ('schueler', 'datum')
+        
+    def __unicode__(self):
+        return '{s.schueler} ({s.datum}) '.format(s=self)
