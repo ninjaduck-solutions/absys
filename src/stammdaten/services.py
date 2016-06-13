@@ -4,25 +4,29 @@ from stammdaten import models
 import datetime
 
 
-
-
 #Werte = namedtuple("Werte", ["summe_aller_fehltage", "fehltage", "zahltage", "betreuungstage", "aufwendungen"])
 
 def pflegesatz(datum, schuelerid, einrichtungid):
     if istFerientag(datum) == 1:
-        if models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien=0):
+        if models.SchuelerInEinrichtung.objects.filter \
+                (schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien=0) | \
+                models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien_startdatum__gt=datum) | \
+                models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien_enddatum__lt=datum):
             return models.Einrichtung.objects.filter(id=einrichtungid).values('pflegesatz_ferien')
         else:
             return models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid).values('pers_pflegesatz_ferien')
     else:
-        if models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz=0):
+        if models.SchuelerInEinrichtung.objects.filter \
+                (schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz=0) | \
+                models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_startdatum__gt=datum) | \
+                models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_enddatum__lt=datum):
             return models.Einrichtung.objects.filter(id=einrichtungid).values('pflegesatz')
         else:
             return models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid).values('pers_pflegesatz')
 
 
 def istFerientag(datum):
-        if models.Ferien.objects.filter(startdatum__lt=datum, enddatum__gt=datum):
+        if models.Ferien.objects.filter(startdatum__lte=datum, enddatum__gte=datum):
             return 1
         else:
             return 0

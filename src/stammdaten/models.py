@@ -146,11 +146,11 @@ class SchuelerInEinrichtung(models.Model):
     sozialamtbescheid_von = models.DateField()
     sozialamtbescheid_bis = models.DateField()
     pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    # pers_pflegesatz_startdatum = models.DateField()
-    # pers_pflegesatz_enddatum = models.DateField()
+    pers_pflegesatz_startdatum = models.DateField()
+    pers_pflegesatz_enddatum = models.DateField()
     pers_pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    # pers_pflegesatz_ferien_startdatum = models.DateField()
-    # pers_pflegesatz_ferien_enddatum = models.DateField()
+    pers_pflegesatz_ferien_startdatum = models.DateField()
+    pers_pflegesatz_ferien_enddatum = models.DateField()
     
     class Meta:
         unique_together = ('schueler', 'einrichtung', 'eintritt', 'austritt')
