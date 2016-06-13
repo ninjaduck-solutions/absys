@@ -6,7 +6,7 @@ import datetime
 
 #Werte = namedtuple("Werte", ["summe_aller_fehltage", "fehltage", "zahltage", "betreuungstage", "aufwendungen"])
 
-def pflegesatz(datum, schuelerid, einrichtungid):
+def berechnePflegesatz(datum, schuelerid, einrichtungid):
     if istFerientag(datum) == 1:
         if models.SchuelerInEinrichtung.objects.filter \
                 (schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien=0) | \
