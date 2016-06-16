@@ -48,7 +48,7 @@ class Development(databases.Databases, common.Common):
         will originate from.
         """
         if 'vagrant' in socket.gethostname():
-            addr = [line.split()[1] for line in subprocess.check_output(['netstat', '-rn']).splitlines() if line.startswith('0.0.0.0')][0]  # noqa
+            addr = [line.split()[1] for line in subprocess.check_output(['netstat', '-rn']).splitlines() if line.startswith(b'0.0.0.0')][0].decode()  # noqa
         else:
             addr = '127.0.0.1'
         return (addr,)
