@@ -99,8 +99,3 @@ Tipps
     $ git flow init -d
 
     $ git flow feature start new-feature
-
-    $ vagrant provision
-
-Detailed installation instructions for this Djangp project can be found in
-``docs/installation.rst``.
