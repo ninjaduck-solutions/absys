@@ -5,3 +5,7 @@ git:
 git-flow:
   pkg:
     - installed
+
+tig:
+  pkg:
+    - installed
