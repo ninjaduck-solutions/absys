@@ -18,7 +18,8 @@ Vagrant.configure(2) do |config|
     auto_correct: true
 
   # Port forwarding for Glances server.
-  config.vm.network "forwarded_port", guest: 61208, host: 61208
+  config.vm.network "forwarded_port", guest: 61208, host: 61208,
+    auto_correct: true
 
   # Salt provisioning.
   config.vm.synced_folder "salt/roots/", "/srv/"
