@@ -24,16 +24,16 @@ Folgende Befehle ausführen, um die Vagrant Box als Entwicklungsumgebung einzuri
 
 ::
 
-    $ git clone ssh://git@h2516835.stratoserver.net:2050/srv/git/absys.git
-    $ cd absys
-    $ git checkout develop
-    $ vagrant up
+    > git clone ssh://git@h2516835.stratoserver.net:2050/srv/git/absys.git
+    > cd absys
+    > git checkout develop
+    > vagrant up
 
 Nutzer von Linux und OS X können sich direkt mit folgendem Befehl mit der Vagrant Box verbinden:
 
 ::
 
-    $ vagrant ssh
+    > vagrant ssh
 
 Windows Nutzer müssen sich mit PuTTY mit der Vagrant Box verbinden. Dazu sind
 die folgenden Schritte zur Einrichtung der Verbindung nötig:
@@ -58,6 +58,41 @@ die folgenden Schritte zur Einrichtung der Verbindung nötig:
     nur durch die Salt States verwaltet werden. Daher sollen alle Änderungen in
     den Verzeichnissen ``/salt/roots/salt`` (Software) und
     ``salt/roots/pillar`` (Konfiguration) vorgenommen werden.
+
+Nach dem Login in die Vagrant Box wird automatisch ein Python 3 Virtual
+Environment ``pyvenv`` aktiviert. Du erkennst das daran, dass der Name des
+Virtual Environment in Klammern vor dem Prompt steht.
+
+Arbeiten mit der Entwicklungsumgebung
+=====================================
+
+Um am Django Projekt zu arbeiten müssen die folgenden Befehle ausgeführt werden:
+
+::
+
+    $ cd /vagrant  # Wechselt ins Projektverzeichnis; nach jeder Anmeldung auszuführen
+    $ make develop  # Installiert alle benötigten Pakete für das Projekt; nach jeder Veränderung an den verwendeten Django/Python Packages auszuführen
+    $ make migrate  # Führt die Datenbank Migrationen aus; nach jeder Änderung an der Datenbank und beim initialen Erstellen nach 'make develop' auszuführen
+    $ make runserver  #  Startet den Development-Webserver; vor jedem Versuch, die Website im Browser zu testen  auszuführen
+
+.. note::
+
+    Sollte das Virtual Environment (``pyvenv``) einmal kaputt gehen, folgende Schritte ausführen:
+
+    ::
+
+        $ cd  # Wechselt in das Home Verzeichnis
+        $ rm -fr pyvenv
+        $ exit
+        > vagrant provision
+        > vagrant ssh
+        $ cd /vagrant
+        $ make develop
+
+Tipps
+=====
+
+- Du kannst `Zeal <https://zealdocs.org/>`_ auf deinem Host Betriebssystem installieren, um die Dokumentation aller im Projekt benutzten Softwarekomponenten offline verfügbar zu haben
 
 ::
 
