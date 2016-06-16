@@ -43,6 +43,8 @@ INSTALLED_APPS = (
     'base',
     'schueler',
     'stammdaten',
+    
+    'autofixture'
 )
 
 MIDDLEWARE_CLASSES = (
