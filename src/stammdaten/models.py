@@ -3,9 +3,10 @@ from django.db import models
 from django.utils.timezone import now
 from django.utils.functional import cached_property
 from datetime import datetime
-# 
+ 
 # # TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs)
-# 
+
+ 
 class Gruppe(models.Model):
     
     name = models.CharField(max_length=5, default="")
@@ -183,3 +184,7 @@ class Anwesenheit(models.Model):
 
     def __unicode__(self):
         return  '{s.schueler} am {s.datum} | {s.anwesenheit}'.format(s=self)
+    
+    #def anzahlAnwesenheit
+    
+    #def anzahlFehltage

@@ -32,6 +32,18 @@ def istFerientag(datum):
             return 0
 
 
+# def berechneAnwesenheitstage
+#     for models.Anwesenheit.objects.all()
+#         
+#         zaehlen = len(a)
+# 
+# 
+# 
+# 
+# 
+# def berechneFehltage
+
+
 # class Abrechnung(object):
 #     """
 #     >>> from stammdaten import services, models
