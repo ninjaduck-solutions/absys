@@ -1,3 +1,6 @@
+include:
+  - python3
+
 pyvenv:
   cmd.run:
     - name: python3 -m venv {{ pillar['project']['home'] }}/pyvenv
