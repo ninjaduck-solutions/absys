@@ -8,5 +8,6 @@ user-bashrc:
         export LANG=en_US.UTF-8
         export LANGUAGE=en_US.UTF-8
         export EDITOR=vim
+        source ${HOME}/pyvenv/bin/activate
     - template: jinja
     - append_if_not_found: True
