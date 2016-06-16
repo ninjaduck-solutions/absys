@@ -9,5 +9,6 @@ user-bashrc:
         export LANGUAGE=en_US.UTF-8
         export EDITOR=vim
         source ${HOME}/pyvenv/bin/activate
+        eval $(thefuck --alias)
     - template: jinja
     - append_if_not_found: True
