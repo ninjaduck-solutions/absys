@@ -58,3 +58,7 @@ docs/_build
 
 # Vagrant
 .vagrant/
+
+# SublimeText
+*.sublime-workspace
+*.sublime-project
