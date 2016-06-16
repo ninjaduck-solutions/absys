@@ -29,6 +29,49 @@ Folgende Befehle ausführen, um die Vagrant Box als Entwicklungsumgebung einzuri
     > git checkout develop
     > vagrant up
 
+.. note::
+
+    Sollte beim Starten der Vagrant Box das Port Forwarding automatisch von
+    Vagrant angepasst worden sein, werden nicht mehr die Ports verwendet, die
+    hier genannt werden. Die neue Port Forwarding Konfiguration können mit
+    folgendem Kommando ausgegeben werden:
+
+    ::
+
+        > vagrant port
+        The forwarded ports for the machine are listed below. Please note that
+        these values may differ from values configured in the Vagrantfile if the
+        provider supports automatic port collision detection and resolution.
+
+            22 (guest) => 2222 (host)
+         61208 (guest) => 61208 (host)
+          8000 (guest) => 8000 (host)
+
+    Das Beispiel zeigt die Standardkonfiguration. Hier sind die Ports wie folgt
+    konfiguriert:
+
+    ==================== ================== ===========
+    Dienst               Port (Vagrant Box) Port (Host)
+    ==================== ================== ===========
+    SSH/PuTTY            ``22``             ``2222``
+    Glances (Monitoring) ``61208``          ``61208``
+    Django (Webserver)   ``8000``           ``8000``
+    ==================== ================== ===========
+
+    Wenn Vagrant das Port Forwarding anpasst, kann die Ausgabe wie folgt
+    aussehen:
+
+    ::
+
+        > vagrant port
+        The forwarded ports for the machine are listed below. Please note that
+        these values may differ from values configured in the Vagrantfile if the
+        provider supports automatic port collision detection and resolution.
+
+            22 (guest) => 2202 (host)
+         61208 (guest) => 2201 (host)
+          8000 (guest) => 2200 (host)
+
 Nutzer von Linux und OS X können sich direkt mit folgendem Befehl mit der Vagrant Box verbinden:
 
 ::
@@ -74,6 +117,8 @@ Um am Django Projekt zu arbeiten müssen die folgenden Befehle ausgeführt werde
     $ make develop  # Installiert alle benötigten Pakete für das Projekt; nach jeder Veränderung an den verwendeten Django/Python Packages auszuführen
     $ make migrate  # Führt die Datenbank Migrationen aus; nach jeder Änderung an der Datenbank und beim initialen Erstellen nach 'make develop' auszuführen
     $ make runserver  #  Startet den Development-Webserver; vor jedem Versuch, die Website im Browser zu testen  auszuführen
+
+Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen werden.
 
 .. note::
 
