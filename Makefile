@@ -116,14 +116,10 @@ isort:
 migrate:
 	envdir envs/$(ENV) python manage.py migrate
 
-open-docs:
-	python -c "import os, webbrowser; webbrowser.open('file://{}/docs/{}/html/index.html'.format(os.getcwd(), '$(BUILDDIR)'))"
-
 runserver:
 	envdir envs/$(ENV) python manage.py runserver 0.0.0.0:$(PORT)
 
 serve-docs:
-	python -c "import webbrowser; webbrowser.open('http://127.0.0.1:$(PORT)')"
 	cd docs/$(BUILDDIR)/html; python -m http.server $(PORT)
 
 shell:
