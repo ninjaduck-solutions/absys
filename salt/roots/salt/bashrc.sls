@@ -10,5 +10,17 @@ user-bashrc:
         export EDITOR=vim
         source ${HOME}/pyvenv/bin/activate
         eval $(thefuck --alias)
+        git config --get user.name >/dev/null
+        if [ $? -ne 0 ]; then
+            echo -n "Bitte Git Benutzernamen eingeben: "
+            read USERNAME
+            git config --global user.name "${USERNAME}"
+        fi
+        git config --get user.email >/dev/null
+        if [ $? -ne 0 ]; then
+            echo -n "Bitte Git E-Mail Adresse eingeben: "
+            read EMAIL
+            git config --global user.email "${EMAIL}"
+        fi
     - template: jinja
     - append_if_not_found: True
