@@ -46,7 +46,7 @@ setup(
     include_package_data=True,
     scripts=['manage.py'],
     install_requires=requires,
-    license='BSD',
+    license='TBD',
     zip_safe=False,
     classifiers=[
         'Framework :: Django',
