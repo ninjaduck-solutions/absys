@@ -31,12 +31,14 @@ help:
 	@echo "  coverage-html            to generate and open a HTML coverage report with the default Python"
 	@echo "  create-db                to create a new PostgreSQL database"
 	@echo "  create-db-user           to create a new PostgreSQL user"
+	@echo "	 createsuperuser          to create a superuser for the current project"
 	@echo "  drop-db                  to drop the PostgreSQL database"
 	@echo "  drop-db-user             to drop the PostgreSQL user"
 	@echo "  develop                  to install (or update) all packages required for development"
 	@echo "  dist                     to package a release"
 	@echo "  docs                     to build the project documentation as HTML"
 	@echo "  isort                    to run isort on the whole project"
+	@echo "  makemigrations           to build migrations after altering the models"
 	@echo "  migrate                  to synchronize Django's database state with the current set of models and migrations"
 	@echo "  open-docs                to open the project documentation in the default browser"
 	@echo "  runserver                to start Django's development Web server"
@@ -92,6 +94,9 @@ create-db:
 create-db-user:
 	psql -d postgres -c "CREATE USER \"absys\" WITH PASSWORD 'absys' CREATEDB;"
 
+createsuperuser:
+	envdir envs/$(ENV) python manage.py createsuperuser
+
 drop-db:
 	envdir envs/$(ENV) dropdb -i -e -U absys absys
 
@@ -112,6 +117,9 @@ docs:
 
 isort:
 	isort --recursive setup.py absys/ tests/
+
+makemigrations:
+	envdir envs/$(ENV) python manage.py makemigrations
 
 migrate:
 	envdir envs/$(ENV) python manage.py migrate
