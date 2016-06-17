@@ -14,9 +14,6 @@ def read(*paths):
         return f.read()
 
 extras_require = {
-    'mailgun': [
-        'django-mailgun==0.8.0',
-    ],
     'raven': [
         'raven==5.8.1',
     ],

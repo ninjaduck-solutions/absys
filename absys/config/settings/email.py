@@ -15,13 +15,3 @@ class Email(object):
     EMAIL_USE_SSL = values.BooleanValue(True)
 
     EMAIL_USE_TLS = values.BooleanValue(False)
-
-
-class Mailgun(object):
-    """Email settings for Mailgun."""
-
-    EMAIL_BACKEND = 'django_mailgun.MailgunBackend'
-
-    MAILGUN_ACCESS_KEY = values.SecretValue()
-
-    MAILGUN_SERVER_NAME = values.Value('mg.transcode.de')
