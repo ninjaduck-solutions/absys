@@ -13,7 +13,7 @@ class Schueler(models.Model):
         ordering = ['nachname', 'vorname']
 
     def __str__(self):
-        return "s.vorname s.nachname".format(s=self)
+        return "{s.vorname} {s.nachname}".format(s=self)
 
 
 class EinrichtungsArt(models.Model):
