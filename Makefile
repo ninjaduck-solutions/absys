@@ -31,7 +31,7 @@ help:
 	@echo "  coverage-html            to generate and open a HTML coverage report with the default Python"
 	@echo "  create-db                to create a new PostgreSQL database"
 	@echo "  create-db-user           to create a new PostgreSQL user"
-    @echo "  createsuperuser          to create a superuser for the current project"
+	@echo "  createsuperuser          to create a superuser for the current project"
 	@echo "  drop-db                  to drop the PostgreSQL database"
 	@echo "  drop-db-user             to drop the PostgreSQL user"
 	@echo "  develop                  to install (or update) all packages required for development"
