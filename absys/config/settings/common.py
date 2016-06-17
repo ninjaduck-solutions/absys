@@ -183,6 +183,7 @@ class Common(Configuration):
         'django.contrib.admin',
         'django.contrib.admindocs',
         'crispy_forms',
+        'absys.apps.anwesenheitsliste.apps.AnwesenheitslisteConfig',
     )
 
     CACHES = values. DictValue({
