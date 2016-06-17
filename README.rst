@@ -151,13 +151,20 @@ Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen we
         $ cd /vagrant
         $ make develop
 
+Arbeiten mit git-flow
+=====================
+
+We are using `git-flow <https://github.com/nvie/gitflow/>`_, a set of git
+extensions for a branching model introduced by Vincent Driessen. You can read
+more about it on `Vincent's blog
+<http://nvie.com/posts/a-successful-git-branching-model/>`_, where you can also
+find a `high-quality PDF illustrating the model
+<http://nvie.com/files/Git-branching-model.pdf>`_. For your daily workflow
+there also the `git-flow cheatsheet
+<https://danielkummer.github.io/git-flow-cheatsheet/>`_ created by Daniel
+Kummer, which is very helpful.
+
 Tipps
 =====
 
 - Du kannst `Zeal <https://zealdocs.org/>`_ auf deinem Host Betriebssystem installieren, um die Dokumentation aller im Projekt benutzten Softwarekomponenten offline verfügbar zu haben
-
-::
-
-    $ git flow init -d
-
-    $ git flow feature start new-feature
