@@ -116,9 +116,26 @@ Um am Django Projekt zu arbeiten müssen die folgenden Befehle ausgeführt werde
     $ cd /vagrant  # Wechselt ins Projektverzeichnis; nach jeder Anmeldung auszuführen
     $ make develop  # Installiert alle benötigten Pakete für das Projekt; nach jeder Veränderung an den verwendeten Django/Python Packages auszuführen
     $ make migrate  # Führt die Datenbank Migrationen aus; nach jeder Änderung an der Datenbank und beim initialen Erstellen nach 'make develop' auszuführen
+    $ envdir envs/dev/ python manage.py createsuperuser  # Einen neuen Django Superuser erstellen
     $ make runserver  #  Startet den Development-Webserver; vor jedem Versuch, die Website im Browser zu testen  auszuführen
 
 Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen werden.
+
+.. note::
+
+    Um alle Befehle zu sehen, die mit ``make`` ausgeführt werden können,
+    einfach ``make`` ohne weitere Argumente aufrufen:
+
+    ::
+
+        $ make
+
+    Für alle Django Management Commands, die nicht von ``make`` erfasst werden,
+    bitte folgendes Kommando benutzen:
+
+    ::
+
+        $ envdir envs/dev/ python manage.py <DJANGO_COMMAND>
 
 .. note::
 
