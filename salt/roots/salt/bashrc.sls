@@ -9,7 +9,9 @@ user-bashrc:
         export LANGUAGE=en_US.UTF-8
         export EDITOR=vim
         source ${HOME}/pyvenv/bin/activate
-        eval $(thefuck --alias)
+        if hash thefuck 2>/dev/null; then
+            eval $(thefuck --alias)
+        fi
         git config --get user.name >/dev/null
         if [ $? -ne 0 ]; then
             echo -n "Bitte Git Benutzernamen eingeben: "
