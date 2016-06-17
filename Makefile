@@ -5,7 +5,7 @@ SPHINXOPTS =
 
 .PHONY: help clean clean-build clean-docs clean-pyc clean-test coverage coverage-html \
     create-db develop docs isort migrate serve-docs runserver shell startapp test \
-    test-all
+    test-all glances
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
@@ -32,6 +32,7 @@ help:
 	@echo "  serve-docs               to serve the project documentation in the default browser"
 	@echo "  shell                    to start a Python interactive interpreter"
 	@echo "  startapp                 to create a new Django app"
+	@echo "  glances                  to start the Glances monitoring tool in web server mode"
 	@echo "  test                     to run unit tests quickly with the default Python"
 	@echo "  test-all                 to run unit tests on every Python version with tox"
 
@@ -121,6 +122,9 @@ startapp:
 	mkdir -p absys/apps/$$app_name; \
 	envdir envs/$(ENV) python manage.py startapp $$app_name absys/apps/$$app_name --template absys/config/app_template; \
 	echo "Don't forget to add 'absys.apps."$$app_name".apps."$$app_name_title"Config' to INSTALLED_APPS in 'absys.config/settings/common.py'!"
+
+glances:
+	glances -w
 
 test:
 	envdir envs/$(ENV) python -m pytest $(TEST_ARGS) tests/
