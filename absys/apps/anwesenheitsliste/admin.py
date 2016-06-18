@@ -15,5 +15,12 @@ class EinrichtungsArtAdmin(admin.ModelAdmin):
     list_display = ('name', 'kuerzel')
 
 
+class AnwesenheitAdmin(admin.ModelAdmin):
+    list_display = ('schueler', 'einrichtungs_art', 'datum', 'abwesend')
+    list_display_links = ('schueler', 'einrichtungs_art')
+    list_editable = ['abwesend']
+
+
 admin.site.register(models.Schueler, SchuelerAdmin)
 admin.site.register(models.EinrichtungsArt, EinrichtungsArtAdmin)
+admin.site.register(models.Anwesenheit, AnwesenheitAdmin)

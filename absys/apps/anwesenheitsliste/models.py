@@ -13,6 +13,10 @@ class Schueler(models.Model):
         ordering = ['nachname', 'vorname']
 
     def __str__(self):
+        return self.voller_name
+
+    @property
+    def voller_name(self):
         return "{s.vorname} {s.nachname}".format(s=self)
 
 
@@ -32,7 +36,7 @@ class EinrichtungsArt(models.Model):
 
 class Anwesenheit(models.Model):
 
-    schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
+    schueler = models.ForeignKey(Schueler, verbose_name="Schüler", related_name='anwesenheit')
     einrichtungs_art = models.ForeignKey(EinrichtungsArt, verbose_name="Einrichtung")
     datum = models.DateField("Datum")
     abwesend = models.BooleanField("Abwesend", default=False)
@@ -41,6 +45,7 @@ class Anwesenheit(models.Model):
         verbose_name = "Anwesenheit"
         verbose_name_plural = "Anwesenheiten"
         ordering = ['datum', 'schueler']
+        unique_together = ('schueler', 'einrichtungs_art', 'datum')
 
     def __str__(self):
         return "{s.schueler} in {s.einrichtungs_art} am {s.datum}".format(s=self)
