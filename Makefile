@@ -121,7 +121,7 @@ startapp:
 	app_name_title=`python -c "import sys; sys.stdout.write(sys.argv[1].title())" $$app_name`; \
 	mkdir -p absys/apps/$$app_name; \
 	envdir envs/$(ENV) python manage.py startapp $$app_name absys/apps/$$app_name --template absys/config/app_template; \
-	echo "Don't forget to add 'absys.apps."$$app_name".apps."$$app_name_title"Config' to INSTALLED_APPS in 'absys.config/settings/common.py'!"
+	echo "Don't forget to add 'absys.apps."$$app_name".apps."$$app_name_title"Config' to INSTALLED_APPS in 'absys/config/settings/common.py'!"
 
 glances:
 	glances -w

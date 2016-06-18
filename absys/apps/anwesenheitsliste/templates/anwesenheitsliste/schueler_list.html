@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Anwesenheitsliste {{ view.datum }}
+{% endblock title %}
+
+{% block content %}
+  <h2>{{ view.datum }}</h2>
+  {% crispy formset view.helper %}
+{% endblock content %}
