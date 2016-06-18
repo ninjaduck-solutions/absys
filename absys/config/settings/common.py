@@ -84,7 +84,7 @@ class Common(Configuration):
 
     # Internationalization
     # https://docs.djangoproject.com/en/dev/topics/i18n/
-    LANGUAGE_CODE = values.Value('en-us')
+    LANGUAGE_CODE = values.Value('de')
 
     TIME_ZONE = values.Value('Europe/Berlin')
 
