@@ -106,6 +106,8 @@ Nach dem Login in die Vagrant Box wird automatisch ein Python 3 Virtual
 Environment ``pyvenv`` aktiviert. Du erkennst das daran, dass der Name des
 Virtual Environment in Klammern vor dem Prompt steht.
 
+Weiterhin wird beim ersten Verbinden nach deinem Benutzernamen und deiner Mailadresse für git gefragt. Bitte eintragen.
+
 Arbeiten mit der Entwicklungsumgebung
 =====================================
 
@@ -120,6 +122,16 @@ Um am Django Projekt zu arbeiten müssen die folgenden Befehle ausgeführt werde
     $ make runserver  #  Startet den Development-Webserver; vor jedem Versuch, die Website im Browser zu testen  auszuführen
 
 Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen werden.
+
+.. note::
+
+	Wenn das Hostsystem MS Windows ist, werden Zeilenumbrüche anders kodiert. Deswegen kann es sein, dass ``git status`` alle Dateien, die getracked werden als ``modified`` erkennt. In diesem Fall BEVOR eigener Code produziert wird
+
+	::
+
+		$ git reset --hard
+
+	ausführen. Dies setzt die Änderungen zurück und ``git status`` sollte keine Dateien mehr als ``modified`` anzeigen.
 
 .. note::
 
@@ -151,6 +163,12 @@ Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen we
         $ cd /vagrant
         $ make develop
 
+.. note::
+	
+	Sollte die Vagrant Maschine einmal merkwürdiges Verhalten an den Tag legen, halte dich nicht lange mit der
+	Fehlersuche auf. Committe und pushe deine letzten Änderungen am Code und führe anschließend in dem Terminal,
+	in dem du erst ``vagrant up`` ausgeführt hast ``vagrant destroy`` und anschließend wieder ``vagrant up`` durch.
+
 Arbeiten mit git-flow
 =====================
 
@@ -167,4 +185,15 @@ Kummer, which is very helpful.
 Tipps
 =====
 
-- Du kannst `Zeal <https://zealdocs.org/>`_ auf deinem Host Betriebssystem installieren, um die Dokumentation aller im Projekt benutzten Softwarekomponenten offline verfügbar zu haben
+.. note::
+
+	Du kannst `Zeal <https://zealdocs.org/>`_ auf deinem Host Betriebssystem installieren, um die Dokumentation aller im Projekt benutzten Softwarekomponenten offline verfügbar zu haben
+
+.. note::
+
+	Wenn du Programmcode vor der Implementation auf der Shell (IPython) ausprobierst, Fehler auftreten und du Dateien (und zwar nur Dateien! Keine Klassen- oder Funktionsimports) re-importieren möchtest, müssen folgende Kommandos ausgeführt werden:
+
+	::
+
+		$ import imp
+		$ imp.reload(<Datei-/Modulname>)
