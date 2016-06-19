@@ -184,6 +184,7 @@ class Common(Configuration):
         'django.contrib.admindocs',
         'crispy_forms',
         'absys.apps.anwesenheitsliste.apps.AnwesenheitslisteConfig',
+        #'absys.apps.abrechnung.apps.AbrechnungConfig',
     )
 
     CACHES = values. DictValue({
