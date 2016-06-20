@@ -164,7 +164,7 @@ Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen we
         $ make develop
 
 .. note::
-	
+
 	Sollte die Vagrant Maschine einmal merkwürdiges Verhalten an den Tag legen, halte dich nicht lange mit der
 	Fehlersuche auf. Committe und pushe deine letzten Änderungen am Code und führe anschließend in dem Terminal,
 	in dem du erst ``vagrant up`` ausgeführt hast ``vagrant destroy`` und anschließend wieder ``vagrant up`` durch.
@@ -187,11 +187,14 @@ Tipps
 
 .. note::
 
-	Du kannst `Zeal <https://zealdocs.org/>`_ auf deinem Host Betriebssystem installieren, um die Dokumentation aller im Projekt benutzten Softwarekomponenten offline verfügbar zu haben
+	Du kannst `Zeal <https://zealdocs.org/>`_ auf deinem Host Betriebssystem installieren, um die Dokumentation aller
+	im Projekt benutzten Softwarekomponenten offline verfügbar zu machen.
 
 .. note::
 
-	Wenn du Programmcode vor der Implementation auf der Shell (IPython) ausprobierst, Fehler auftreten und du Dateien (und zwar nur Dateien! Keine Klassen- oder Funktionsimports) re-importieren möchtest, müssen folgende Kommandos ausgeführt werden:
+	Wenn du Programmcode vor der Implementation auf der Shell (IPython) ausprobierst, Fehler auftreten und du
+	Dateien (und zwar nur Dateien! Keine Klassen- oder Funktionsimports) re-importieren möchtest, müssen
+	folgende Kommandos ausgeführt werden:
 
 	::
 
