@@ -38,14 +38,7 @@ class Einrichtung(models.Model):
 
     name = models.CharField(max_length=15)
     kuerzel = models.CharField(max_length=1)
-    pflegesatz = models.DecimalField(max_digits=4, decimal_places=2)
-    pflegesatz_startdatum = models.DateField()
-    pflegesatz_enddatum = models.DateField()
-    pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2)
-    pflegesatz_ferien_startdatum = models.DateField()
-    pflegesatz_ferien_enddatum = models.DateField()
-    erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
-
+    
     class Meta:
       verbose_name_plural="Einrichtungen"
       verbose_name="Einrichtung"
@@ -128,6 +121,7 @@ class FehltageSchuelerErlaubt(models.Model):
     wert = models.PositiveIntegerField(default=45)
     startdatum = models.DateField()
     enddatum = models.DateField()
+    jahr = models.CharField(max_length=4)
 
     class Meta:
         verbose_name_plural = "Erlaubte Fehltage von Schuelern"
@@ -168,6 +162,23 @@ class SchuelerInEinrichtung(models.Model):
 #             datum = now().date
 #         return SchuelerInEinrichtung.objects.filter(schueler=self, austritt__lte=datum).first().einrichtung.pflegesatz
 
+class EinrichtungHatPflegesatz(models.Model):
+
+    name = models.ForeignKey(Einrichtung)
+    pflegesatz = models.DecimalField(max_digits=4, decimal_places=2)
+    pflegesatz_startdatum = models.DateField()
+    pflegesatz_enddatum = models.DateField()
+    pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2)
+    pflegesatz_ferien_startdatum = models.DateField()
+    pflegesatz_ferien_enddatum = models.DateField()
+    erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
+
+    class Meta:
+      verbose_name_plural="Pflegesätze in den Einrichtungen"
+      verbose_name="Pflegesatz der Einrichtung"
+
+    def __str__(self):
+        return '{s.name} | {s.pflegesatz} | {s.pflegesatz_ferien}'.format(s=self)
 
 class Anwesenheit(models.Model):
 
