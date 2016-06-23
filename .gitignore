@@ -62,3 +62,7 @@ docs/_build
 # SublimeText
 *.sublime-workspace
 *.sublime-project
+
+# PyCharm
+/idea
+*.idea
