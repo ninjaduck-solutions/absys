@@ -6,13 +6,77 @@ import datetime
 
 #Werte = namedtuple("Werte", ["summe_aller_fehltage", "fehltage", "zahltage", "betreuungstage", "aufwendungen"])
 
-def berechnePflegesatz(datum, schuelerid, einrichtungid):
+
+def erstelleListeAuswahlTage(startdatum, enddatum):
+    pass
+    return ListeAuswahlTage
+
+def erstelleListeAuswahlSchueler(Schueler_qs):
+    pass
+    return ListeAuswahlSchueler
+
+def subtrahiereSchliesstage(ListeAuswahlTage):
+    #fuer jeden Tag in ListeAuswahlTage
+    pass
+    return ListeAuswahlTageOhneSchliesstage
+
+def subtrahiereWochenendtage(ListeAuswahlTageOhneSchliesstage):
+    #fuer jeden Tag in ListeAuswahlTageOhneSchliesstage
+    pass
+    return ListeBetreuungstage
+
+def berechneAnwesenheitAnBetreuungstag(ListeBetreuungstage, ListeAuswahlSchueler):
+    #fuer jeden Tag in ListeBetreeungstage fuer jeden Schueler; hier kommen auch Fehltage rein
+    pass
+    return ListeAnwesenheitSchueler, Liste AbwesenheitSchueler
+
+def zaehleAnwesenheitstage(ListeAnwesenheitSchueler):
+    #Jeden Anwesenheitstag pro Schueler zaehlen
+    pass
+    return SummeAnwesenheitSchueler
+
+def zaehleAbwesenheitstage(ListeAnwesenheitSchueler):
+    pass
+    return SummeAbwesenheitstage
+
+def berechneSummeFehltageGesamt(SummeAbwesenheitstage):
+    pass
+    return SummeFehltage
+
+
+
+
+
+
+
+def TageZurAbrechnung()
+
+
+
+
+
+
+
+
+def istFerientag(datum):
+    if models.Ferien.objects.filter(startdatum__lte=datum, enddatum__gte=datum):
+        return 1
+    else:
+        return 0
+
+def findeEinrichtungHeraus(datum, schuelerid):
+     einrichtungid = models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, eintritt__lte=datum, austritt__gte=datum).values('einrichtung')
+     return einrichtungid
+
+#Problem: Bei Rueckgabefall 'Einrichtungspflegesatz' wird nicht das Datum herangezogen
+def berechnePflegesatz(datum, schuelerid):
+    einrichtungid = findeEinrichtungHeraus(datum, schuelerid)
     if istFerientag(datum) == 1:
         if models.SchuelerInEinrichtung.objects.filter \
                 (schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien=0) | \
                 models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien_startdatum__gt=datum) | \
                 models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien_enddatum__lt=datum):
-            return models.Einrichtung.objects.filter(id=einrichtungid).values('pflegesatz_ferien')
+            return models.EinrichtungHatPflegesatz.objects.filter(id=einrichtungid).values('pflegesatz_ferien')
         else:
             return models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid).values('pers_pflegesatz_ferien')
     else:
@@ -20,29 +84,9 @@ def berechnePflegesatz(datum, schuelerid, einrichtungid):
                 (schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz=0) | \
                 models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_startdatum__gt=datum) | \
                 models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_enddatum__lt=datum):
-            return models.Einrichtung.objects.filter(id=einrichtungid).values('pflegesatz')
+            return models.EinrichtungHatPflegesatz.objects.filter(id=einrichtungid).values('pflegesatz')
         else:
             return models.SchuelerInEinrichtung.objects.filter(schueler_id=schuelerid, einrichtung_id=einrichtungid).values('pers_pflegesatz')
-
-
-def istFerientag(datum):
-        if models.Ferien.objects.filter(startdatum__lte=datum, enddatum__gte=datum):
-            return 1
-        else:
-            return 0
-
-
-# def berechneAnwesenheitstage
-#     for models.Anwesenheit.objects.all()
-#         
-#         zaehlen = len(a)
-# 
-# 
-# 
-# 
-# 
-# def berechneFehltage
-
 
 # class Abrechnung(object):
 #     """
