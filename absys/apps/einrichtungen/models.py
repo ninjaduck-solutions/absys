@@ -93,11 +93,6 @@ class Schliesstag(TimeStampedModel):
     name = models.CharField(max_length=100)
     datum = models.DateField()
     art = models.CharField(max_length=50)
-    einrichtungen = models.ManyToManyField(
-        Einrichtung,
-        verbose_name='Einrichtungen',
-        related_name='schliesstage'
-    )
 
     class Meta:
         verbose_name = "Schliesstag"
