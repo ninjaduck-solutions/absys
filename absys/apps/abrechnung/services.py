@@ -73,13 +73,16 @@ def istFerientag(datum):
 def berechnePflegesatz(datum, schuelerid):
     einrichtungid = findeEinrichtungHeraus(datum, schuelerid)
     if istFerientag(datum) == 1:
-        if models.SchuelerInEinrichtung.objects.filter \
-                (schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz_ferien=0) | \
+        if models.SchuelerInEinrichtung.objects.filter(
+                    schueler_id=schuelerid, 
+                    einrichtung_id=einrichtungid, 
+                    pers_pflegesatz_ferien=0
+                    ) | 
                 models.SchuelerInEinrichtung.objects.filter(
                     schueler_id=schuelerid, 
                     einrichtung_id=einrichtungid, 
                     pers_pflegesatz_ferien_startdatum__gt=datum
-                    ) | \
+                    ) |
                 models.SchuelerInEinrichtung.objects.filter(
                     schueler_id=schuelerid, 
                     einrichtung_id=einrichtungid, 
@@ -96,12 +99,16 @@ def berechnePflegesatz(datum, schuelerid):
                 einrichtung_id=einrichtungid
                 ).values('pers_pflegesatz_ferien')
     else:
-        if models.SchuelerInEinrichtung.objects.filter \
-                (schueler_id=schuelerid, einrichtung_id=einrichtungid, pers_pflegesatz=0) | \
+        if models.SchuelerInEinrichtung.objects.filter(
+                    schueler_id=schuelerid, 
+                    einrichtung_id=einrichtungid, 
+                    pers_pflegesatz=0
+                    ) |
                 models.SchuelerInEinrichtung.objects.filter(
                     schueler_id=schuelerid, 
                     einrichtung_id=einrichtungid, 
-                    pers_pflegesatz_startdatum__gt=datum) | \
+                    pers_pflegesatz_startdatum__gt=datum
+                    ) |
                 models.SchuelerInEinrichtung.objects.filter(
                     schueler_id=schuelerid, 
                     einrichtung_id=einrichtungid, 
