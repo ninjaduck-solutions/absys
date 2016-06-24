@@ -22,6 +22,7 @@ extras_require = {
 requires = [
     'Django==1.8.7',
     'dj-database-url==0.3.0',
+    'django-autofixture==0.12.1',
     'django-braces==1.8.1',
     'django-configurations==1.0',
     'django-crispy-forms==1.5.2',
@@ -29,6 +30,7 @@ requires = [
     'django-grappelli==2.7.2',
     'django-model-utils==2.4',
     'envdir==0.7',
+    'fake-factory==0.5.7',
     'psycopg2==2.6.1',
     'pytz==2015.7',
 ]

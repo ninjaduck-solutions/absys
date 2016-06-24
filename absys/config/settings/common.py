@@ -183,6 +183,7 @@ class Common(Configuration):
         'django.contrib.admin',
         'django.contrib.admindocs',
         'crispy_forms',
+        'autofixture',
         'absys.apps.anwesenheitsliste.apps.AnwesenheitslisteConfig',
         'absys.apps.abrechnung.apps.AbrechnungConfig',
     )
