@@ -50,6 +50,16 @@ class SchuelerInEinrichtung(TimeStampedModel):
     def __str__(self):
         return '{s.schueler} in {s.einrichtung} ({s.eintritt} - {s.austritt}) '.format(s=self)
 
+    def get_pflegesatz(self, datum):
+        """
+        Gibt den Pflegesatz für das Datum zurück.
+
+        Entweder wird der persönliche Pflegesatz des Schülers zurückgegeben.
+        Wenn dieser jedoch 0 ist, wird der Einrichtungs-Pflegesatz
+        zurückgegeben.
+        """
+        pass
+
 
 class EinrichtungHatPflegesatz(TimeStampedModel):
 

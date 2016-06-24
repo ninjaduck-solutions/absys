@@ -87,6 +87,30 @@ class Schueler(TimeStampedModel):
         """
         return self.get_einrichtung(now().date())
 
+    def berechne_pflegesatz(self, datum):
+        """
+        Gibt den Pflegesatz eines Schülers in einer Einrichtung zu dem gegebenen Datum zurück.
+
+        TODO: Abfolge nicht korrekt - Ferien werden erst in SchuelerInEinrichtung geprüft.
+
+        1. Findet heraus, ob das Datum ein Ferien- oder Schultag ist.
+        2. Findet heraus, ob für den betreffenden Tag ein persönlicher Pflegesatz vorliegt.
+        2.1 Wenn ja: Gibt den persönlichen Pflegesatz für das Datum zurück.
+        2.2 Wenn nein: Gibt den Pflegesatz der Einrichtung des Schülers zurück.
+        """
+        # qs = self.schuelerineinrichtung_set.filter(  # war_angemeldet()
+        #     eintritt__gte=datum,
+        #     austritt__lte=datum
+        # ).filter(  # hat_ferien()
+        #     einrichtung__ferien__startdatum__lte=datum,
+        #     einrichtung__ferien__enddatum__gte=datum
+        # )
+        pflegesatz = 0
+        # qs = self.schuelerineinrichtung_set.war_angemeldet(datum)
+        # if qs.count():
+        #     pflegesatz = qs.get().get_pflegesatz(datum)
+        return pflegesatz
+
 
 class FehltageSchuelerErlaubt(TimeStampedModel):
 
