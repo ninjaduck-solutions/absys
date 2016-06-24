@@ -3,7 +3,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from model_utils.models import TimeStampedModel
 
-# TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs)
+# TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs) oder Model Field Validatoren umsetzen
 # TODO: Schueler kann inaktiv gesetzt werden -> Datensätze bleiben erhalten, wird aber nicht mehr berücksichtigt
 
 

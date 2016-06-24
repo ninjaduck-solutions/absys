@@ -3,7 +3,7 @@ from model_utils.models import TimeStampedModel
 
 from absys.apps.schueler.models import Schueler
 
-# TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs)
+# TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs) oder Model Field Validatoren umsetzen
 
 
 class Einrichtung(TimeStampedModel):
