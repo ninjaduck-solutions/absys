@@ -14,11 +14,11 @@ class Gruppe(models.Model):
     erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
-      verbose_name_plural="Gruppen"
-      verbose_name="Gruppe"
+        verbose_name_plural = "Gruppen"
+        verbose_name = "Gruppe"
 
     def __str__(self):
-       return self.name
+        return self.name
 
 
 class Stufe(models.Model):
@@ -28,8 +28,8 @@ class Stufe(models.Model):
     erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
-      verbose_name_plural="Stufen"
-      verbose_name="Stufe"
+        verbose_name_plural = "Stufen"
+        verbose_name = "Stufe"
 
     def __str__(self):
         return self.name
@@ -39,10 +39,10 @@ class Einrichtung(models.Model):
 
     name = models.CharField(max_length=15)
     kuerzel = models.CharField(max_length=1)
-    
+
     class Meta:
-      verbose_name_plural="Einrichtungen"
-      verbose_name="Einrichtung"
+        verbose_name_plural = "Einrichtungen"
+        verbose_name = "Einrichtung"
 
     def __str__(self):
         return self.kuerzel
@@ -57,8 +57,8 @@ class Ferien(models.Model):
     erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
-      verbose_name_plural="Ferien"
-      verbose_name="Ferien"
+        verbose_name_plural = "Ferien"
+        verbose_name = "Ferien"
 
     def __str__(self):
         return self.name
@@ -73,8 +73,8 @@ class Sozialamt(models.Model):
     erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
-      verbose_name_plural="Sozialaemter"
-      verbose_name="Sozialamt"
+        verbose_name_plural = "Sozialaemter"
+        verbose_name = "Sozialamt"
 
     def __str__(self):
         return self.name
@@ -88,8 +88,8 @@ class Schliesstag(models.Model):
     einrichtungen = models.ManyToManyField(Einrichtung, verbose_name='Einrichtungen', related_name='schliesstage')
 
     class Meta:
-      verbose_name_plural="Schliesstage"
-      verbose_name="Schliesstag"
+        verbose_name_plural = "Schliesstage"
+        verbose_name = "Schliesstag"
 
     def __str__(self):
         return '{s.name}: {s.datum}) '.format(s=self)
@@ -109,8 +109,8 @@ class Schueler(models.Model):
     erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
-      verbose_name_plural="Schueler"
-      verbose_name="Schueler"
+        verbose_name_plural = "Schueler"
+        verbose_name = "Schueler"
 
     def __str__(self):
         return '{s.nachname}, {s.vorname}'.format(s=self)
@@ -163,6 +163,7 @@ class SchuelerInEinrichtung(models.Model):
 #             datum = now().date
 #         return SchuelerInEinrichtung.objects.filter(schueler=self, austritt__lte=datum).first().einrichtung.pflegesatz
 
+
 class EinrichtungHatPflegesatz(models.Model):
 
     name = models.ForeignKey(Einrichtung)
@@ -175,11 +176,12 @@ class EinrichtungHatPflegesatz(models.Model):
     erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
-      verbose_name_plural="Pflegesätze in den Einrichtungen"
-      verbose_name="Pflegesatz der Einrichtung"
+        verbose_name_plural = "Pflegesätze in den Einrichtungen"
+        verbose_name = "Pflegesatz der Einrichtung"
 
     def __str__(self):
         return '{s.name} | {s.pflegesatz} | {s.pflegesatz_ferien}'.format(s=self)
+
 
 class Anwesenheit(models.Model):
 
@@ -194,7 +196,7 @@ class Anwesenheit(models.Model):
         unique_together = ('schueler', 'datum', 'abgerechnet')
 
     def __str__(self):
-        return  '{s.schueler} am {s.datum} | {s.anwesenheit}'.format(s=self)
+        return '{s.schueler} am {s.datum} | {s.anwesenheit}'.format(s=self)
 
     #def anzahlAnwesenheit
 
