@@ -198,6 +198,8 @@ class Anwesenheit(models.Model):
     def __str__(self):
         return '{s.schueler} am {s.datum} | {s.anwesenheit}'.format(s=self)
 
-    #def anzahlAnwesenheit
+    def anzahlAnwesenheit(self):
+        pass
 
-    #def anzahlFehltage
+    def anzahlFehltage(self):
+        pass
