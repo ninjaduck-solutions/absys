@@ -186,6 +186,8 @@ class Common(Configuration):
         'autofixture',
         'absys.apps.anwesenheitsliste.apps.AnwesenheitslisteConfig',
         'absys.apps.abrechnung.apps.AbrechnungConfig',
+        'absys.apps.schueler.apps.SchuelerConfig',
+        'absys.apps.einrichtungen.apps.EinrichtungenConfig',
     )
 
     CACHES = values. DictValue({

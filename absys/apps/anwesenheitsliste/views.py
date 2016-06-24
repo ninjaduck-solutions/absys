@@ -21,12 +21,13 @@ class AnwesenheitslisteFormSetView(extra_views.FormSetView):
                 abwesend = schueler.anwesenheit.get(datum=self.datum).abwesend
             except schueler.anwesenheit.model.DoesNotExist:
                 abwesend = False
+            einrichtung = schueler.get_einrichtung(self.datum)
             data.append({
                 'schueler_id': schueler.id,
-                'einrichtungs_art_id': schueler.einrichtungs_art.id,
+                'einrichtung_id': einrichtung.id,
                 'datum': self.datum,
                 'schueler': schueler.voller_name,
-                'einrichtungs_art_kuerzel': schueler.einrichtungs_art.kuerzel,
+                'einrichtung_kuerzel': einrichtung.kuerzel,
                 'abwesend': abwesend
             })
         return data
@@ -37,8 +38,8 @@ class AnwesenheitslisteFormSetView(extra_views.FormSetView):
                 schueler=models.Schueler.objects.get(
                     id=form.cleaned_data['schueler_id']
                 ),
-                einrichtungs_art=models.EinrichtungsArt.objects.get(
-                    id=form.cleaned_data['einrichtungs_art_id']
+                einrichtung=models.Einrichtung.objects.get(
+                    id=form.cleaned_data['einrichtung_id']
                 ),
                 datum=form.cleaned_data['datum'],
                 defaults={'abwesend': form.cleaned_data['abwesend']},
