@@ -4,6 +4,7 @@ from django.utils.functional import cached_property
 #from datetime import datetime
 
 # # TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs)
+# # TODO: Schueler kann inaktiv gesetzt werden -> Datensätze bleiben erhalten, wird aber nicht mehr berücksichtigt
 
 
 class Gruppe(models.Model):
