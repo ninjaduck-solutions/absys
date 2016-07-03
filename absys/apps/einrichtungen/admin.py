@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from . import models
 
-
+#TODO: dafuer sorgen, dass Zeilen richtig umgebrochen werden
 class SchuelerInEinrichtungAdmin(admin.TabularInline):
     model = models.SchuelerInEinrichtung
 
