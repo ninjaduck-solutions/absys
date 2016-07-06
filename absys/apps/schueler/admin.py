@@ -4,9 +4,9 @@ from . import models
 
 
 class SchuelerAdmin(admin.ModelAdmin):
-    list_display = ('nachname', 'vorname', 'geburtsdatum')
+    list_display = ('nachname', 'vorname', 'geburtsdatum', 'stufe', 'gruppe')
     list_display_links = ('nachname', 'vorname')
-    list_filter = ('einrichtungen',)
+    list_filter = ('stufe', 'gruppe')
     search_fields = ['vorname', 'nachname']
 
 
