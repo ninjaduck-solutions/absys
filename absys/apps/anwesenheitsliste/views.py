@@ -63,6 +63,14 @@ class AnwesenheitslisteFormSetView(extra_views.FormSetView):
     def datum(self):
         return timezone.make_aware(parse(self.kwargs['datum'])).date()
 
+    @property
+    def gestern(self):
+        return self.datum + timedelta(-1)
+
+    @property
+    def morgen(self):
+        return self.datum + timedelta(1)
+
 
 class AnwesenheitslisteHeuteRedirectView(RedirectView):
 

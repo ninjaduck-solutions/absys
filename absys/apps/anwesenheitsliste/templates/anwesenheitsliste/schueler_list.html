@@ -7,6 +7,18 @@
 {% endblock title %}
 
 {% block content %}
-  <h2>{{ view.datum }}</h2>
+  <h2 class="text-center">
+    <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.gestern %}">
+      <button type="button" class="btn btn-default" aria-label="Left Align">
+          <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+      </button>
+    </a>
+    {{ view.datum }}
+    <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.morgen %}">
+      <button type="button" class="btn btn-default" aria-label="Left Align">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+      </button>
+    </a>
+  </h2>
   {% crispy formset view.helper %}
 {% endblock content %}

@@ -22,11 +22,11 @@ class AnwesenheitFormHelper(FormHelper):
             Div(
                 Div(
                     Field('schueler',  disabled=''),
-                    css_class='col-md-8'
+                    css_class='col-md-8 dark'
                 ),
                 Div(
                     Field('einrichtung_kuerzel',  disabled=''),
-                    css_class='col-md-1'
+                    css_class='col-md-1 dark'
                 ),
                 Div(
                     Field('abwesend'),
