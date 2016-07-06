@@ -3,6 +3,8 @@ from model_utils.models import TimeStampedModel
 
 from absys.apps.schueler.models import Schueler
 
+from . import managers
+
 # TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs) oder Model Field Validatoren umsetzen
 
 
@@ -25,6 +27,16 @@ class Einrichtung(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    def hat_ferien(self, datum):
+        """
+        Findet heraus, ob an dem Datum ein Ferientag war oder nicht.
+        """
+        count = self.ferien.filter(
+            startdatum__lte=datum,
+            enddatum__gte=datum
+        ).count()
+        return bool(count)
+
 
 class SchuelerInEinrichtung(TimeStampedModel):
 
@@ -41,6 +53,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
     pers_pflegesatz_ferien_startdatum = models.DateField(blank=True, null=True)
     pers_pflegesatz_ferien_enddatum = models.DateField(blank=True, null=True)
 
+    objects = managers.SchuelerInEinrichtungQuerySet.as_manager()
+
     class Meta:
         ordering = ("schueler__nachname", "schueler__vorname", "-austritt")
         unique_together = ('schueler', 'einrichtung', 'eintritt', 'austritt')
@@ -54,16 +68,21 @@ class SchuelerInEinrichtung(TimeStampedModel):
         """
         Gibt den Pflegesatz für das Datum zurück.
 
-        Entweder wird der persönliche Pflegesatz des Schülers zurückgegeben.
-        Wenn dieser jedoch 0 ist, wird der Einrichtungs-Pflegesatz
-        zurückgegeben.
+        Es wird der persönliche Pflegesatz des Schülers zurückgegeben. Wenn
+        dieser jedoch 0 ist, wird der Einrichtungs-Pflegesatz zurückgegeben.
+
+        Es exitieren zwei Pflegesätze: Für Schultage und für Ferien.
         """
-        pass
+        if self.einrichtung.hat_ferien(datum):
+            pflegesatz = self.pers_pflegesatz_ferien or self.einrichtung.pflegesatz_ferien
+        else:
+            pflegesatz = self.pers_pflegesatz or self.einrichtung.pflegesatz
+        return pflegesatz
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):
 
-    name = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
+    einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
     pflegesatz = models.DecimalField(max_digits=4, decimal_places=2)
     pflegesatz_startdatum = models.DateField()
     pflegesatz_enddatum = models.DateField()
@@ -76,7 +95,7 @@ class EinrichtungHatPflegesatz(TimeStampedModel):
         verbose_name_plural = "Pflegesätze der Einrichtungen"
 
     def __str__(self):
-        return '{s.name} | {s.pflegesatz} | {s.pflegesatz_ferien}'.format(s=self)
+        return '{s.einrichtung} | {s.pflegesatz} | {s.pflegesatz_ferien}'.format(s=self)
 
 
 class Ferien(TimeStampedModel):

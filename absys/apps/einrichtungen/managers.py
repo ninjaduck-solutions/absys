@@ -1,10 +1,10 @@
-from django import models
+from django.db import models
 
 
 class SchuelerInEinrichtungQuerySet(models.QuerySet):
 
     def war_angemeldet(self, datum):
-        pass
-
-    def hat_ferien(self, datum):
-        pass
+        return self.filter(
+            eintritt__gte=datum,
+            austritt__lte=datum
+        )
