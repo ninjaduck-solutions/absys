@@ -41,15 +41,15 @@ from absys.apps.einrichtungen.models import Schliesstag
 
 def get_betreuungstage(startdatum, enddatum):
     """
-    Gibt alle Tage zwischen ``startdatum`` und ``enddatum`` zurück.
+    Gibt die Liste aller Tage zwischen ``startdatum`` und ``enddatum`` zurück.
 
     Alle Samstage, Sonntage und Schliesstage werden entfernt.
     """
     schliesstage = tuple(Schliesstag.objects.values_list('datum', flat=True))
-    betreuungstage = {}
+    betreuungstage = []
     tag = startdatum
     while tag < enddatum:
         if tag.isoweekday() not in (6, 7) and tag not in schliesstage:
-            betreuungstage[tag] = ''
+            betreuungstage.append(tag)
         tag += datetime.timedelta(1)
     return betreuungstage

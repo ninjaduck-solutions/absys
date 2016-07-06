@@ -10,6 +10,7 @@ from absys.apps.einrichtungen.models import Schliesstag
 def test_get_betreuungstage_skip_weekend(betreuungstage_start, betreuungstage_ende):
     betreuungstage = services.get_betreuungstage(betreuungstage_start, betreuungstage_ende)
     assert len(betreuungstage) == 5
+    assert betreuungstage[0] is betreuungstage_start
 
 
 @pytest.mark.django_db
