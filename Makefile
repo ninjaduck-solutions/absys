@@ -129,7 +129,10 @@ glances:
 	glances -w
 
 test:
-	envdir envs/$(ENV) python -m pytest $(TEST_ARGS) tests/
+	@echo "Use \"TEST_ARGS='--cache-clear'\" to clean up the test cache"
+	@echo "Use \"TEST_ARGS='--create-db'\" to force recreation of the test database"
+	@echo
+	envdir envs/$(ENV) python -m pytest --reuse-db --last-failed $(TEST_ARGS) tests/
 
 test-all:
 	tox
