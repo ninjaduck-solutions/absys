@@ -3,6 +3,7 @@ from datetime import timedelta
 from dateutil.parser import parse
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from django.views.generic import RedirectView
 import extra_views
 
 from . import forms
@@ -10,6 +11,7 @@ from . import models
 
 
 class AnwesenheitslisteFormSetView(extra_views.FormSetView):
+
     form_class = forms.AnwesenheitForm
     extra = 0
     template_name = 'anwesenheitsliste/schueler_list.html'
@@ -60,3 +62,10 @@ class AnwesenheitslisteFormSetView(extra_views.FormSetView):
     @property
     def datum(self):
         return timezone.make_aware(parse(self.kwargs['datum'])).date()
+
+
+class AnwesenheitslisteHeuteRedirectView(RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+        datum = timezone.now().date()
+        return reverse('anwesenheitsliste_anwesenheit_anwesenheitsliste', kwargs={'datum': datum})

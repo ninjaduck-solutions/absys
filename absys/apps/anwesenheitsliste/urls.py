@@ -8,4 +8,9 @@ urlpatterns = [
         views.AnwesenheitslisteFormSetView.as_view(),
         name='anwesenheitsliste_anwesenheit_anwesenheitsliste'
     ),
+    url(
+        r'^$',
+        views.AnwesenheitslisteHeuteRedirectView.as_view(),
+        name='anwesenheitsliste_anwesenheit_heute'
+    )
 ]
