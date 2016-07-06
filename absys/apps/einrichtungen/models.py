@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
 
 from absys.apps.schueler.models import Schueler
@@ -42,10 +43,11 @@ class SchuelerInEinrichtung(TimeStampedModel):
 
     schueler = models.ForeignKey(Schueler)
     einrichtung = models.ForeignKey(Einrichtung)
-    eintritt = models.DateField()
-    austritt = models.DateField()
-    sozialamtbescheid_von = models.DateField()
-    sozialamtbescheid_bis = models.DateField()
+    eintritt = models.DateField("Eintritt")
+    austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
+    sozialamtbescheid_von = models.DateField("Sozialamtbescheid von")
+    sozialamtbescheid_bis = models.DateField("Sozialamtbescheid bis",
+        help_text="Das Endes des Sozialamtbescheides muss nach dem Beginn erfolgen.")
     pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
     pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
@@ -78,6 +80,14 @@ class SchuelerInEinrichtung(TimeStampedModel):
         else:
             pflegesatz = self.pers_pflegesatz or self.einrichtung.pflegesatz
         return pflegesatz
+
+    def clean(self):
+        if self.eintritt > self.austritt:
+            raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
+        if self.sozialamtbescheid_von > self.sozialamtbescheid_bis:
+            raise ValidationError(
+                {'sozialamtbescheid_bis': self._meta.get_field('sozialamtbescheid_bis').help_text}
+            )
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):
