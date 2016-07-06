@@ -22,6 +22,8 @@ class AnwesenheitslisteFormSetView(extra_views.FormSetView):
             except schueler.anwesenheit.model.DoesNotExist:
                 abwesend = False
             einrichtung = schueler.get_einrichtung(self.datum)
+            if einrichtung is None:
+                continue
             data.append({
                 'schueler_id': schueler.id,
                 'einrichtung_id': einrichtung.id,

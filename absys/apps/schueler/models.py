@@ -75,10 +75,15 @@ class Schueler(TimeStampedModel):
         """
         Gibt die Einrichtung zum gewählten Datum zurück.
         """
-        return self.einrichtungen.get(
-            schuelerineinrichtung__eintritt__lte=datum,
-            schuelerineinrichtung__austritt__gte=datum
-        )
+        from absys.apps.einrichtungen.models import Einrichtung
+        try:
+            einrichtung = self.einrichtungen.get(
+                schuelerineinrichtung__eintritt__lte=datum,
+                schuelerineinrichtung__austritt__gte=datum
+            )
+        except Einrichtung.DoesNotExist:
+            einrichtung = None
+        return einrichtung
 
     @cached_property
     def einrichtung(self):
