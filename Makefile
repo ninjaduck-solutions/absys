@@ -5,7 +5,7 @@ SPHINXOPTS =
 
 .PHONY: help clean clean-build clean-docs clean-pyc clean-test coverage coverage-html \
     create-db develop docs isort migrate serve-docs runserver shell startapp test \
-    test-all glances fixtures reset-db
+    test-all glances fixtures reset-db test-fixtures
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
@@ -36,6 +36,7 @@ help:
 	@echo "  startapp                 to create a new Django app"
 	@echo "  glances                  to start the Glances monitoring tool in web server mode"
 	@echo "  test                     to run unit tests quickly with the default Python"
+	@echo "  test-fixtures            to show all pytest fixtures"
 	@echo "  test-all                 to run unit tests on every Python version with tox"
 
 
@@ -133,6 +134,9 @@ test:
 	@echo "Use \"TEST_ARGS='--create-db'\" to force recreation of the test database"
 	@echo
 	envdir envs/$(ENV) python -m pytest --reuse-db --last-failed $(TEST_ARGS) tests/
+
+test-fixtures:
+	envdir envs/$(ENV) python -m pytest --fixtures
 
 test-all:
 	tox
