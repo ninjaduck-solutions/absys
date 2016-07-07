@@ -8,7 +8,7 @@ class Anwesenheit(models.Model):
 
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler", related_name='anwesenheit')
     einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung")
-    datum = models.DateField("Datum")
+    datum = models.DateField("Datum", db_index=True)
     abwesend = models.BooleanField("Abwesend", default=False)
 
     class Meta:
