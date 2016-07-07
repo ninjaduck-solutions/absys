@@ -3,6 +3,8 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from model_utils.models import TimeStampedModel
 
+from absys.apps.abrechnung import services
+
 # TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs) oder Model Field Validatoren umsetzen
 # TODO: Schueler kann inaktiv gesetzt werden -> Datensätze bleiben erhalten, wird aber nicht mehr berücksichtigt
 
@@ -55,9 +57,9 @@ class Schueler(TimeStampedModel):
     geburtsdatum = models.DateField()
     bemerkungen = models.TextField(blank=True)
     buchungsnummer = models.CharField(max_length=13, blank=True)
-    stufe = models.ForeignKey(Stufe)
-    gruppe = models.ForeignKey(Gruppe)
-    sozialamt = models.ForeignKey(Sozialamt)
+    stufe = models.ForeignKey(Stufe, related_name='schueler')
+    gruppe = models.ForeignKey(Gruppe, related_name='schueler')
+    sozialamt = models.ForeignKey(Sozialamt, related_name='schueler')
 
     class Meta:
         ordering = ['nachname', 'vorname']
@@ -101,10 +103,17 @@ class Schueler(TimeStampedModel):
         """
         from absys.apps.einrichtungen.models import SchuelerInEinrichtung
         try:
-            pflegesatz = self.schuelerineinrichtung_set.war_angemeldet(datum).get().get_pflegesatz(datum)
+            pflegesatz = self.angemeldet_in_einrichtung.war_angemeldet(datum).get().get_pflegesatz(datum)
         except SchuelerInEinrichtung.DoesNotExist:
             pflegesatz = 0
         return pflegesatz
+
+    def erstelle_einzelabrechnung(self, startdatum, enddatum):
+        from absys.apps.einrichtungen.models import SchuelerInEinrichtung
+        kosten = {}
+        for tag in SchuelerInEinrichtung.get_betreuungstage(startdatum, enddatum):
+            kosten[tag] = self.berechne_pflegesatz(tag)
+        return kosten
 
 
 class FehltageSchuelerErlaubt(TimeStampedModel):

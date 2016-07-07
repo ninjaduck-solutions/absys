@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
@@ -41,8 +43,8 @@ class Einrichtung(TimeStampedModel):
 
 class SchuelerInEinrichtung(TimeStampedModel):
 
-    schueler = models.ForeignKey(Schueler)
-    einrichtung = models.ForeignKey(Einrichtung)
+    schueler = models.ForeignKey(Schueler, related_name='angemeldet_in_einrichtung')
+    einrichtung = models.ForeignKey(Einrichtung, related_name='anmeldungen')
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
     sozialamtbescheid_von = models.DateField("Sozialamtbescheid von")
