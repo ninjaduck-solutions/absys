@@ -1,8 +1,7 @@
-function submitForm() {
-  self.submit();
-}
-
 $(function() {
   var form = $('#anwesenheit_gruppe_formular')
-  form.onclick = function() {form.submit()};
+  if (form.length) {
+    $('select[name="gruppe_id"]').on('change', function() {form.submit()});
+    form.find('[type=submit]').hide();
+  }
 });
