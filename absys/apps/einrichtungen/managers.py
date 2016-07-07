@@ -5,6 +5,6 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
 
     def war_angemeldet(self, datum):
         return self.filter(
-            eintritt__gte=datum,
-            austritt__lte=datum
+            eintritt__lte=datum,
+            austritt__gte=datum
         )
