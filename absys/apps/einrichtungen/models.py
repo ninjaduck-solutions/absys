@@ -88,13 +88,13 @@ class SchuelerInEinrichtung(TimeStampedModel):
 
         Es exitieren zwei Pflegesätze: Für Schultage und für Ferien.
         """
-        if self.pers_pflegesatz_startdatum <= datum <= self.pers_pflegesatz_enddatum:
-            if self.einrichtung.hat_ferien(datum):
-                pflegesatz = self.pers_pflegesatz_ferien
-            else:
-                pflegesatz = self.pers_pflegesatz
-        else:
-            pflegesatz = 0.0
+        pflegesatz = 0.0
+        if self.pers_pflegesatz_startdatum and self.pers_pflegesatz_enddatum:
+            if self.pers_pflegesatz_startdatum <= datum <= self.pers_pflegesatz_enddatum:
+                if self.einrichtung.hat_ferien(datum):
+                    pflegesatz = self.pers_pflegesatz_ferien
+                else:
+                    pflegesatz = self.pers_pflegesatz
         return pflegesatz
 
     def get_pflegesatz(self, datum):

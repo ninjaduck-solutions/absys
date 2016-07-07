@@ -49,6 +49,14 @@ class TestSchuelerInEinrichtung:
             (datetime.date(2016, 6, 10), datetime.date(2016, 6, 17)),
             0.0,
         ),
+        (  # Persönlicher Pflegesatz ist definiert, aber Datum ist nicht definiert
+            10.0,
+            5.0,
+            None,
+            None,
+            (datetime.date(2016, 6, 10), datetime.date(2016, 6, 17)),
+            0.0,
+        ),
     ])
     def test_get_pers_pflegesatz(self, schueler_in_einrichtung, ferien_factory, ferien_daten, pflegesatz):
         ferien_factory.create(
