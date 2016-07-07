@@ -11,13 +11,13 @@
     <div class="col-md-4">
       <h3 class="text-left">
         <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.gestern %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
-          <button type="button" class="btn btn-default" aria-label="Left Align">
+          <button type="button" class="btn btn-primary" aria-label="Left Align">
             <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
           </button>
         </a>
         {{ view.datum }}
         <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.morgen %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
-          <button type="button" class="btn btn-default" aria-label="Left Align">
+          <button type="button" class="btn btn-primary" aria-label="Left Align">
             <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
           </button>
         </a>
@@ -26,20 +26,15 @@
     <div class="col-md-4"></div>
     <div class="col-md-4">
       {% if view.gruppen %}
-        <script>
-          function submitGruppeAnwesenheitsliste() {
-            $('#anwesenheit_gruppe_formular').submit();
-            return false;
-          }
-        </script>
         <h2 class="text-right">
-        <form id="anwesenheit_gruppe_formular">
-          <select class="form-control" name="gruppe_id" onclick="return submitGruppeAnwesenheitsliste();">
+        <form class="form-inline" id="anwesenheit_gruppe_formular">
+          <select class="form-control" name="gruppe_id">
             <option value="0">Bitte auswählen</option>
             {% for gruppe in view.gruppen %}
             <option value="{{ gruppe.id }}"{% if view.gruppe_id == gruppe.id %} selected{% endif %}>{{ gruppe.name }}</option>
             {% endfor %}
           </select>
+          <button class="btn btn-success" type="submit">OK</button>
         </form>
         </h2>
       {% endif %}

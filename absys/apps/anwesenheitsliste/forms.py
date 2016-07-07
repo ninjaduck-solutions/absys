@@ -17,7 +17,7 @@ class AnwesenheitFormHelper(FormHelper):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.add_input(Submit('submit', 'Speichern'))
+        self.add_input(Submit('submit', 'Speichern', css_class="btn btn-success"))
         self.layout = Layout(
             Div(
                 Div(
