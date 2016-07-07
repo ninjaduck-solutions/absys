@@ -80,8 +80,8 @@ class Schueler(TimeStampedModel):
         from absys.apps.einrichtungen.models import Einrichtung
         try:
             einrichtung = self.einrichtungen.get(
-                schuelerineinrichtung__eintritt__lte=datum,
-                schuelerineinrichtung__austritt__gte=datum
+                anmeldungen__eintritt__lte=datum,
+                anmeldungen__austritt__gte=datum
             )
         except Einrichtung.DoesNotExist:
             einrichtung = None
