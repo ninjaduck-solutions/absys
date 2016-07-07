@@ -40,6 +40,22 @@ class Einrichtung(TimeStampedModel):
         ).count()
         return bool(count)
 
+    def get_pflegesatz(self, datum):
+        """
+        Gibt den Pflegesatz der Einrichtung für das Datum zurück.
+
+        Es exitieren zwei Pflegesätze: Für Schultage und für Ferien.
+        """
+        pflegesaetze = self.pflegesaetze.get(
+            pflegesatz_startdatum__lte=datum,
+            pflegesatz_enddatum__gte=datum
+        )
+        if self.hat_ferien(datum):
+            pflegesatz = pflegesaetze.pflegesatz_ferien
+        else:
+            pflegesatz = pflegesaetze.pflegesatz
+        return pflegesatz
+
 
 class SchuelerInEinrichtung(TimeStampedModel):
 
@@ -51,11 +67,9 @@ class SchuelerInEinrichtung(TimeStampedModel):
     sozialamtbescheid_bis = models.DateField("Sozialamtbescheid bis",
         help_text="Das Endes des Sozialamtbescheides muss nach dem Beginn erfolgen.")
     pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
+    pers_pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
     pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
-    pers_pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    pers_pflegesatz_ferien_startdatum = models.DateField(blank=True, null=True)
-    pers_pflegesatz_ferien_enddatum = models.DateField(blank=True, null=True)
 
     objects = managers.SchuelerInEinrichtungQuerySet.as_manager()
 
@@ -66,22 +80,33 @@ class SchuelerInEinrichtung(TimeStampedModel):
         verbose_name_plural = "Schueler in den Einrichtungen"
 
     def __str__(self):
-        return '{s.schueler} in {s.einrichtung} ({s.eintritt} - {s.austritt}) '.format(s=self)
+        return '{s.schueler} in {s.einrichtung} ({s.eintritt} - {s.austritt})'.format(s=self)
+
+    def get_pers_pflegesatz(self, datum):
+        """
+        Gibt den persönlichen Pflegesatz des Schülers für das Datum zurück.
+
+        Es exitieren zwei Pflegesätze: Für Schultage und für Ferien.
+        """
+        if self.pers_pflegesatz_startdatum <= datum <= self.pers_pflegesatz_enddatum:
+            if self.einrichtung.hat_ferien(datum):
+                pflegesatz = self.pers_pflegesatz_ferien
+            else:
+                pflegesatz = self.pers_pflegesatz
+        else:
+            pflegesatz = 0.0
+        return pflegesatz
 
     def get_pflegesatz(self, datum):
         """
-        Gibt den Pflegesatz für das Datum zurück.
+        Gibt den Pflegesatz für den Schüler in einer Einrichtung für das Datum zurück.
 
         Es wird der persönliche Pflegesatz des Schülers zurückgegeben. Wenn
         dieser jedoch 0 ist, wird der Einrichtungs-Pflegesatz zurückgegeben.
 
         Es exitieren zwei Pflegesätze: Für Schultage und für Ferien.
         """
-        if self.einrichtung.hat_ferien(datum):
-            pflegesatz = self.pers_pflegesatz_ferien or self.einrichtung.pflegesatz_ferien
-        else:
-            pflegesatz = self.pers_pflegesatz or self.einrichtung.pflegesatz
-        return pflegesatz
+        return self.get_pers_pflegesatz(datum) or self.einrichtung.get_pflegesatz(datum)
 
     def clean(self):
         if self.eintritt > self.austritt:
@@ -112,11 +137,9 @@ class EinrichtungHatPflegesatz(TimeStampedModel):
 
     einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
     pflegesatz = models.DecimalField(max_digits=4, decimal_places=2)
+    pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2)
     pflegesatz_startdatum = models.DateField()
     pflegesatz_enddatum = models.DateField()
-    pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2)
-    pflegesatz_ferien_startdatum = models.DateField()
-    pflegesatz_ferien_enddatum = models.DateField()
 
     class Meta:
         verbose_name = "Pflegesatz einer Einrichtung"

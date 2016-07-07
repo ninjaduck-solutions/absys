@@ -5,6 +5,20 @@ from functools import partial
 
 import pytest
 from faker import Faker
+from pytest_factoryboy import register
+
+from . import factories
+
+
+register(factories.GruppeFactory)
+register(factories.StufeFactory)
+register(factories.SozialamtFactory)
+register(factories.SchuelerFactory)
+register(factories.EinrichtungFactory)
+register(factories.EinrichtungHatPflegesatzFactory)
+register(factories.SchuelerInEinrichtungFactory)
+register(factories.SchuelerAngemeldetInEinrichtungFactory)
+register(factories.FerienFactory)
 
 
 @pytest.fixture

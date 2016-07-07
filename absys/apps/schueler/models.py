@@ -3,8 +3,6 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from model_utils.models import TimeStampedModel
 
-from absys.apps.abrechnung import services
-
 # TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs) oder Model Field Validatoren umsetzen
 # TODO: Schueler kann inaktiv gesetzt werden -> Datensätze bleiben erhalten, wird aber nicht mehr berücksichtigt
 
@@ -105,7 +103,7 @@ class Schueler(TimeStampedModel):
         try:
             pflegesatz = self.angemeldet_in_einrichtung.war_angemeldet(datum).get().get_pflegesatz(datum)
         except SchuelerInEinrichtung.DoesNotExist:
-            pflegesatz = 0
+            pflegesatz = 0.0
         return pflegesatz
 
     def erstelle_einzelabrechnung(self, startdatum, enddatum):
