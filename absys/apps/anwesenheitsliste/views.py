@@ -57,7 +57,7 @@ class AnwesenheitslisteFormSetView(extra_views.FormSetView):
     def get_success_url(self):
         return reverse('anwesenheitsliste_anwesenheit_anwesenheitsliste',
             kwargs={'datum': self.datum + timedelta(1)}
-        )
+        ) + '?' + self.query_string
 
     @property
     def helper(self):
