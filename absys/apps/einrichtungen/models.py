@@ -1,5 +1,3 @@
-import datetime
-
 from django.db import models
 from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
@@ -115,22 +113,6 @@ class SchuelerInEinrichtung(TimeStampedModel):
             raise ValidationError(
                 {'sozialamtbescheid_bis': self._meta.get_field('sozialamtbescheid_bis').help_text}
             )
-
-    @classmethod
-    def get_betreuungstage(cls, startdatum, enddatum):
-        """
-        Gibt die Liste aller Tage zwischen ``startdatum`` und ``enddatum`` zurück.
-
-        Alle Samstage, Sonntage und Schliesstage werden entfernt.
-        """
-        schliesstage = tuple(Schliesstag.objects.values_list('datum', flat=True))
-        betreuungstage = []
-        tag = startdatum
-        while tag < enddatum:
-            if tag.isoweekday() not in (6, 7) and tag not in schliesstage:
-                betreuungstage.append(tag)
-            tag += datetime.timedelta(1)
-        return betreuungstage
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):

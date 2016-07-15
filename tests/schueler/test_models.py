@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 
 import pytest
 
@@ -37,3 +38,38 @@ class TestSchueler:
         if ergebnis == 0.0:
             with pytest.raises(schueler_in_einrichtung.DoesNotExist):
                 schueler.angemeldet_in_einrichtung.war_angemeldet(datum).get()
+
+    @pytest.mark.parametrize((
+        'schueler_in_einrichtung__pers_pflegesatz',
+        'schueler_in_einrichtung__pers_pflegesatz_startdatum',
+        'schueler_in_einrichtung__pers_pflegesatz_enddatum',
+        'schueler_in_einrichtung__eintritt',
+        'schueler_in_einrichtung__austritt',
+        'ergebnis',
+    ), [
+        (  # Datum für persönlichen Pflegesatz liegt im gültigen Zeitraum, Schüler war angemeldet
+            10.0,
+            datetime.date(2016, 7, 11),
+            datetime.date(2016, 7, 25),
+            datetime.date(2016, 7, 11),
+            datetime.date(2016, 7, 25),
+            10,
+        ),
+        (  # Datum für persönlichen Pflegesatz liegt nicht im gültigen Zeitraum, Schüler war nicht angemeldet
+            10.0,
+            datetime.date(2016, 5, 11),
+            datetime.date(2016, 5, 25),
+            datetime.date(2016, 5, 11),
+            datetime.date(2016, 5, 25),
+            0,
+        ),
+    ])
+    def test_erstelle_einzelabrechnung(self, schueler, schueler_in_einrichtung, ergebnis):
+        abrechnung = schueler.erstelle_einzelabrechnung(
+            datetime.date(2016, 7, 12),
+            datetime.date(2016, 7, 25)
+        )
+        assert len(abrechnung) == ergebnis
+        for datum, pflegesatz in abrechnung.items():
+            assert isinstance(datum, datetime.date)
+            assert isinstance(pflegesatz, Decimal)

@@ -107,10 +107,11 @@ class Schueler(TimeStampedModel):
         return pflegesatz
 
     def erstelle_einzelabrechnung(self, startdatum, enddatum):
-        from absys.apps.einrichtungen.models import SchuelerInEinrichtung
         kosten = {}
-        for tag in SchuelerInEinrichtung.get_betreuungstage(startdatum, enddatum):
-            kosten[tag] = self.berechne_pflegesatz(tag)
+        for schueler_in_einrichtung, tage in self.angemeldet_in_einrichtung.get_betreuungstage(startdatum, enddatum).items():
+            for tag in tage:
+                # TODO Spalten der zu erstellenden Tabelle Einzelabrechnung hinzufügen
+                kosten[tag] = self.berechne_pflegesatz(tag)
         return kosten
 
 
