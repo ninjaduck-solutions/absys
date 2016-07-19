@@ -61,13 +61,11 @@ class SchuelerInEinrichtung(TimeStampedModel):
     einrichtung = models.ForeignKey(Einrichtung, related_name='anmeldungen')
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
-    sozialamtbescheid_von = models.DateField("Sozialamtbescheid von")
-    sozialamtbescheid_bis = models.DateField("Sozialamtbescheid bis",
-        help_text="Das Endes des Sozialamtbescheides muss nach dem Beginn erfolgen.")
     pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     pers_pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2, default=0)
     pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
     pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
+    fehltage_erlaubt = models.PositiveIntegerField(default=45)
 
     objects = managers.SchuelerInEinrichtungQuerySet.as_manager()
 
@@ -109,10 +107,12 @@ class SchuelerInEinrichtung(TimeStampedModel):
     def clean(self):
         if self.eintritt > self.austritt:
             raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
-        if self.sozialamtbescheid_von > self.sozialamtbescheid_bis:
-            raise ValidationError(
-                {'sozialamtbescheid_bis': self._meta.get_field('sozialamtbescheid_bis').help_text}
-            )
+
+    def war_abwesend(self, startdatum, enddatum):
+        """Abwesenheitstage für Schüler in Einrichtung im gewählten Zeitraum ermitteln."""
+        return self.schueler.anwesenheit.filter(
+            einrichtung=self.einrichtung
+        ).war_abwesend(startdatum, enddatum)
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):
@@ -155,6 +155,8 @@ class Schliesstag(TimeStampedModel):
     name = models.CharField(max_length=100)
     datum = models.DateField()
     art = models.CharField(max_length=50)
+
+    # TODO ManyToManyField(Einrichtung) hinzufügen, siehe Ferien
 
     class Meta:
         verbose_name = "Schliesstag"

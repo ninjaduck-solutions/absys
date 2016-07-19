@@ -10,7 +10,6 @@ class SchuelerAdmin(admin.ModelAdmin):
     search_fields = ['vorname', 'nachname']
 
 
-admin.site.register(models.FehltageSchuelerErlaubt)
 admin.site.register(models.Gruppe)
 admin.site.register(models.Schueler, SchuelerAdmin)
 admin.site.register(models.Sozialamt)

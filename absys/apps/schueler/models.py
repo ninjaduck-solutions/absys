@@ -107,25 +107,4 @@ class Schueler(TimeStampedModel):
         return pflegesatz
 
     def erstelle_einzelabrechnung(self, startdatum, enddatum):
-        kosten = {}
-        for schueler_in_einrichtung, tage in self.angemeldet_in_einrichtung.get_betreuungstage(startdatum, enddatum).items():
-            for tag in tage:
-                # TODO Spalten der zu erstellenden Tabelle Einzelabrechnung hinzufügen
-                kosten[tag] = self.berechne_pflegesatz(tag)
-        return kosten
-
-
-class FehltageSchuelerErlaubt(TimeStampedModel):
-
-    schueler = models.ForeignKey(Schueler)
-    wert = models.PositiveIntegerField(default=45)
-    startdatum = models.DateField()
-    enddatum = models.DateField()
-    jahr = models.PositiveIntegerField()
-
-    class Meta:
-        verbose_name = "Erlaubte Fehltage eines Schülers"
-        verbose_name_plural = "Erlaubte Fehltage von Schülern"
-
-    def __str__(self):
-        return '{s.schueler}  | {s.startdatum} - {s.enddatum} | {s.wert}'.format(s=self)
+        return self.angemeldet_in_einrichtung.get_betreuungstage(startdatum, enddatum)
