@@ -187,6 +187,7 @@ class Common(Configuration):
         'absys.apps.abrechnung.apps.AbrechnungConfig',
         'absys.apps.schueler.apps.SchuelerConfig',
         'absys.apps.einrichtungen.apps.EinrichtungenConfig',
+        'import_export'
     )
 
     CACHES = values. DictValue({

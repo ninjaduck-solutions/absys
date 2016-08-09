@@ -32,6 +32,7 @@ requires = [
     'fake-factory==0.5.7',
     'psycopg2==2.6.1',
     'pytz==2015.7',
+    'django-import-export==0.4.5'
 ]
 
 # Hard linking doesn't work inside VirtualBox shared folders. This means that
