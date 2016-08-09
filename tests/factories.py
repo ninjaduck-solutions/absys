@@ -86,10 +86,6 @@ class SchuelerInEinrichtungFactory(factory.DjangoModelFactory):
     einrichtung = factory.SubFactory(EinrichtungFactory)
     eintritt = factory.LazyAttribute(lambda obj: now().date())
     austritt = factory.LazyAttribute(lambda obj: obj.eintritt + datetime.timedelta(obj.tage_angemeldet))
-    sozialamtbescheid_von = factory.LazyAttribute(lambda obj: now().date())
-    sozialamtbescheid_bis = factory.LazyAttribute(
-        lambda obj: obj.sozialamtbescheid_von + datetime.timedelta(obj.tage_sozialamtbescheid)
-    )
     pers_pflegesatz = factory.Faker('pydecimal', left_digits=2, right_digits=2, positive=True)
     pers_pflegesatz_ferien = factory.Faker('pydecimal', left_digits=2, right_digits=2, positive=True)
     pers_pflegesatz_startdatum = factory.LazyAttribute(lambda obj: now().date())
@@ -102,7 +98,6 @@ class SchuelerInEinrichtungFactory(factory.DjangoModelFactory):
 
     class Params:
         tage_angemeldet = 25
-        tage_sozialamtbescheid = 25
         tage_pers_pflegesatz = 10
 
 
