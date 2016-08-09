@@ -105,7 +105,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
         return self.get_pers_pflegesatz(datum) or self.einrichtung.get_pflegesatz(datum)
 
     def clean(self):
-        if self.eintritt > self.austritt:
+        if self.eintritt and self.austritt and self.eintritt > self.austritt:
             raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
 
     def war_abwesend(self, startdatum, enddatum):
