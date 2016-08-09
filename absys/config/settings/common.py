@@ -179,7 +179,6 @@ class Common(Configuration):
         'django.contrib.sites',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'grappelli',  # grappelli must be listed before django.contrib.admin!
         'django.contrib.admin',
         'django.contrib.admindocs',
         'crispy_forms',
@@ -197,8 +196,6 @@ class Common(Configuration):
     })
 
     CRISPY_TEMPLATE_PACK = values.Value('bootstrap3')
-
-    GRAPPELLI_ADMIN_TITLE = 'Absys Admin'
 
     EMAIL_SUBJECT_PREFIX = '[Absys]'
 
