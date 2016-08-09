@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
@@ -22,26 +25,27 @@ class Rechnung(TimeStampedModel):
 
     Es kann nur das Sozialamt nachträglich geändert werden.
 
-    Die anderen Felder werden beim Erstellen der Rechnung befüllt und können
-    nicht mehr verändert werden. Es sind keine Fremdschlüssel.
+    Die anderen Felder werden beim Erstellen oder beim Abschluss der Rechnung
+    befüllt und können nicht mehr verändert werden. Es sind keine
+    Fremdschlüssel.
 
-    - Name des Schülers
-    - Rechnungssumme
-    - Fehltage im Abrechnungszeitraum
-    - Fehltage seit Eintritt in die Einrichtung
-    - Bisher nicht abgerechnete Fehltage
-    - Maximale Fehltage zum Abrechnungstag
+    - Name des Schülers (Erstellung)
+    - Rechnungssumme (Abschluss)
+    - Fehltage im Abrechnungszeitraum (Erstellung)
+    - Fehltage seit Eintritt in die Einrichtung (Erstellung)
+    - Bisher nicht abgerechnete Fehltage (Abschluss)
+    - Maximale Fehltage zum Abrechnungstag (Erstellung)
     """
 
-    sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt")
-    schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
+    sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt", related_name='rechnungen')
+    schueler = models.ForeignKey(Schueler, verbose_name="Schüler", related_name='rechnungen')
     startdatum = models.DateField("Startdatum")
     enddatum = models.DateField("Enddatum",
         help_text="Das Enddatum muss nach dem Startdatum liegen.")
     name_schueler = models.CharField("Name des Schülers", max_length=61)
     summe = models.DecimalField("Gesamtbetrag", max_digits=7, decimal_places=2, null=True)
     fehltage = models.PositiveIntegerField("Fehltage im Abrechnungszeitraum", default=0)
-    fehltage_jahr = models.PositiveIntegerField("Fehltage seit Eintritt in die Einrichtung", default=0)
+    fehltage_gesamt = models.PositiveIntegerField("Fehltage seit Eintritt in die Einrichtung", default=0)
     fehltage_nicht_abgerechnet = models.PositiveIntegerField("Bisher nicht abgerechnete Fehltage", default=0)
     max_fehltage = models.PositiveIntegerField("Maximale Fehltage zum Abrechnungstag", default=0)
 
@@ -60,6 +64,7 @@ class Rechnung(TimeStampedModel):
     def clean(self):
         if self.startdatum > self.enddatum:
             raise ValidationError({'enddatum': self._meta.get_field('enddatum').help_text})
+        # TODO self.startdatum und self.enddatum müssen im gleichen Jahr liegen
         qs = Rechnung.objects.filter(
             models.Q(
                 models.Q(startdatum__range=(self.startdatum, self.enddatum)) |
@@ -78,20 +83,27 @@ class Rechnung(TimeStampedModel):
     def nummer(self):
         return "{:06d}".format(self.pk)
 
-    def fehlltage_abrechnen(self, schueler_in_einrichtung):
+    def fehltage_abrechnen(self, schueler_in_einrichtung):
         """
-        Nicht abgerechnete Instanzen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
+        Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
         """
-        # TODO Abrechnung fertig stellen
         qs = RechnungsPosition.objects.nicht_abgerechnet(schueler_in_einrichtung, self.enddatum)
-        limit = schueler_in_einrichtung.fehltage - 0
+        limit = (
+            schueler_in_einrichtung.fehltage_erlaubt -
+            schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(self.enddatum.year)
+        )
         for rechnung_pos in qs[:limit]:
             rechnung_pos.rechnung = self
             rechnung_pos.save()
 
     def abschliessen(self, schueler_in_einrichtung):
-        """Instanz für Schüler in Einrichtung aktualisieren (Summe und Fehltage)."""
-        pass
+        """Instanz für Schüler in Einrichtung aktualisieren (Summe und nicht abgerechnete Fehltage)."""
+        self.summe = self.positionen.aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
+        self.fehltage_nicht_abgerechnet = RechnungsPosition.objects.nicht_abgerechnet(
+            schueler_in_einrichtung,
+            self.enddatum
+        ).count()
+        self.save()
 
 
 class RechnungsPosition(TimeStampedModel):
@@ -129,7 +141,7 @@ class RechnungsPosition(TimeStampedModel):
     abwesend = models.BooleanField("Abwesenheit", default=False)
     pflegesatz = models.DecimalField("Pflegesatz", max_digits=4, decimal_places=2)
 
-    objects = managers.RechnungsPositionManager()
+    objects = managers.RechnungsPositionManager.from_queryset(managers.RechnungsPositionQuerySet)()
 
     class Meta:
         ordering = ('sozialamt', 'schueler', 'einrichtung', 'datum')

@@ -13,13 +13,19 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
 
     def get_betreuungstage(self, startdatum, enddatum):
         """
-        Gibt die Liste aller Tage zwischen ``startdatum`` und ``enddatum`` zurück.
+        Gibt ein ``dictionary`` mit :model:`einrichtungen.SchuelerInEinrichtung` Objekten als Schlüssel zurück.
+
+        Es werden nur die Objekte zurückgegeben, in denen der Schüler im
+        angegebenen Zeitraum angemeldet war.
+
+        Jeder Schlüssel enthält einen ``tuple`` von ``datetime`` Objekten, die
+        der Anzahl der Tage entsprechen, an denen der Schüler in der
+        Einrichtung angemeldet war.
 
         Alle Samstage, Sonntage und Schliesstage werden entfernt.
         """
         from .models import Schliesstag
         schliesstage = tuple(Schliesstag.objects.values_list('datum', flat=True))
-        betreuungstage = {}
         qs = self.filter(
             models.Q(eintritt__range=(startdatum, enddatum)) |
             models.Q(austritt__range=(startdatum, enddatum)),

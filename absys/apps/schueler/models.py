@@ -105,6 +105,3 @@ class Schueler(TimeStampedModel):
         except SchuelerInEinrichtung.DoesNotExist:
             pflegesatz = 0.0
         return pflegesatz
-
-    def erstelle_einzelabrechnung(self, startdatum, enddatum):
-        return self.angemeldet_in_einrichtung.get_betreuungstage(startdatum, enddatum)
