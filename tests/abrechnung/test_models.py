@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 from django.core.exceptions import ValidationError
+from django.utils.timezone import now
 
 
 @pytest.mark.django_db
@@ -27,9 +28,23 @@ class TestRechnungSozialamt:
                 enddatum=rechnung_sozialamt.enddatum + datetime.timedelta(enddatum_timedelta)
             ).clean()
 
-    def test_clean_start_ende(self, rechnung_sozialamt_factory):
+    def test_clean_start_nicht_nach_ende(self, rechnung_sozialamt_factory):
+        """Testet, dass ein ``ValidationError`` geworfen wird, wenn startdatum nach enddatum liegt."""
+        rechnung_sozialamt = rechnung_sozialamt_factory.build(zeitraum=-2)
+        with pytest.raises(ValidationError):
+            rechnung_sozialamt.clean()
+
+    def test_clean_start_ende_nicht_gleiches_jahr(self, rechnung_sozialamt_factory):
+        """Testet, dass ein ``ValidationError`` geworfen wird, wenn startdatum und enddatum nicht im gleichen Jahr liegen."""
+        rechnung_sozialamt = rechnung_sozialamt_factory.build(zeitraum=400)
+        with pytest.raises(ValidationError):
+            rechnung_sozialamt.clean()
+
+    def test_clean_ende_groesser_heute(self, rechnung_sozialamt_factory):
+        """Testet, dass ein ``ValidationError`` geworfen wird, wenn enddatum nach "Heute" liegt."""
         rechnung_sozialamt = rechnung_sozialamt_factory.build()
-        rechnung_sozialamt.startdatum = rechnung_sozialamt.enddatum + datetime.timedelta(2)
+        rechnung_sozialamt.startdatum = now().date()
+        rechnung_sozialamt.enddatum = now().date() + datetime.timedelta(1)
         with pytest.raises(ValidationError):
             rechnung_sozialamt.clean()
 

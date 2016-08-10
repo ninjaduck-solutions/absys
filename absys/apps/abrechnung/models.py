@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils.timezone import now
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
@@ -23,7 +24,9 @@ class RechnungSozialamt(TimeStampedModel):
     sozialamt_anschrift = models.TextField()
     startdatum = models.DateField("Startdatum")
     enddatum = models.DateField("Enddatum",
-        help_text="Das Enddatum muss nach dem Startdatum liegen.")
+        help_text=("Das Enddatum muss nach dem Startdatum liegen, ",
+            "darf aber nicht nach dem heutigen Datum liegen.",
+            " Außerdem müssen Startdatum und Enddatum im gleichen Jahr liegen."))
 
     objects = managers.RechnungSozialamtManager()
 
@@ -39,9 +42,15 @@ class RechnungSozialamt(TimeStampedModel):
 
     def clean(self):
         if self.startdatum > self.enddatum:
-            raise ValidationError({'enddatum': self._meta.get_field('enddatum').help_text})
-        # TODO self.startdatum und self.enddatum müssen im gleichen Jahr liegen
-        # TODO self.enddatum <= now()
+            raise ValidationError({'enddatum': "Das Enddatum muss nach dem Startdatum liegen."})
+        if self.enddatum > now().date():
+            raise ValidationError(
+                {'enddatum': "Das Enddatum darf nicht nach dem heutigen Datum liegen."}
+            )
+        if self.startdatum.year != self.enddatum.year:
+            raise ValidationError(
+                {'enddatum': "Startdatum und Enddatum müssen im gleichen Jahr liegen."}
+            )
         qs = RechnungSozialamt.objects.filter(
             models.Q(
                 models.Q(startdatum__range=(self.startdatum, self.enddatum)) |
