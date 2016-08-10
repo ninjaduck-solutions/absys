@@ -8,9 +8,9 @@ class RechnungManager(models.Manager):
 
     def _erstelle_rechnung(self, schueler_in_einrichtung, startdatum, enddatum):
         """Erstellt eine ``Rechnung``-Instanz für einen Schüler."""
-        fehltage = schueler_in_einrichtung.war_abwesend(startdatum, enddatum)
+        fehltage = schueler_in_einrichtung.war_abwesend(startdatum, enddatum).count()
         rechnung = self.model(
-            sozialamt=schueler_in_einrichtung.sozialamt,
+            sozialamt=schueler_in_einrichtung.schueler.sozialamt,
             schueler=schueler_in_einrichtung.schueler,
             startdatum=startdatum,
             enddatum=enddatum,
@@ -22,7 +22,7 @@ class RechnungManager(models.Manager):
             ),
             max_fehltage=schueler_in_einrichtung.fehltage_erlaubt,
         )
-        rechnung.full_clean()
+        rechnung.clean()
         rechnung.save()
         return rechnung
 
@@ -76,7 +76,7 @@ class RechnungsPositionQuerySet(models.QuerySet):
         """
         beginn = timezone.make_aware(datetime(jahr, 1, 1))
         if schueler_in_einrichtung.eintritt.year == jahr:
-            beginn = schueler_in_einrichtung.einrichtung.eintritt
+            beginn = schueler_in_einrichtung.eintritt
         return beginn
 
     def nicht_abgerechnet(self, schueler_in_einrichtung, enddatum):
