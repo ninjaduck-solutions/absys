@@ -136,7 +136,7 @@ test:
 	envdir envs/$(ENV) python -m pytest --reuse-db --last-failed $(TEST_ARGS) tests/
 
 test-fixtures:
-	envdir envs/$(ENV) python -m pytest --fixtures
+	envdir envs/$(ENV) python -m pytest --fixtures tests/
 
 test-all:
 	tox
