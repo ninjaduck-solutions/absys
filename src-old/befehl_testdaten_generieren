@@ -1,1 +1,0 @@
-./manage.py loadtestdata stammdaten.Sozialamt:5 stammdaten.Ferien:5 stammdaten.Schliesstag:5 stammdaten.Stufe:5 stammdaten.Schueler:5 stammdaten.Gruppe:5

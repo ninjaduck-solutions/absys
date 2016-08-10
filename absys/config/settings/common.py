@@ -179,12 +179,15 @@ class Common(Configuration):
         'django.contrib.sites',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'grappelli',  # grappelli must be listed before django.contrib.admin!
         'django.contrib.admin',
         'django.contrib.admindocs',
         'crispy_forms',
+        'autofixture',
         'absys.apps.anwesenheitsliste.apps.AnwesenheitslisteConfig',
         'absys.apps.abrechnung.apps.AbrechnungConfig',
+        'absys.apps.schueler.apps.SchuelerConfig',
+        'absys.apps.einrichtungen.apps.EinrichtungenConfig',
+        'import_export'
     )
 
     CACHES = values. DictValue({
@@ -194,8 +197,6 @@ class Common(Configuration):
     })
 
     CRISPY_TEMPLATE_PACK = values.Value('bootstrap3')
-
-    GRAPPELLI_ADMIN_TITLE = 'Absys Admin'
 
     EMAIL_SUBJECT_PREFIX = '[Absys]'
 

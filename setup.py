@@ -20,17 +20,19 @@ extras_require = {
 }
 
 requires = [
-    'Django==1.8.7',
-    'dj-database-url==0.3.0',
-    'django-braces==1.8.1',
-    'django-configurations==1.0',
-    'django-crispy-forms==1.5.2',
+    'Django==1.10',
+    'dj-database-url==0.4.1',
+    'django-autofixture==0.12.1',
+    'django-braces==1.9.0',
+    'django-configurations==2.0',
+    'django-crispy-forms==1.6.0',
     'django-extra-views==0.8.0',
-    'django-grappelli==2.7.2',
-    'django-model-utils==2.4',
+    'django-model-utils==2.5.1',
     'envdir==0.7',
+    'fake-factory==0.5.7',
     'psycopg2==2.6.1',
     'pytz==2015.7',
+    'django-import-export==0.4.5'
 ]
 
 # Hard linking doesn't work inside VirtualBox shared folders. This means that

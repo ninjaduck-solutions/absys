@@ -1,189 +1,153 @@
+from datetime import datetime
+
 from django.db import models
-#from django.utils.timezone import now
-from django.utils.functional import cached_property
-#from datetime import datetime
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from model_utils import Choices
+from model_utils.models import TimeStampedModel
 
-# # TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs)
+from absys.apps.einrichtungen.models import Einrichtung
+from absys.apps.schueler.models import Schueler, Sozialamt
 
-
-class Gruppe(models.Model):
-
-    name = models.CharField(max_length=5, default="")
-    bemerkungen = models.CharField(max_length=200)
-    erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
-
-    class Meta:
-      verbose_name_plural="Gruppen"
-      verbose_name="Gruppe"
-
-    def __str__(self):
-       return self.name
+from . import managers
 
 
-class Stufe(models.Model):
+class Rechnung(TimeStampedModel):
+    """
+    Metadaten einer Rechnung für einen Schüler in einem bestimmten Zeitraum.
 
-    name = models.CharField(max_length=5, default="")
-    bemerkungen = models.CharField(max_length=200)
-    erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
+    Die folgenden Felder sind pro Model-Instanz eindeutig:
 
-    class Meta:
-      verbose_name_plural="Stufen"
-      verbose_name="Stufe"
+    - Sozialamt (Fremdschlüssel)
+    - Schüler (Fremdschlüssel)
+    - Startdatum
+    - Enddatum
 
-    def __str__(self):
-        return self.name
+    Es kann nur das Sozialamt nachträglich geändert werden.
 
+    Die anderen Felder werden beim Erstellen oder beim Abschluss der Rechnung
+    befüllt und können nicht mehr verändert werden. Es sind keine
+    Fremdschlüssel.
 
-class Einrichtung(models.Model):
+    - Name des Schülers (Erstellung)
+    - Rechnungssumme (Abschluss)
+    - Fehltage im Abrechnungszeitraum (Erstellung)
+    - Fehltage seit Eintritt in die Einrichtung (Erstellung)
+    - Bisher nicht abgerechnete Fehltage (Abschluss)
+    - Maximale Fehltage zum Abrechnungstag (Erstellung)
+    """
 
-    name = models.CharField(max_length=15)
-    kuerzel = models.CharField(max_length=1)
-    pflegesatz = models.DecimalField(max_digits=4, decimal_places=2)
-    pflegesatz_startdatum = models.DateField()
-    pflegesatz_enddatum = models.DateField()
-    pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2)
-    pflegesatz_ferien_startdatum = models.DateField()
-    pflegesatz_ferien_enddatum = models.DateField()
-    erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
+    sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt", related_name='rechnungen')
+    schueler = models.ForeignKey(Schueler, verbose_name="Schüler", related_name='rechnungen')
+    startdatum = models.DateField("Startdatum")
+    enddatum = models.DateField("Enddatum",
+        help_text="Das Enddatum muss nach dem Startdatum liegen.")
+    name_schueler = models.CharField("Name des Schülers", max_length=61)
+    summe = models.DecimalField("Gesamtbetrag", max_digits=7, decimal_places=2, null=True)
+    fehltage = models.PositiveIntegerField("Fehltage im Abrechnungszeitraum", default=0)
+    fehltage_gesamt = models.PositiveIntegerField("Fehltage seit Eintritt in die Einrichtung", default=0)
+    fehltage_nicht_abgerechnet = models.PositiveIntegerField("Bisher nicht abgerechnete Fehltage", default=0)
+    max_fehltage = models.PositiveIntegerField("Maximale Fehltage zum Abrechnungstag", default=0)
 
-    class Meta:
-      verbose_name_plural="Einrichtungen"
-      verbose_name="Einrichtung"
-
-    def __str__(self):
-        return self.kuerzel
-
-
-class Ferien(models.Model):
-
-    name = models.CharField(max_length=10)
-    startdatum = models.DateField()
-    enddatum = models.DateField()
-    einrichtungen = models.ManyToManyField(Einrichtung, verbose_name='Einrichtungen', related_name='ferien')
-    erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
+    objects = managers.RechnungManager()
 
     class Meta:
-      verbose_name_plural="Ferien"
-      verbose_name="Ferien"
+        ordering = ('sozialamt', 'schueler', 'startdatum', 'enddatum')
+        unique_together = ('sozialamt', 'schueler', 'startdatum', 'enddatum')
+        verbose_name = "Rechnung"
+        verbose_name_plural = "Rechnungen"
 
     def __str__(self):
-        return self.name
+        msg = "Rechnung {s.nummer} Für {s.name_schueler} ({s.startdatum} - {s.enddatum})"
+        return msg.format(s=self)
+
+    def clean(self):
+        if self.startdatum > self.enddatum:
+            raise ValidationError({'enddatum': self._meta.get_field('enddatum').help_text})
+        # TODO self.startdatum und self.enddatum müssen im gleichen Jahr liegen
+        qs = Rechnung.objects.filter(
+            models.Q(
+                models.Q(startdatum__range=(self.startdatum, self.enddatum)) |
+                models.Q(enddatum__range=(self.startdatum, self.enddatum))
+            ) |
+            models.Q(startdatum__lte=self.startdatum, enddatum__gte=self.enddatum),
+            sozialamt=self.sozialamt,
+            schueler=self.schueler
+        )
+        if qs.count():
+            raise ValidationError(
+                {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."}
+            )
+
+    @property
+    def nummer(self):
+        return "{:06d}".format(self.pk)
+
+    def fehltage_abrechnen(self, schueler_in_einrichtung):
+        """
+        Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
+        """
+        qs = RechnungsPosition.objects.nicht_abgerechnet(schueler_in_einrichtung, self.enddatum)
+        limit = (
+            schueler_in_einrichtung.fehltage_erlaubt -
+            schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(self.enddatum.year)
+        )
+        for rechnung_pos in qs[:limit]:
+            rechnung_pos.rechnung = self
+            rechnung_pos.save()
+
+    def abschliessen(self, schueler_in_einrichtung):
+        """Instanz für Schüler in Einrichtung aktualisieren (Summe und nicht abgerechnete Fehltage)."""
+        self.summe = self.positionen.aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
+        self.fehltage_nicht_abgerechnet = RechnungsPosition.objects.nicht_abgerechnet(
+            schueler_in_einrichtung,
+            self.enddatum
+        ).count()
+        self.save()
 
 
-class Sozialamt(models.Model):
+class RechnungsPosition(TimeStampedModel):
+    """
+    Daten einer Rechnungsposition für einen Schüler an einem bestimmten Datum.
 
-    name = models.CharField(max_length=10, default="")
-    anschrift = models.CharField(max_length=20)
-    konto_iban = models.CharField(max_length=22)
-    konto_institut = models.CharField(max_length=10)
-    erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
+    Jede Rechnungsposition hat folgende Felder:
+
+    - Sozialamt (Fremdschlüssel)
+    - Schüler (Fremdschlüssel)
+    - Einrichtung (Fremdschlüssel)
+    - Rechnung (Fremdschlüssel oder None)
+    - Datum
+    - Einrichtung (String)
+    - Schul- oder Ferientag
+    - Abwesenheit
+    - Pflegesatz
+
+    Wenn der Wert von Rechnung ``None`` ist, wurde die ``RechnungsPosition``
+    noch nicht abgerechnet,
+    """
+
+    TAG_ART = Choices(
+        ('ferien', "Ferientag"),
+        ('schule', "Schultag"),
+    )
+    sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt")
+    schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
+    einrichtung = models.ForeignKey(Einrichtung, verbose_name="Schüler")
+    rechnung = models.ForeignKey(Rechnung, verbose_name="Rechnung", null=True,
+        related_name='positionen')
+    datum = models.DateField("Datum")
+    name_einrichtung = models.CharField("Einrichtung", max_length=20)
+    tag_art = models.CharField("Schul- oder Ferientag", choices=TAG_ART, default=TAG_ART.schule, max_length=20)
+    abwesend = models.BooleanField("Abwesenheit", default=False)
+    pflegesatz = models.DecimalField("Pflegesatz", max_digits=4, decimal_places=2)
+
+    objects = managers.RechnungsPositionManager.from_queryset(managers.RechnungsPositionQuerySet)()
 
     class Meta:
-      verbose_name_plural="Sozialaemter"
-      verbose_name="Sozialamt"
+        ordering = ('sozialamt', 'schueler', 'einrichtung', 'datum')
+        unique_together = ('schueler', 'datum')
+        verbose_name = "Rechnungsposition"
+        verbose_name_plural = "Rechnungspositionen"
 
     def __str__(self):
-        return self.name
-
-
-class Schliesstag(models.Model):
-
-    datum = models.DateField()
-    art = models.CharField(max_length=10, blank=True)
-    name = models.CharField(max_length=5, blank=True)
-    einrichtungen = models.ManyToManyField(Einrichtung, verbose_name='Einrichtungen', related_name='schliesstage')
-
-    class Meta:
-      verbose_name_plural="Schliesstage"
-      verbose_name="Schliesstag"
-
-    def __str__(self):
-        return '{s.name}: {s.datum}) '.format(s=self)
-
-
-class Schueler(models.Model):
-
-    nachname = models.CharField(max_length=10)
-    vorname = models.CharField(max_length=10)
-    geburtsdatum = models.DateField()
-    bemerkungen = models.TextField(max_length=100)
-    buchungsnummer = models.CharField(max_length=13, blank=True)
-    stufe = models.ForeignKey(Stufe)
-    gruppe = models.ForeignKey(Gruppe)
-    sozialamt = models.ForeignKey(Sozialamt)
-    einrichtungen = models.ManyToManyField(Einrichtung, through='SchuelerInEinrichtung')
-    erstellungsdatum = models.DateTimeField(auto_now_add=True, editable=False)
-
-    class Meta:
-      verbose_name_plural="Schueler"
-      verbose_name="Schueler"
-
-    def __str__(self):
-        return '{s.nachname}, {s.vorname}'.format(s=self)
-
-
-class FehltageSchuelerErlaubt(models.Model):
-
-    schueler = models.ForeignKey(Schueler)
-    wert = models.PositiveIntegerField(default=45)
-    startdatum = models.DateField()
-    enddatum = models.DateField()
-
-    class Meta:
-        verbose_name_plural = "Erlaubte Fehltage von Schuelern"
-        verbose_name = "Erlaubte Fehltage eines Schuelers"
-
-    def __str__(self):
-        return '{s.schueler}  | {s.startdatum} - {s.enddatum} | {s.wert}'.format(s=self)
-
-
-class SchuelerInEinrichtung(models.Model):
-
-    schueler = models.ForeignKey(Schueler)
-    einrichtung = models.ForeignKey(Einrichtung)
-    eintritt = models.DateField()
-    austritt = models.DateField()
-    sozialamtbescheid_von = models.DateField()
-    sozialamtbescheid_bis = models.DateField()
-    pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
-    pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
-    pers_pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    pers_pflegesatz_ferien_startdatum = models.DateField(blank=True, null=True)
-    pers_pflegesatz_ferien_enddatum = models.DateField(blank=True, null=True)
-
-    class Meta:
-        unique_together = ('schueler', 'einrichtung', 'eintritt', 'austritt')
-        verbose_name_plural = "Schueler in den Einrichtungen"
-        verbose_name = "Schueler in der Einrichtung"
-        ordering = ("schueler__nachname", "schueler__vorname", "-austritt")
-
-    def __str__(self):
-        return '{s.schueler} in {s.einrichtung} ({s.eintritt} - {s.austritt}) '.format(s=self)
-
-#     def pflegesatz(self, datum=None):
-#         if self.pers_pflegesatz:
-#             return self.pers_pflegesatz
-#         if not datum:
-#             datum = now().date
-#         return SchuelerInEinrichtung.objects.filter(schueler=self, austritt__lte=datum).first().einrichtung.pflegesatz
-
-
-class Anwesenheit(models.Model):
-
-    schueler = models.ForeignKey(Schueler)
-    datum = models.DateField()
-    anwesenheit = models.CharField(max_length=1)
-    abgerechnet = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name_plural = "Anwesenheiten der Schueler"
-        verbose_name = "Anwesenheit eines Schueler in einer Einrichtung"
-        unique_together = ('schueler', 'datum', 'abgerechnet')
-
-    def __str__(self):
-        return  '{s.schueler} am {s.datum} | {s.anwesenheit}'.format(s=self)
-
-    #def anzahlAnwesenheit
-
-    #def anzahlFehltage
+        return "Rechnungsposition für {s.schueler.voller_name} am {s.datum}".format(s=self)

@@ -2,204 +2,69 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+import django.utils.timezone
+import model_utils.fields
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('schueler', '0003_auto_20160719_1923'),
+        ('einrichtungen', '0009_auto_20160719_1923'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Anwesenheit',
+            name='Rechnung',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('datum', models.DateField()),
-                ('anwesenheit', models.CharField(max_length=1)),
-                ('abgerechnet', models.BooleanField(default=False)),
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('created', model_utils.fields.AutoCreatedField(editable=False, verbose_name='created', default=django.utils.timezone.now)),
+                ('modified', model_utils.fields.AutoLastModifiedField(editable=False, verbose_name='modified', default=django.utils.timezone.now)),
+                ('startdatum', models.DateField(verbose_name='Startdatum')),
+                ('enddatum', models.DateField(help_text='Das Enddatum muss nach dem Startdatum liegen.', verbose_name='Enddatum')),
+                ('name_schueler', models.CharField(max_length=61, verbose_name='Name des Schülers')),
+                ('summe', models.DecimalField(decimal_places=2, max_digits=7, verbose_name='Gesamtbetrag', null=True)),
+                ('fehltage', models.PositiveIntegerField(default=0, verbose_name='Fehltage im Abrechnungszeitraum')),
+                ('fehltage_gesamt', models.PositiveIntegerField(default=0, verbose_name='Fehltage seit Eintritt in die Einrichtung')),
+                ('fehltage_nicht_abgerechnet', models.PositiveIntegerField(default=0, verbose_name='Bisher nicht abgerechnete Fehltage')),
+                ('max_fehltage', models.PositiveIntegerField(default=0, verbose_name='Maximale Fehltage zum Abrechnungstag')),
+                ('schueler', models.ForeignKey(related_name='rechnungen', to='schueler.Schueler', verbose_name='Schüler')),
+                ('sozialamt', models.ForeignKey(related_name='rechnungen', to='schueler.Sozialamt', verbose_name='Sozialamt')),
             ],
             options={
-                'verbose_name': 'Anwesenheit eines Schueler in einer Einrichtung',
-                'verbose_name_plural': 'Anwesenheiten der Schueler',
+                'verbose_name': 'Rechnung',
+                'verbose_name_plural': 'Rechnungen',
+                'ordering': ('sozialamt', 'schueler', 'startdatum', 'enddatum'),
             },
         ),
         migrations.CreateModel(
-            name='Einrichtung',
+            name='RechnungsPosition',
             fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('name', models.CharField(max_length=15)),
-                ('kuerzel', models.CharField(max_length=1)),
-                ('pflegesatz', models.DecimalField(decimal_places=2, max_digits=4)),
-                ('pflegesatz_startdatum', models.DateField()),
-                ('pflegesatz_enddatum', models.DateField()),
-                ('pflegesatz_ferien', models.DecimalField(decimal_places=2, max_digits=4)),
-                ('pflegesatz_ferien_startdatum', models.DateField()),
-                ('pflegesatz_ferien_enddatum', models.DateField()),
-                ('erstellungsdatum', models.DateTimeField(auto_now_add=True)),
+                ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
+                ('created', model_utils.fields.AutoCreatedField(editable=False, verbose_name='created', default=django.utils.timezone.now)),
+                ('modified', model_utils.fields.AutoLastModifiedField(editable=False, verbose_name='modified', default=django.utils.timezone.now)),
+                ('datum', models.DateField(verbose_name='Datum')),
+                ('name_einrichtung', models.CharField(max_length=20, verbose_name='Einrichtung')),
+                ('tag_art', models.CharField(max_length=20, verbose_name='Schul- oder Ferientag', choices=[('ferien', 'Ferientag'), ('schule', 'Schultag')], default='schule')),
+                ('abwesend', models.BooleanField(default=False, verbose_name='Abwesenheit')),
+                ('pflegesatz', models.DecimalField(decimal_places=2, max_digits=4, verbose_name='Pflegesatz')),
+                ('einrichtung', models.ForeignKey(to='einrichtungen.Einrichtung', verbose_name='Schüler')),
+                ('rechnung', models.ForeignKey(related_name='positionen', null=True, to='abrechnung.Rechnung', verbose_name='Rechnung')),
+                ('schueler', models.ForeignKey(to='schueler.Schueler', verbose_name='Schüler')),
+                ('sozialamt', models.ForeignKey(to='schueler.Sozialamt', verbose_name='Sozialamt')),
             ],
             options={
-                'verbose_name': 'Einrichtung',
-                'verbose_name_plural': 'Einrichtungen',
+                'verbose_name': 'Rechnungsposition',
+                'verbose_name_plural': 'Rechnungspositionen',
+                'ordering': ('sozialamt', 'schueler', 'einrichtung', 'datum'),
             },
-        ),
-        migrations.CreateModel(
-            name='FehltageSchuelerErlaubt',
-            fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('wert', models.PositiveIntegerField(default=45)),
-                ('startdatum', models.DateField()),
-                ('enddatum', models.DateField()),
-            ],
-            options={
-                'verbose_name': 'Erlaubte Fehltage eines Schuelers',
-                'verbose_name_plural': 'Erlaubte Fehltage von Schuelern',
-            },
-        ),
-        migrations.CreateModel(
-            name='Ferien',
-            fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('name', models.CharField(max_length=10)),
-                ('startdatum', models.DateField()),
-                ('enddatum', models.DateField()),
-                ('erstellungsdatum', models.DateTimeField(auto_now_add=True)),
-                ('einrichtungen', models.ManyToManyField(to='abrechnung.Einrichtung', verbose_name='Einrichtungen', related_name='ferien')),
-            ],
-            options={
-                'verbose_name': 'Ferien',
-                'verbose_name_plural': 'Ferien',
-            },
-        ),
-        migrations.CreateModel(
-            name='Gruppe',
-            fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('name', models.CharField(default='', max_length=5)),
-                ('bemerkungen', models.CharField(max_length=200)),
-                ('erstellungsdatum', models.DateTimeField(auto_now_add=True)),
-            ],
-            options={
-                'verbose_name': 'Gruppe',
-                'verbose_name_plural': 'Gruppen',
-            },
-        ),
-        migrations.CreateModel(
-            name='Schliesstag',
-            fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('datum', models.DateField()),
-                ('art', models.CharField(blank=True, max_length=10)),
-                ('name', models.CharField(blank=True, max_length=5)),
-                ('einrichtungen', models.ManyToManyField(to='abrechnung.Einrichtung', verbose_name='Einrichtungen', related_name='schliesstage')),
-            ],
-            options={
-                'verbose_name': 'Schliesstag',
-                'verbose_name_plural': 'Schliesstage',
-            },
-        ),
-        migrations.CreateModel(
-            name='Schueler',
-            fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('nachname', models.CharField(max_length=10)),
-                ('vorname', models.CharField(max_length=10)),
-                ('geburtsdatum', models.DateField()),
-                ('bemerkungen', models.TextField(max_length=100)),
-                ('buchungsnummer', models.CharField(blank=True, max_length=13)),
-                ('erstellungsdatum', models.DateTimeField(auto_now_add=True)),
-            ],
-            options={
-                'verbose_name': 'Schueler',
-                'verbose_name_plural': 'Schueler',
-            },
-        ),
-        migrations.CreateModel(
-            name='SchuelerInEinrichtung',
-            fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('eintritt', models.DateField()),
-                ('austritt', models.DateField()),
-                ('sozialamtbescheid_von', models.DateField()),
-                ('sozialamtbescheid_bis', models.DateField()),
-                ('pers_pflegesatz', models.DecimalField(default=0, decimal_places=2, max_digits=4)),
-                ('pers_pflegesatz_startdatum', models.DateField(blank=True, null=True)),
-                ('pers_pflegesatz_enddatum', models.DateField(blank=True, null=True)),
-                ('pers_pflegesatz_ferien', models.DecimalField(default=0, decimal_places=2, max_digits=4)),
-                ('pers_pflegesatz_ferien_startdatum', models.DateField(blank=True, null=True)),
-                ('pers_pflegesatz_ferien_enddatum', models.DateField(blank=True, null=True)),
-                ('einrichtung', models.ForeignKey(to='abrechnung.Einrichtung')),
-                ('schueler', models.ForeignKey(to='abrechnung.Schueler')),
-            ],
-            options={
-                'verbose_name': 'Schueler in der Einrichtung',
-                'verbose_name_plural': 'Schueler in den Einrichtungen',
-                'ordering': ('schueler__nachname', 'schueler__vorname', '-austritt'),
-            },
-        ),
-        migrations.CreateModel(
-            name='Sozialamt',
-            fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('name', models.CharField(default='', max_length=10)),
-                ('anschrift', models.CharField(max_length=20)),
-                ('konto_iban', models.CharField(max_length=22)),
-                ('konto_institut', models.CharField(max_length=10)),
-                ('erstellungsdatum', models.DateTimeField(auto_now_add=True)),
-            ],
-            options={
-                'verbose_name': 'Sozialamt',
-                'verbose_name_plural': 'Sozialaemter',
-            },
-        ),
-        migrations.CreateModel(
-            name='Stufe',
-            fields=[
-                ('id', models.AutoField(serialize=False, auto_created=True, verbose_name='ID', primary_key=True)),
-                ('name', models.CharField(default='', max_length=5)),
-                ('bemerkungen', models.CharField(max_length=200)),
-                ('erstellungsdatum', models.DateTimeField(auto_now_add=True)),
-            ],
-            options={
-                'verbose_name': 'Stufe',
-                'verbose_name_plural': 'Stufen',
-            },
-        ),
-        migrations.AddField(
-            model_name='schueler',
-            name='einrichtungen',
-            field=models.ManyToManyField(to='abrechnung.Einrichtung', through='abrechnung.SchuelerInEinrichtung'),
-        ),
-        migrations.AddField(
-            model_name='schueler',
-            name='gruppe',
-            field=models.ForeignKey(to='abrechnung.Gruppe'),
-        ),
-        migrations.AddField(
-            model_name='schueler',
-            name='sozialamt',
-            field=models.ForeignKey(to='abrechnung.Sozialamt'),
-        ),
-        migrations.AddField(
-            model_name='schueler',
-            name='stufe',
-            field=models.ForeignKey(to='abrechnung.Stufe'),
-        ),
-        migrations.AddField(
-            model_name='fehltageschuelererlaubt',
-            name='schueler',
-            field=models.ForeignKey(to='abrechnung.Schueler'),
-        ),
-        migrations.AddField(
-            model_name='anwesenheit',
-            name='schueler',
-            field=models.ForeignKey(to='abrechnung.Schueler'),
         ),
         migrations.AlterUniqueTogether(
-            name='schuelerineinrichtung',
-            unique_together=set([('schueler', 'einrichtung', 'eintritt', 'austritt')]),
+            name='rechnungsposition',
+            unique_together=set([('schueler', 'datum')]),
         ),
         migrations.AlterUniqueTogether(
-            name='anwesenheit',
-            unique_together=set([('schueler', 'datum', 'abgerechnet')]),
+            name='rechnung',
+            unique_together=set([('sozialamt', 'schueler', 'startdatum', 'enddatum')]),
         ),
     ]

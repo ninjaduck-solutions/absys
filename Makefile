@@ -5,7 +5,7 @@ SPHINXOPTS =
 
 .PHONY: help clean clean-build clean-docs clean-pyc clean-test coverage coverage-html \
     create-db develop docs isort migrate serve-docs runserver shell startapp test \
-    test-all glances
+    test-all glances fixtures reset-db test-fixtures
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
@@ -25,15 +25,18 @@ help:
 	@echo "  develop                  to install (or update) all packages required for development"
 	@echo "  dist                     to package a release"
 	@echo "  docs                     to build the project documentation as HTML"
+	@echo "  fixtures                 to load fixtures for development"
 	@echo "  isort                    to run isort on the whole project"
 	@echo "  makemigrations           to build migrations after altering the models"
 	@echo "  migrate                  to synchronize Django's database state with the current set of models and migrations"
+	@echo "  reset-db                 to reset the PostgreSQL database"
 	@echo "  runserver                to start Django's development Web server"
 	@echo "  serve-docs               to serve the project documentation in the default browser"
 	@echo "  shell                    to start a Python interactive interpreter"
 	@echo "  startapp                 to create a new Django app"
 	@echo "  glances                  to start the Glances monitoring tool in web server mode"
 	@echo "  test                     to run unit tests quickly with the default Python"
+	@echo "  test-fixtures            to show all pytest fixtures"
 	@echo "  test-all                 to run unit tests on every Python version with tox"
 
 
@@ -72,19 +75,19 @@ coverage-html: coverage
 	python -c "import os, webbrowser; webbrowser.open('file://{}/htmlcov/index.html'.format(os.getcwd()))"
 
 create-db:
-	envdir envs/$(ENV) createdb -U absys -l en_US.utf-8 -E utf-8 -O absys -T template0 -e absys
+	sudo -u postgres createdb -l en_US.utf-8 -E utf-8 -O absys -T template0 -e absys
 
 create-db-user:
-	psql -d postgres -c "CREATE USER \"absys\" WITH PASSWORD 'absys' CREATEDB;"
+	sudo -u postgres psql -d postgres -c "CREATE USER \"absys\" WITH PASSWORD 'absys' CREATEDB;"
 
 createsuperuser:
-	envdir envs/$(ENV) python manage.py createsuperuser
+	envdir envs/$(ENV) python manage.py createsuperuser --email ada@example.com
 
 drop-db:
-	envdir envs/$(ENV) dropdb -i -e -U absys absys
+	sudo -u postgres dropdb -i -e absys
 
 drop-db-user:
-	dropuser -i -e absys
+	sudo -u postgres dropuser -i -e absys
 
 develop:
 	pip install -U pip setuptools wheel
@@ -127,7 +130,29 @@ glances:
 	glances -w
 
 test:
-	envdir envs/$(ENV) python -m pytest $(TEST_ARGS) tests/
+	@echo "Use \"TEST_ARGS='--cache-clear'\" to clean up the test cache"
+	@echo "Use \"TEST_ARGS='--create-db'\" to force recreation of the test database"
+	@echo
+	envdir envs/$(ENV) python -m pytest --reuse-db --last-failed $(TEST_ARGS) tests/
+
+test-fixtures:
+	envdir envs/$(ENV) python -m pytest --fixtures
 
 test-all:
 	tox
+
+fixtures:
+	envdir envs/$(ENV) python manage.py loaddata sites.json
+	envdir envs/$(ENV) python manage.py loadtestdata schueler.Stufe:2
+	envdir envs/$(ENV) python manage.py loadtestdata schueler.Gruppe:2
+	envdir envs/$(ENV) python manage.py loadtestdata schueler.Sozialamt:2
+	envdir envs/$(ENV) python manage.py loadtestdata schueler.Schueler:10
+	envdir envs/$(ENV) python manage.py loadtestdata schueler.FehltageSchuelerErlaubt:10
+	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.Einrichtung:4
+	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.SchuelerInEinrichtung:80
+	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.EinrichtungHatPflegesatz:8
+	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.Ferien:4
+	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.Schliesstag:10
+	envdir envs/$(ENV) python manage.py createsuperuser --email ada@example.com
+
+reset-db: drop-db create-db migrate

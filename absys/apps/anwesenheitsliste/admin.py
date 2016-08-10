@@ -1,26 +1,29 @@
 from django.contrib import admin
 
+from import_export import resources
+from import_export.admin import ImportExportActionModelAdmin
+
 from . import models
 
 
-class SchuelerAdmin(admin.ModelAdmin):
-    list_display = ('nachname', 'vorname', 'einrichtungs_art')
-    list_display_links = ('nachname', 'vorname')
-    list_editable = ['einrichtungs_art']
-    list_filter = ('einrichtungs_art',)
-    search_fields = ['vorname', 'nachname']
+class AnwesenheitenResource(resources.ModelResource):
+
+    class Meta:
+    	model = models.Anwesenheit
+    	fields = (
+    		'schueler__vorname', 
+    		'schueler__nachname', 
+    		'schueler__buchungsnummer',
+    		'einrichtung__name',
+    		)
 
 
-class EinrichtungsArtAdmin(admin.ModelAdmin):
-    list_display = ('name', 'kuerzel')
+class AnwesenheitAdmin(ImportExportActionModelAdmin):
 
-
-class AnwesenheitAdmin(admin.ModelAdmin):
-    list_display = ('schueler', 'einrichtungs_art', 'datum', 'abwesend')
-    list_display_links = ('schueler', 'einrichtungs_art')
+    list_display = ('schueler', 'einrichtung', 'datum', 'abwesend')
+    list_display_links = ('schueler', 'einrichtung')
     list_editable = ['abwesend']
 
+    resource_class = AnwesenheitenResource
 
-admin.site.register(models.Schueler, SchuelerAdmin)
-admin.site.register(models.EinrichtungsArt, EinrichtungsArtAdmin)
 admin.site.register(models.Anwesenheit, AnwesenheitAdmin)

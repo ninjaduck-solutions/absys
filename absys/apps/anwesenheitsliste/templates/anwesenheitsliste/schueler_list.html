@@ -7,6 +7,38 @@
 {% endblock title %}
 
 {% block content %}
-  <h2>{{ view.datum }}</h2>
+  <div class="page-header row well well-sm">
+    <div class="col-md-4">
+      <h3 class="text-left">
+        <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.gestern %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
+          <button type="button" class="btn btn-primary" aria-label="Left Align">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+          </button>
+        </a>
+        {{ view.datum }}
+        <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.morgen %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
+          <button type="button" class="btn btn-primary" aria-label="Left Align">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+          </button>
+        </a>
+      </h3>
+    </div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      {% if view.gruppen %}
+        <h2 class="text-right">
+        <form class="form-inline" id="anwesenheit_gruppe_formular">
+          <select class="form-control" name="gruppe_id">
+            <option value="0">Bitte auswählen</option>
+            {% for gruppe in view.gruppen %}
+            <option value="{{ gruppe.id }}"{% if view.gruppe_id == gruppe.id %} selected{% endif %}>{{ gruppe.name }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-success" type="submit">OK</button>
+        </form>
+        </h2>
+      {% endif %}
+    </div>
+  </div>
   {% crispy formset view.helper %}
 {% endblock content %}
