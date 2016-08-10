@@ -4,27 +4,7 @@ from django.db import models, transaction
 from django.utils import timezone
 
 
-class RechnungManager(models.Manager):
-
-    def _erstelle_rechnung(self, schueler_in_einrichtung, startdatum, enddatum):
-        """Erstellt eine ``Rechnung``-Instanz für einen Schüler."""
-        fehltage = schueler_in_einrichtung.war_abwesend(startdatum, enddatum).count()
-        rechnung = self.model(
-            sozialamt=schueler_in_einrichtung.schueler.sozialamt,
-            schueler=schueler_in_einrichtung.schueler,
-            startdatum=startdatum,
-            enddatum=enddatum,
-            name_schueler=schueler_in_einrichtung.schueler.voller_name,
-            fehltage=fehltage,
-            fehltage_gesamt=(
-                schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(enddatum.year) +
-                fehltage
-            ),
-            max_fehltage=schueler_in_einrichtung.fehltage_erlaubt,
-        )
-        rechnung.clean()
-        rechnung.save()
-        return rechnung
+class RechnungSozialamtManager(models.Manager):
 
     @transaction.atomic
     def rechnungslauf(self, sozialamt, startdatum, enddatum):
@@ -37,10 +17,18 @@ class RechnungManager(models.Manager):
         4. Noch nicht abgerechnete ``RechnungsPosition``-Instanzen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
         5. ``Rechnung``-Instanz pro Schüler aktualisieren (Summe und Fehltage).
         """
-        from .models import RechnungsPosition
+        from .models import Rechnung, RechnungsPosition
+        rechnung_sozialamt = self.model(
+            sozialamt=sozialamt,
+            sozialamt_anschrift=sozialamt.anschrift,
+            startdatum=startdatum,
+            enddatum=enddatum
+        )
+        rechnung_sozialamt.clean()
+        rechnung_sozialamt.save()
         for schueler in sozialamt.schueler.all():
             for schueler_in_einrichtung, tage in schueler.angemeldet_in_einrichtung.get_betreuungstage(startdatum, enddatum).items():
-                rechnung = self._erstelle_rechnung(schueler_in_einrichtung, startdatum, enddatum)
+                rechnung = Rechnung.objects.erstelle_rechnung(rechnung_sozialamt, schueler_in_einrichtung)
                 tage_abwesend = schueler_in_einrichtung.war_abwesend(startdatum, enddatum)
                 for tag in tage:
                     if tag in tage_abwesend:
@@ -50,10 +38,35 @@ class RechnungManager(models.Manager):
                 rechnung.fehltage_abrechnen(schueler_in_einrichtung)
                 rechnung.abschliessen(schueler_in_einrichtung)
 
+
+class RechnungManager(models.Manager):
+
+    def erstelle_rechnung(self, rechnung_sozialamt, schueler_in_einrichtung):
+        """Erstellt eine ``Rechnung``-Instanz für einen Schüler."""
+        fehltage = schueler_in_einrichtung.war_abwesend(
+            rechnung_sozialamt.startdatum, rechnung_sozialamt.enddatum
+        ).count()
+        rechnung = self.model(
+            rechnung_sozialamt=rechnung_sozialamt,
+            schueler=schueler_in_einrichtung.schueler,
+            name_schueler=schueler_in_einrichtung.schueler.voller_name,
+            fehltage=fehltage,
+            fehltage_gesamt=(
+                schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(
+                    rechnung_sozialamt.enddatum.year
+                ) + fehltage
+            ),
+            max_fehltage=schueler_in_einrichtung.fehltage_erlaubt,
+        )
+        rechnung.save()
+        return rechnung
+
     def letzte_rechnung(self, jahr):
         """Gibt die letzte Rechnung im angegebenen Jahr zurück."""
         jahr_beginn = timezone.make_aware(datetime(jahr, 1, 1))
-        return self.filter(startdatum__gte=jahr_beginn).order_by('-startdatum').first()
+        return self.filter(
+            rechnung_sozialamt__startdatum__gte=jahr_beginn
+        ).order_by('-rechnung_sozialamt__startdatum').first()
 
     def letzte_rechnung_fehltage_gesamt(self, jahr):
         """

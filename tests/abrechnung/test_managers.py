@@ -6,7 +6,7 @@ from absys.apps.abrechnung import models
 
 
 @pytest.mark.django_db
-class TestRechnungManager:
+class TestRechnungSozialamtManager:
 
     @pytest.mark.parametrize((
         'schueler_in_einrichtung__eintritt',
@@ -43,17 +43,22 @@ class TestRechnungManager:
     def test_rechnungslauf(self, sozialamt, schueler_in_einrichtung, einrichtung_hat_pflegesatz, anzahl):
         start = datetime.date(2016, 6, 12)
         ende = datetime.date(2016, 6, 17)
+        assert models.RechnungSozialamt.objects.count() == 0
         assert models.Rechnung.objects.count() == 0
-        models.Rechnung.objects.rechnungslauf(sozialamt, start, ende)
+        models.RechnungSozialamt.objects.rechnungslauf(sozialamt, start, ende)
+        assert models.RechnungSozialamt.objects.count() == 1
         assert models.Rechnung.objects.count() == anzahl
-        # TODO Nachfolgende Assertions in Tests für Rechnung Model verschieben
+        # TODO Nachfolgende Assertions in Tests für RechnungSozialamt und Rechnung Models verschieben
         if anzahl:
+            rechnung_sozialamt = models.RechnungSozialamt.objects.first()
+            assert rechnung_sozialamt.sozialamt == sozialamt
+            assert rechnung_sozialamt.sozialamt_anschrift == sozialamt.anschrift
+            assert rechnung_sozialamt.startdatum == start
+            assert rechnung_sozialamt.enddatum == ende
+            assert rechnung_sozialamt.enddatum > rechnung_sozialamt.startdatum
             rechnung = models.Rechnung.objects.first()
-            assert rechnung.sozialamt == sozialamt
+            assert rechnung.rechnung_sozialamt == rechnung_sozialamt
             assert rechnung.schueler == schueler_in_einrichtung.schueler
-            assert rechnung.startdatum == start
-            assert rechnung.enddatum == ende
-            assert rechnung.enddatum > rechnung.startdatum
             assert rechnung.name_schueler == schueler_in_einrichtung.schueler.voller_name
             assert rechnung.summe > 0
             assert rechnung.fehltage == rechnung.fehltage_gesamt == rechnung.fehltage_nicht_abgerechnet == 0

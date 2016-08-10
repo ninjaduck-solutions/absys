@@ -1,8 +1,5 @@
-from datetime import datetime
-
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.utils import timezone
 from model_utils import Choices
 from model_utils.models import TimeStampedModel
 
@@ -12,20 +9,66 @@ from absys.apps.schueler.models import Schueler, Sozialamt
 from . import managers
 
 
+class RechnungSozialamt(TimeStampedModel):
+    """
+    Eine Sozialamtsrechnung fasst mehrere Rechnungen zusammen.
+
+    - Sozialamt (Fremdschlüssel)
+    - Sozialamt Anschrift
+    - Startdatum
+    - Enddatum
+    """
+
+    sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt", related_name='rechnungen')
+    sozialamt_anschrift = models.TextField()
+    startdatum = models.DateField("Startdatum")
+    enddatum = models.DateField("Enddatum",
+        help_text="Das Enddatum muss nach dem Startdatum liegen.")
+
+    objects = managers.RechnungSozialamtManager()
+
+    class Meta:
+        ordering = ('-startdatum', '-enddatum', 'sozialamt')
+        unique_together = ('sozialamt', 'startdatum', 'enddatum')
+        verbose_name = "Sozialamtsrechnung"
+        verbose_name_plural = "Sozialamtsrechnungen"
+
+    def __str__(self):
+        msg = "Sozialamtsrechnung {s.nummer} für {s.sozialamt} ({s.startdatum} - {s.enddatum})"
+        return msg.format(s=self)
+
+    def clean(self):
+        if self.startdatum > self.enddatum:
+            raise ValidationError({'enddatum': self._meta.get_field('enddatum').help_text})
+        # TODO self.startdatum und self.enddatum müssen im gleichen Jahr liegen
+        # TODO self.enddatum <= now()
+        qs = RechnungSozialamt.objects.filter(
+            models.Q(
+                models.Q(startdatum__range=(self.startdatum, self.enddatum)) |
+                models.Q(enddatum__range=(self.startdatum, self.enddatum))
+            ) |
+            models.Q(startdatum__lte=self.startdatum, enddatum__gte=self.enddatum),
+            sozialamt=self.sozialamt
+        )
+        if qs.count():
+            raise ValidationError(
+                {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."}
+            )
+
+    @property
+    def nummer(self):
+        return "S{:06d}".format(self.pk)
+
+
 class Rechnung(TimeStampedModel):
     """
     Metadaten einer Rechnung für einen Schüler in einem bestimmten Zeitraum.
 
-    Die folgenden Felder sind pro Model-Instanz eindeutig:
+    Pro Model-Instanz eindeutig:
 
-    - Sozialamt (Fremdschlüssel)
     - Schüler (Fremdschlüssel)
-    - Startdatum
-    - Enddatum
 
-    Es kann nur das Sozialamt nachträglich geändert werden.
-
-    Die anderen Felder werden beim Erstellen oder beim Abschluss der Rechnung
+    Die folgenden Felder werden beim Erstellen oder Abschluss der Rechnung
     befüllt und können nicht mehr verändert werden. Es sind keine
     Fremdschlüssel.
 
@@ -37,11 +80,9 @@ class Rechnung(TimeStampedModel):
     - Maximale Fehltage zum Abrechnungstag (Erstellung)
     """
 
-    sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt", related_name='rechnungen')
+    rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
+        related_name='rechnungen')
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler", related_name='rechnungen')
-    startdatum = models.DateField("Startdatum")
-    enddatum = models.DateField("Enddatum",
-        help_text="Das Enddatum muss nach dem Startdatum liegen.")
     name_schueler = models.CharField("Name des Schülers", max_length=61)
     summe = models.DecimalField("Gesamtbetrag", max_digits=7, decimal_places=2, null=True)
     fehltage = models.PositiveIntegerField("Fehltage im Abrechnungszeitraum", default=0)
@@ -52,45 +93,32 @@ class Rechnung(TimeStampedModel):
     objects = managers.RechnungManager()
 
     class Meta:
-        ordering = ('sozialamt', 'schueler', 'startdatum', 'enddatum')
-        unique_together = ('sozialamt', 'schueler', 'startdatum', 'enddatum')
+        ordering = ('-rechnung_sozialamt__startdatum', '-rechnung_sozialamt__enddatum',
+            'rechnung_sozialamt', 'schueler')
+        unique_together = ('rechnung_sozialamt', 'schueler')
         verbose_name = "Rechnung"
         verbose_name_plural = "Rechnungen"
 
     def __str__(self):
-        msg = "Rechnung {s.nummer} Für {s.name_schueler} ({s.startdatum} - {s.enddatum})"
+        msg = "Rechnung {s.nummer} für {s.name_schueler} ({s.startdatum} - {s.enddatum})"
         return msg.format(s=self)
-
-    def clean(self):
-        if self.startdatum > self.enddatum:
-            raise ValidationError({'enddatum': self._meta.get_field('enddatum').help_text})
-        # TODO self.startdatum und self.enddatum müssen im gleichen Jahr liegen
-        qs = Rechnung.objects.filter(
-            models.Q(
-                models.Q(startdatum__range=(self.startdatum, self.enddatum)) |
-                models.Q(enddatum__range=(self.startdatum, self.enddatum))
-            ) |
-            models.Q(startdatum__lte=self.startdatum, enddatum__gte=self.enddatum),
-            sozialamt=self.sozialamt,
-            schueler=self.schueler
-        )
-        if qs.count():
-            raise ValidationError(
-                {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."}
-            )
 
     @property
     def nummer(self):
-        return "{:06d}".format(self.pk)
+        return "R{:06d}".format(self.pk)
 
     def fehltage_abrechnen(self, schueler_in_einrichtung):
         """
         Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
         """
-        qs = RechnungsPosition.objects.nicht_abgerechnet(schueler_in_einrichtung, self.enddatum)
+        qs = RechnungsPosition.objects.nicht_abgerechnet(
+            schueler_in_einrichtung, self.rechnung_sozialamt.enddatum
+        )
         limit = (
             schueler_in_einrichtung.fehltage_erlaubt -
-            schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(self.enddatum.year)
+            schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(
+                self.rechnung_sozialamt.enddatum.year
+            )
         )
         for rechnung_pos in qs[:limit]:
             rechnung_pos.rechnung = self
@@ -101,7 +129,7 @@ class Rechnung(TimeStampedModel):
         self.summe = self.positionen.aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
         self.fehltage_nicht_abgerechnet = RechnungsPosition.objects.nicht_abgerechnet(
             schueler_in_einrichtung,
-            self.enddatum
+            self.rechnung_sozialamt.enddatum
         ).count()
         self.save()
 
