@@ -209,6 +209,6 @@ class Common(Configuration):
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 
-    LOGIN_URL = '/benutzer/anmelden/'
-    LOGOUT_URL = '/benutzer/abmelden/'
+    LOGIN_URL = '/anmeldung/'
+    LOGOUT_URL = '/anmeldung/abmelden/'
     LOGIN_REDIRECT_URL = '/'
