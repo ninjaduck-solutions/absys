@@ -22,4 +22,7 @@ class Anwesenheit(models.Model):
         unique_together = ('schueler', 'einrichtung', 'datum')
 
     def __str__(self):
-        return "{s.schueler} in {s.einrichtung} am {s.datum}".format(s=self)
+        if self.pk:
+            return "{s.schueler} in {s.einrichtung} am {s.datum}".format(s=self)
+        else:
+            return str(self.datum)
