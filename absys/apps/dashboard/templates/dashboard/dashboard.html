@@ -6,9 +6,27 @@
 
 {% block content %}
 
-<!-- <div class="panel panel-default">
-    <div class="panel-heading">Panel Heading</div>
-    <div class="panel-body">Panel Content</div>
-</div> -->
+<div class="container-fluid">
+
+<div class="panel panel col-md-12">
+</div>
+
+<center>
+
+    <div class="panel panel-default col-md-4" style="background-color: Orange">
+        <div class="panel-body" style="background-color: Orange"><a href="/abrechnung"><h1>Rechnungen</h1></a></div>
+    </div>
+
+    <div class="panel panel-default col-md-4" style="background-color: Tomato">
+        <div class="panel-body" style="background-color: Tomato"><a href="/anwesenheitsliste"><h1>Anwesenheiten</h1></a></div>
+    </div>
+
+    <div class="panel panel-default col-md-4" style="background-color: LightGreen">
+        <div class="panel-body" style="background-color: LightGreen"><a href="/admin"><h1>Verwaltung</h1></a></div>
+    </div>
+
+</center>
+
+</div>
 
 {% endblock content %}
