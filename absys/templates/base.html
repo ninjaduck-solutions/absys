@@ -7,7 +7,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Absys - {% block title %}{% endblock %}</title>
+        <title>Absys{% block title %}{% endblock %}</title>
         <meta name="description" content="Abrechnungssystem der SLSH und LZH.">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -31,26 +31,17 @@
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
+            <span class="sr-only">Navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="/">Absys</a>
         </div>
         <div class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right" role="form">
-            <div class="form-group">
-              <input type="text" placeholder="Email" class="form-control">
-            </div>
-            <div class="form-group">
-              {% block toggle_login %}
-                {% include "anmeldung/toggle_login.html" %}
-                  <input type="password" placeholder="Password" class="form-control">
-              {% endblock %}
-            </div>
-            <button type="submit" class="btn btn-success">Sign in</button>
-          </form>
+          {% block toggle_login %}
+            {% include "anmeldung/toggle_login.html" %}
+          {% endblock %}
         </div><!--/.navbar-collapse -->
       </div>
     </div>

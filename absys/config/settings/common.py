@@ -209,6 +209,6 @@ class Common(Configuration):
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 
-    LOGIN_URL = '/anmeldung/'
-    LOGOUT_URL = '/anmeldung/abmelden/'
-    LOGIN_REDIRECT_URL = '/'
+    LOGIN_URL = 'absys_login'
+    LOGOUT_URL = 'absys_logout'
+    LOGIN_REDIRECT_URL = 'dashboard_dashboard'

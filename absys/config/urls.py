@@ -3,11 +3,21 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
+from django.core.urlresolvers import reverse_lazy
 
 urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^anmeldung/', include('absys.apps.anmeldung.urls')),
+
     url(r'^anwesenheitsliste/', include('absys.apps.anwesenheitsliste.urls')),
-    url(r'^', include('absys.apps.dashboard.urls')),
+
+    url(r'^login/$', auth_views.login, {'template_name': 'anmeldung/login.html'},
+        name='absys_login'),
+
+    url(r'^logout/$', auth_views.logout,
+        {'next_page': reverse_lazy('dashboard_dashboard')}, name='absys_logout'),
+
+    url(r'^', include('absys.apps.dashboard.urls'))
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

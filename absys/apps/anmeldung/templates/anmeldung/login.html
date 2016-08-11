@@ -2,15 +2,19 @@
 
 {% load crispy_forms_tags %}
 
-{% block title %}{{ block.super }} - Login{% endblock %}
+{% block title %} - Anmeldung{% endblock %}
 
 {% block toggle_login %}{% endblock %}
 
+{% block heading %}
+  <h3>Anmelden</h3>
+{% endblock %}
+
 {% block content %}
-    <form action="{% url "login" %}" method="post" accept-charset="utf-8">
-        {{ form }}
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}" />
-        <input type="submit" value="Login"/>
-    </form>
+  <form action="{% url "absys_login" %}" method="post" accept-charset="utf-8">
+    {{ form|crispy }}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <input class="btn btn-default" type="submit" value="Anmelden    ">
+  </form>
 {% endblock %}
