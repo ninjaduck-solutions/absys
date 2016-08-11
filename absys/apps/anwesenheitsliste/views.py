@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from braces.views import LoginRequiredMixin
 from dateutil.parser import parse
 from django.core.urlresolvers import reverse
 from django.utils import timezone
@@ -14,11 +15,15 @@ from . import forms
 from . import models
 
 
-class AnwesenheitslisteFormSetView(extra_views.FormSetView):
+class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     form_class = forms.AnwesenheitForm
     extra = 0
     template_name = 'anwesenheitsliste/schueler_list.html'
+
+    login_url = "/anmeldung/"
+    redirect_field_name = "anmeldung"
+    raise_exception = False
 
     def get_initial(self):
         data = []

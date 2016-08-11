@@ -8,6 +8,6 @@ urlpatterns = [
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^anmeldung/', include('absys.apps.anmeldung.urls')),
-    #url(r'^$', include('absys.apps.anmeldung.urls')),
     url(r'^anwesenheitsliste/', include('absys.apps.anwesenheitsliste.urls')),
+    url(r'^', include('absys.apps.dashboard.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
