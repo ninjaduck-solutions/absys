@@ -37,6 +37,7 @@ class RechnungSozialamtManager(models.Manager):
                         RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, rechnung)
                 rechnung.fehltage_abrechnen(schueler_in_einrichtung)
                 rechnung.abschliessen(schueler_in_einrichtung)
+        return rechnung_sozialamt
 
 
 class RechnungManager(models.Manager):

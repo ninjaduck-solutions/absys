@@ -1,7 +1,6 @@
 import datetime
 
 import factory
-from django.utils.timezone import now
 
 from absys.apps.abrechnung import models
 from tests.factories import SchuelerFactory, SozialamtFactory
@@ -10,10 +9,10 @@ from tests.factories import SchuelerFactory, SozialamtFactory
 class RechnungSozialamtFactory(factory.DjangoModelFactory):
 
     sozialamt = factory.SubFactory(SozialamtFactory)
-    startdatum = factory.LazyAttribute(lambda obj: now().date())
-    enddatum = factory.LazyAttribute(
-        lambda obj: obj.startdatum + datetime.timedelta(obj.zeitraum)
+    startdatum = factory.LazyAttribute(
+        lambda obj: obj.enddatum - datetime.timedelta(obj.zeitraum)
     )
+    enddatum = datetime.date(2016, 3, 1)
 
     class Meta:
         model = models.RechnungSozialamt

@@ -147,7 +147,6 @@ fixtures:
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Gruppe:2
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Sozialamt:2
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Schueler:10
-	envdir envs/$(ENV) python manage.py loadtestdata schueler.FehltageSchuelerErlaubt:10
 	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.Einrichtung:4
 	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.SchuelerInEinrichtung:80
 	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.EinrichtungHatPflegesatz:8
