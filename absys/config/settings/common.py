@@ -202,7 +202,7 @@ class Common(Configuration):
 
     CRISPY_TEMPLATE_PACK = values.Value('bootstrap3')
 
-    EMAIL_SUBJECT_PREFIX = '[Absys]'
+    EMAIL_SUBJECT_PREFIX = '[AbSys]'
 
     DEFAULT_FROM_EMAIL = values.EmailValue('noreply@example.com')
 
