@@ -44,7 +44,7 @@
           {% endblock %}
           {% if user.is_authenticated %}
             <ul class="nav navbar-nav navbar-left">
-              <li><a href="/abrechnung">Rechnungen</a>
+              <li><a href="{% url 'abrechnung_rechnungsozialamt_form' %}">Rechnungen</a>
               </li>
               <li><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}">Anwesenheiten</a>
               </li>
