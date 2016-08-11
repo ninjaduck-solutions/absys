@@ -111,7 +111,7 @@ class Rechnung(TimeStampedModel):
         verbose_name_plural = "Rechnungen"
 
     def __str__(self):
-        msg = "Rechnung {s.nummer} für {s.name_schueler} ({s.startdatum} - {s.enddatum})"
+        msg = "Rechnung {s.nummer} für {s.name_schueler} ({s.rechnung_sozialamt.startdatum} - {s.rechnung_sozialamt.enddatum})"
         return msg.format(s=self)
 
     @property
