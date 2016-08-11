@@ -5,7 +5,7 @@ from . import models
 from import_export.admin import ImportExportActionModelAdmin
 
 
-class RechnungAdmin(admin.TabularInline):
+class RechnungInline(admin.TabularInline):
     model = models.Rechnung
 
 
@@ -20,7 +20,7 @@ class RechnungSozialamtAdmin(ImportExportActionModelAdmin):
 
     list_display = ('sozialamt', 'startdatum', 'enddatum')
     inlines = [
-        RechnungAdmin,
+        RechnungInline,
     ]
 
 
