@@ -137,7 +137,9 @@ class Rechnung(TimeStampedModel):
 
     def abschliessen(self, schueler_in_einrichtung):
         """Instanz für Schüler in Einrichtung aktualisieren (Summe und nicht abgerechnete Fehltage)."""
-        self.summe = self.positionen.aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
+        self.summe = 0
+        if self.positionen.count():
+            self.summe = self.positionen.aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
         self.fehltage_nicht_abgerechnet = RechnungsPosition.objects.nicht_abgerechnet(
             schueler_in_einrichtung,
             self.rechnung_sozialamt.enddatum
