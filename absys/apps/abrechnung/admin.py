@@ -9,8 +9,8 @@ class RechnungInline(admin.TabularInline):
     model = models.Rechnung
 
 
-#class RechnungsPositionAdmin(admin.ModelAdmin):
-#    model = models.RechnungsPosition
+class RechnungsPositionAdmin(admin.ModelAdmin):
+    model = models.RechnungsPosition
 
 
 class RechnungSozialamtAdmin(ImportExportActionModelAdmin):
@@ -25,5 +25,5 @@ class RechnungSozialamtAdmin(ImportExportActionModelAdmin):
 
 
 admin.site.register(models.Rechnung)
-#admin.site.register(models.RechnungsPosition, RechnungsPositionAdmin)
+admin.site.register(models.RechnungsPosition, RechnungsPositionAdmin)
 admin.site.register(models.RechnungSozialamt, RechnungSozialamtAdmin)
