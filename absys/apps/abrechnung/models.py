@@ -23,10 +23,12 @@ class RechnungSozialamt(TimeStampedModel):
     sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt", related_name='rechnungen')
     sozialamt_anschrift = models.TextField()
     startdatum = models.DateField("Startdatum")
-    enddatum = models.DateField("Enddatum",
-        help_text=("Das Enddatum muss nach dem Startdatum liegen, ",
-            "darf aber nicht nach dem heutigen Datum liegen.",
-            " Außerdem müssen Startdatum und Enddatum im gleichen Jahr liegen."))
+    enddatum = models.DateField(
+        "Enddatum",
+        help_text=("Das Enddatum muss nach dem Startdatum liegen, "
+            "darf aber nicht nach dem heutigen Datum liegen."
+            " Außerdem müssen Startdatum und Enddatum im gleichen Jahr liegen.")
+    )
 
     objects = managers.RechnungSozialamtManager()
 
