@@ -42,6 +42,16 @@
           {% block toggle_login %}
             {% include "anmeldung/toggle_login.html" %}
           {% endblock %}
+          {% if user.is_authenticated %}
+            <ul class="nav navbar-nav navbar-left">
+              <li><a href="/abrechnung">Rechnungen</a>
+              </li>
+              <li><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}">Anwesenheiten</a>
+              </li>
+              <li><a href="{% url 'admin:index' %}">Verwaltung</a>
+              </li>
+            </ul>
+          {% endif %}
         </div><!--/.navbar-collapse -->
       </div>
     </div>
