@@ -160,7 +160,7 @@ class RechnungsPosition(TimeStampedModel):
     )
     sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt")
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
-    einrichtung = models.ForeignKey(Einrichtung, verbose_name="Schüler")
+    einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung")
     rechnung = models.ForeignKey(Rechnung, verbose_name="Rechnung", null=True,
         related_name='positionen')
     datum = models.DateField("Datum")
