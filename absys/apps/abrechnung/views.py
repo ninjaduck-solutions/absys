@@ -1,3 +1,4 @@
+from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
@@ -7,7 +8,7 @@ from django.views.generic.list import MultipleObjectMixin
 from . import forms, models
 
 
-class RechnungSozialamtFormView(MultipleObjectMixin, FormView):
+class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormView):
 
     form_class = forms.RechnungSozialamtForm
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
