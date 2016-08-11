@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from . import models
 
+from import_export.admin import ImportExportActionModelAdmin
 
 #TODO: dafuer sorgen, dass Zeilen richtig umgebrochen werden
 class SchuelerInEinrichtungAdmin(admin.TabularInline):
@@ -13,7 +14,7 @@ class EinrichtungHatPflegesatzAdmin(admin.TabularInline):
     model = models.EinrichtungHatPflegesatz
 
 
-class EinrichtungAdmin(admin.ModelAdmin):
+class EinrichtungAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'kuerzel')
     inlines = [
         EinrichtungHatPflegesatzAdmin,

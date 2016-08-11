@@ -181,13 +181,16 @@ class Common(Configuration):
         'django.contrib.staticfiles',
         'django.contrib.admin',
         'django.contrib.admindocs',
+        
         'crispy_forms',
         'autofixture',
-        'absys.apps.anwesenheitsliste.apps.AnwesenheitslisteConfig',
+        'import_export',
+
         'absys.apps.abrechnung.apps.AbrechnungConfig',
-        'absys.apps.schueler.apps.SchuelerConfig',
+        'absys.apps.anmeldung.apps.AnmeldungConfig',
+        'absys.apps.anwesenheitsliste.apps.AnwesenheitslisteConfig',
         'absys.apps.einrichtungen.apps.EinrichtungenConfig',
-        'import_export'
+        'absys.apps.schueler.apps.SchuelerConfig',
     )
 
     CACHES = values. DictValue({
@@ -203,3 +206,8 @@ class Common(Configuration):
     DEFAULT_FROM_EMAIL = values.EmailValue('noreply@example.com')
 
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+
+    LOGIN_URL = '/benutzer/anmelden/'
+    LOGOUT_URL = '/benutzer/abmelden/'
+    LOGIN_REDIRECT_URL = '/'
