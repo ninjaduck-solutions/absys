@@ -7,3 +7,12 @@
 .dark input {
   color: #000;
 }
+
+a {
+    color: #fff;
+}
+
+a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
