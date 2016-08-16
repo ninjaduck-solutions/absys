@@ -2,7 +2,9 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from model_utils import Choices
+from django.utils.functional import cached_property
 from model_utils.models import TimeStampedModel
+from django.db.models import Sum
 
 from absys.apps.einrichtungen.models import Einrichtung
 from absys.apps.schueler.models import Schueler, Sozialamt
@@ -69,6 +71,11 @@ class RechnungSozialamt(TimeStampedModel):
     @property
     def nummer(self):
         return "S{:06d}".format(self.pk)
+
+    @cached_property
+    def rechnungsbetrag(self):
+        rechnungsbetrag = self.rechnungen.aggregate(Sum('summe')).values()
+        return rechnungsbetrag
 
 
 class Rechnung(TimeStampedModel):
