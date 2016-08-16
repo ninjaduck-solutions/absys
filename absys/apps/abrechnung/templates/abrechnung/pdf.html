@@ -1,9 +1,93 @@
 {% extends "base.html" %}
 
-{% block title %}{{ block.super }} - {{ object.title }}{% endblock %}
+
+<!-- block.super entfernt -->
 
 {% block toggle_login %}{% endblock %}
 
 {% block content %}
-HALLO
+<div>
+<p>
+  Sozialamt: {{ rechnungsozialamt.sozialamt }}
+  <br>
+  {{ rechnungsozialamt.sozialamt_anschrift }}
+  <br>
+  Rechnungsnummer: {{ rechnungsozialamt.nummer }}
+  <br>
+  Vom: {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
+  <br>
+  Bis: {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
+</p>
+
+<hr style="border-width: 15px;">
+
+<h4>Übersicht</h4>
+
+<p>
+
+  <table class="table table-striped">
+    <thead style="display: table-row-group">
+       <tr>
+        <th>PZK</th>
+        <th>Name</th>
+        <th>Gesamtbetrag</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rechnungen in rechnungsozialamt.rechnungen.all %}
+        <tr>
+          <td>{{ rechnungen.schueler.buchungsnummer }}</td>
+          <td>{{ rechnungen.name_schueler }}</td>
+          <td>{{ rechnungen.summe }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</p>
+
+<h4 style="text-align:right">Rechnungsbetrag: {{ rechnungsozialamt.rechnungsbetrag }}</h4>
+
+<hr style="border-width: 15px;">
+
+<div style="page-break-before:always;">
+  <h4>Einzelabrechnung</h4>
+</div>
+
+<div style="page-break-before:always;"></div>
+
+{% for rechnungen in rechnungsozialamt.rechnungen.all %}
+<div style="page-break-before:always;">
+  <p> 
+      Schueler: {{ rechnungen.name_schueler }}
+      <br>
+      Summe aller Abrechnungstage: {{ rechnungen.summe }}
+  </p>
+
+      <table class="table table-striped">
+        <thead style="display: table-row-group">
+           <tr>
+            <th>Datum</th>
+            <th>Tagart</th>
+            <th>Abwesenheit</th>
+            <th>Pflegesatz</th>
+            <th>Einrichtung</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for positionen in rechnungen.positionen.all %}
+            <tr>
+              <td>{{ positionen.datum|date:"d.m.Y" }}</td>
+              <td>{{ positionen.tag_art }}</td>
+              <td>{{ positionen.abwesend }}</td>
+              <td>{{ positionen.pflegesatz }}</td>
+              <td>{{ positionen.name_einrichtung }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endfor %}
+
+
 {% endblock %}
