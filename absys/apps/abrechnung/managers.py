@@ -47,19 +47,20 @@ class RechnungManager(models.Manager):
         fehltage = schueler_in_einrichtung.war_abwesend(
             rechnung_sozialamt.startdatum, rechnung_sozialamt.enddatum
         ).count()
-        rechnung = self.model(
+        rechnung, created = self.update_or_create(
             rechnung_sozialamt=rechnung_sozialamt,
             schueler=schueler_in_einrichtung.schueler,
-            name_schueler=schueler_in_einrichtung.schueler.voller_name,
-            fehltage=fehltage,
-            fehltage_gesamt=(
-                schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(
-                    rechnung_sozialamt.enddatum.year
-                ) + fehltage
-            ),
-            max_fehltage=schueler_in_einrichtung.fehltage_erlaubt,
+            defaults={
+                'name_schueler': schueler_in_einrichtung.schueler.voller_name,
+                'fehltage': fehltage,
+                'fehltage_gesamt': (
+                    schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(
+                        rechnung_sozialamt.enddatum.year
+                    ) + fehltage
+                ),
+                'max_fehltage': schueler_in_einrichtung.fehltage_erlaubt,
+            }
         )
-        rechnung.save()
         return rechnung
 
     def letzte_rechnung(self, jahr):
