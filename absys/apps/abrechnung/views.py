@@ -53,4 +53,9 @@ class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
 
     @property
     def filename(self):
-        return '{}.pdf'.format(self.object.id)
+        return '{} - {} - {} | {}.pdf'.format(
+            self.object.startdatum,
+            self.object.enddatum,
+            self.object.sozialamt,
+            self.object.nummer,
+            )
