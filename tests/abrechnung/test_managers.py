@@ -15,27 +15,34 @@ class TestRechnungSozialamtManager:
         'einrichtung_hat_pflegesatz__pflegesatz_enddatum',
         'anzahl'
     ), [
-        (  # Anmeldung und Pflegesatz der Einrichtung liegen im gültigen Zeitraum
+        (  # Anmeldung und Pflegesatz der Einrichtung entsprechen exakt dem gültigen Zeitraum
             datetime.date(2016, 6, 12),
             datetime.date(2016, 6, 17),
             datetime.date(2016, 6, 12),
             datetime.date(2016, 6, 17),
             1,
         ),
+        (  # Anmeldung und Pflegesatz der Einrichtung liegen im gültigen Zeitraum
+            datetime.date(2016, 6, 1),
+            datetime.date(2016, 6, 30),
+            datetime.date(2016, 6, 1),
+            datetime.date(2016, 6, 30),
+            1,
+        ),
         (  # Anmeldung liegt nicht im gültigen Zeitraum
-            datetime.date(2016, 5, 12),
-            datetime.date(2016, 5, 17),
-            datetime.date(2016, 6, 12),
-            datetime.date(2016, 6, 17),
+            datetime.date(2016, 5, 1),
+            datetime.date(2016, 5, 31),
+            datetime.date(2016, 5, 1),
+            datetime.date(2016, 5, 31),
             0,
         ),
         pytest.mark.xfail(
             reason="Fehlende EinrichtungHatPflegesatz Instanz wird noch nicht behandelt")(
             (  # Pflegesatz der Einrichtung liegt nicht im gültigen Zeitraum
-                datetime.date(2016, 6, 12),
-                datetime.date(2016, 6, 17),
-                datetime.date(2016, 5, 12),
-                datetime.date(2016, 5, 17),
+                datetime.date(2016, 6, 1),
+                datetime.date(2016, 6, 30),
+                datetime.date(2016, 5, 1),
+                datetime.date(2016, 5, 31),
                 0,
             )
         ),

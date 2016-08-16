@@ -2,8 +2,6 @@ import datetime
 
 import pytest
 
-from absys.apps.einrichtungen.models import SchuelerInEinrichtung
-
 
 @pytest.mark.django_db
 class TestSchuelerInEinrichtungQuerySet:
@@ -16,20 +14,56 @@ class TestSchuelerInEinrichtungQuerySet:
     ), [
         (  # Eintritt vor Start, Austritt nach Ende, ein Schliesstag
             datetime.date(2016, 7, 12),
-            datetime.date(2016, 7, 8),
-            datetime.date(2016, 7, 18),
+            datetime.date(2016, 7, 1),
+            datetime.date(2016, 7, 31),
             4
         ),
         (  # Eintritt vor Start, Austritt nach Ende, kein Schliesstag
-            datetime.date(2015, 7, 12),
-            datetime.date(2016, 7, 8),
-            datetime.date(2016, 7, 18),
+            datetime.date(2016, 6, 2),
+            datetime.date(2016, 7, 1),
+            datetime.date(2016, 7, 31),
             5
+        ),
+        (  # Eintritt am Start, Austritt am Ende, kein Schliesstag
+            datetime.date(2016, 6, 2),
+            datetime.date(2016, 7, 11),
+            datetime.date(2016, 7, 17),
+            5
+        ),
+        (  # Eintritt vor Start, Austritt am Ende, kein Schliesstag
+            datetime.date(2016, 6, 2),
+            datetime.date(2016, 7, 1),
+            datetime.date(2016, 7, 17),
+            5
+        ),
+        (  # Eintritt nach Start, Austritt vor Ende, kein Schliesstag
+            datetime.date(2016, 6, 2),
+            datetime.date(2016, 7, 12),
+            datetime.date(2016, 7, 14),
+            3
+        ),
+        (  # Eintritt am Start, Austritt nach Ende, kein Schliesstag
+            datetime.date(2016, 6, 2),
+            datetime.date(2016, 7, 11),
+            datetime.date(2016, 7, 31),
+            5
+        ),
+        (  # Eintritt vor Start, Austritt vor Ende, kein Schliesstag
+            datetime.date(2016, 6, 2),
+            datetime.date(2016, 6, 15),
+            datetime.date(2016, 7, 14),
+            4
+        ),
+        (  # Eintritt nach Start, Austritt nach Ende, kein Schliesstag
+            datetime.date(2016, 6, 2),
+            datetime.date(2016, 7, 12),
+            datetime.date(2016, 7, 31),
+            4
         ),
         (  # Schueler im Zeitraum nicht in Einrichtung
             datetime.date(2015, 7, 12),
-            datetime.date(2015, 7, 8),
-            datetime.date(2015, 7, 18),
+            datetime.date(2015, 7, 1),
+            datetime.date(2015, 7, 31),
             0
         ),
     ])
@@ -40,10 +74,19 @@ class TestSchuelerInEinrichtungQuerySet:
             betreuungstage_start,
             betreuungstage_ende
         )
+        if count:
+            assert len(betreuungstage) == 1
+        else:
+            assert len(betreuungstage) == 0
         for schueler_in_einrichtung, tage in betreuungstage.items():
-            assert isinstance(schueler_in_einrichtung, SchuelerInEinrichtung)
+            assert schueler_in_einrichtung.schueler == schueler
             assert len(tage) == count
-            assert tage[0] is betreuungstage_start
+            assert (
+                (tage[0] == betreuungstage_start) |
+                (tage[0] == schueler_in_einrichtung.eintritt) |
+                (tage[-1] == betreuungstage_ende) |
+                (tage[-1] == schueler_in_einrichtung.austritt)
+            )
 
     @pytest.mark.parametrize((
         'schueler_in_einrichtung__eintritt',

@@ -16,7 +16,9 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         Gibt ein ``dictionary`` mit :model:`einrichtungen.SchuelerInEinrichtung` Objekten als Schlüssel zurück.
 
         Es werden nur die Objekte zurückgegeben, in denen der Schüler im
-        angegebenen Zeitraum angemeldet war.
+        angegebenen Zeitraum angemeldet war. Es reicht, dass der Schüler an nur
+        einem Tag im gesamten Abfragezeitraum angemeldet war, damit er erfasst
+        wird.
 
         Jeder Schlüssel enthält einen ``tuple`` von ``datetime`` Objekten, die
         der Anzahl der Tage entsprechen, an denen der Schüler in der
@@ -27,8 +29,13 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         from .models import Schliesstag
         schliesstage = tuple(Schliesstag.objects.values_list('datum', flat=True))
         qs = self.filter(
-            models.Q(eintritt__range=(startdatum, enddatum)) |
-            models.Q(austritt__range=(startdatum, enddatum)),
+            (
+                models.Q(eintritt__range=(startdatum, enddatum)) |
+                models.Q(austritt__range=(startdatum, enddatum))
+            ) | (
+                models.Q(eintritt__lt=startdatum) &
+                models.Q(austritt__gt=enddatum)
+            )
         ).order_by('eintritt')
         betreuungstage = {}
         for schueler_in_einrichtung in qs:
