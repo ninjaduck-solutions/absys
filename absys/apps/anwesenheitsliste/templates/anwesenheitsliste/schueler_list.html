@@ -10,17 +10,21 @@
   <div class="page-header row well well-sm">
     <div class="col-md-4">
       <h3 class="text-left">
-        <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.gestern %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
-          <button type="button" class="btn btn-primary" aria-label="Left Align">
-            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-          </button>
-        </a>
+        {% if view.gestern %}
+          <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.gestern %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
+            <button type="button" class="btn btn-primary" aria-label="Left Align">
+              <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            </button>
+          </a>
+        {% endif %}
         {{ view.datum }}
-        <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.morgen %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
-          <button type="button" class="btn btn-primary" aria-label="Left Align">
-            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-          </button>
-        </a>
+        {% if view.morgen %}
+          <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.morgen %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
+            <button type="button" class="btn btn-primary" aria-label="Left Align">
+              <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            </button>
+          </a>
+        {% endif %}
       </h3>
     </div>
     <div class="col-md-4"></div>

@@ -2,6 +2,8 @@ from datetime import timedelta
 
 from braces.views import LoginRequiredMixin
 from dateutil.parser import parse
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -24,6 +26,11 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
     login_url = "/anmeldung/"
     redirect_field_name = "anmeldung"
     raise_exception = False
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.ist_datum_erlaubt(self.datum):
+            raise PermissionDenied()
+        return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
         data = []
@@ -72,13 +79,19 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
     def datum(self):
         return timezone.make_aware(parse(self.kwargs['datum'])).date()
 
-    @property
+    @cached_property
     def gestern(self):
-        return self.datum + timedelta(-1)
+        gestern = self.datum + timedelta(-1)
+        if self.ist_datum_erlaubt(gestern):
+            return gestern
+        return None
 
-    @property
+    @cached_property
     def morgen(self):
-        return self.datum + timedelta(1)
+        morgen = self.datum + timedelta(1)
+        if self.ist_datum_erlaubt(morgen):
+            return morgen
+        return None
 
     @cached_property
     def gruppe_id(self):
@@ -95,6 +108,34 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
         else:
             query_string = ''
         return query_string
+
+    @classmethod
+    def ist_aktueller_monat(cls, datum):
+        """Überprüft, ob das Datum im aktuellen Monat liegt."""
+        return (
+            datum.month == timezone.now().date().month and
+            datum.year == timezone.now().date().year
+        )
+
+    @classmethod
+    def ist_vormonat_erlaubt(cls, datum):
+        """Überprüft, ob das Datum berechtigt den Vormonat zu bearbeiten."""
+        heute_ok = timezone.now().date().day <= settings.ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT
+        monat_ok = datum.month == (
+            timezone.now().date() - timedelta(settings.ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT + 1)
+        ).month
+        jahr_ok = datum.year == timezone.now().date().year
+        return heute_ok and monat_ok and jahr_ok
+
+    @classmethod
+    def ist_nicht_in_zukunft(cls, datum):
+        return datum <= timezone.now().date()
+
+    @classmethod
+    def ist_datum_erlaubt(cls, datum):
+        return (
+            cls.ist_aktueller_monat(datum) and cls.ist_nicht_in_zukunft(datum)
+        ) or cls.ist_vormonat_erlaubt(datum)
 
 
 class AnwesenheitslisteHeuteRedirectView(RedirectView):

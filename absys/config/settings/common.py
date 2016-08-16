@@ -181,7 +181,7 @@ class Common(Configuration):
         'django.contrib.staticfiles',
         'django.contrib.admin',
         'django.contrib.admindocs',
-        
+
         'crispy_forms',
         'autofixture',
         'import_export',
@@ -221,3 +221,5 @@ class Common(Configuration):
         message_constants.WARNING: 'warning',
         message_constants.ERROR: 'danger',
     }
+
+    ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT = values.IntegerValue(10)
