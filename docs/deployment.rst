@@ -83,8 +83,6 @@ Don't forget to configure the email backend you selected.
 Also configure ``DJANGO_RAVEN_CONFIG_DSN`` if you want to use Sentry for
 logging.
 
-Have a look at :doc:`settings` to understand what each setting does.
-
 Now set the environment's name so that our :file:`Makefile` will use the right
 environment:
 
