@@ -5,6 +5,10 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
 from django.views.generic.list import MultipleObjectMixin
 
+from django.views.generic.detail import BaseDetailView
+
+from wkhtmltopdf.views import PDFTemplateView
+
 from . import forms, models
 
 
@@ -40,3 +44,13 @@ class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormVie
     def post(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
         return super().post(request, *args, **kwargs)
+
+
+class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
+
+    model = models.RechnungSozialamt
+    template_name = 'abrechnung/pdf.html'
+
+    @property
+    def filename(self):
+        return '{}.pdf'.format(self.object.id)
