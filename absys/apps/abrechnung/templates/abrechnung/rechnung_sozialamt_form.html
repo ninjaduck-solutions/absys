@@ -22,9 +22,13 @@
           <td>{{ rechnung.startdatum|date:"d.m.Y" }}</td>
           <td>{{ rechnung.enddatum|date:"d.m.Y" }}</td>
           <td>{{ rechnung.sozialamt }}</td>
-          <td>{{ rechnung.nummer }}</td>
+          <td>
+            <a href="{% url 'abrechnung_rechnungsozialamt_pdf' pk=rechnung.id %}">{{ rechnung.nummer }}</a>
+          </td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
 {% endblock content %}
+
+
