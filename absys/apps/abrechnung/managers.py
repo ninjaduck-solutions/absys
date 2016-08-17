@@ -123,8 +123,9 @@ class RechnungsPositionManager(models.Manager):
             'sozialamt': schueler_in_einrichtung.schueler.sozialamt,
             'schueler': schueler_in_einrichtung.schueler,
             'einrichtung': schueler_in_einrichtung.einrichtung,
-            'name_einrichtung': schueler_in_einrichtung.einrichtung.name,
             'datum': tag,
+            'name_einrichtung': schueler_in_einrichtung.einrichtung.name,
+            'abwesend': bool(rechnung),
             'pflegesatz': schueler_in_einrichtung.schueler.berechne_pflegesatz(tag),
         }
         if schueler_in_einrichtung.einrichtung.hat_ferien(tag):
