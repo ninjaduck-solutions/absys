@@ -173,7 +173,7 @@ class RechnungsPosition(TimeStampedModel):
     - Pflegesatz
 
     Wenn der Wert von Rechnung ``None`` ist, wurde die ``RechnungsPosition``
-    noch nicht abgerechnet,
+    noch nicht abgerechnet.
     """
 
     TAG_ART = Choices(
