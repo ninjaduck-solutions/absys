@@ -223,4 +223,4 @@ class Common(Configuration):
         message_constants.ERROR: 'danger',
     }
 
-    ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT = values.IntegerValue(10)
+    ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT = values.IntegerValue(15)
