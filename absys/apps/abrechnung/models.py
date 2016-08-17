@@ -74,8 +74,7 @@ class RechnungSozialamt(TimeStampedModel):
 
     @cached_property
     def rechnungsbetrag(self):
-        rechnungsbetrag = self.rechnungen.aggregate(Sum('summe')).values()
-        return rechnungsbetrag
+        return self.rechnungen.aggregate(Sum('summe'))['summe__sum']
 
 
 class Rechnung(TimeStampedModel):
