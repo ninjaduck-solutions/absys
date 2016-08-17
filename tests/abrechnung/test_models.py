@@ -56,3 +56,12 @@ class TestRechnung:
         assert rechnung.nummer.endswith(str(rechnung.pk))
         assert rechnung.nummer.startswith("R0")
         assert len(rechnung.nummer) == 7
+
+    def test_fehltage_abrechnen_negatives_limit(self, rechnung, schueler_in_einrichtung):
+        """
+        Darf kein ``AssertionError: Negative indexing is not supported.`` werfen.
+
+        Test für eine Regression bei der ``limit`` nicht auf Null oder positive
+        Zahlen eingeschränkt wurde.
+        """
+        rechnung.fehltage_abrechnen(schueler_in_einrichtung)
