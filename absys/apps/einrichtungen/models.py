@@ -108,11 +108,12 @@ class SchuelerInEinrichtung(TimeStampedModel):
         if self.eintritt and self.austritt and self.eintritt > self.austritt:
             raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
 
-    def war_abwesend(self, startdatum, enddatum):
+    def war_abwesend(self, tage):
         """Abwesenheitstage für Schüler in Einrichtung im gewählten Zeitraum ermitteln."""
-        return self.schueler.anwesenheit.filter(
-            einrichtung=self.einrichtung
-        ).war_abwesend(startdatum, enddatum)
+        return self.schueler.anwesenheit.war_abwesend(tage[0], tage[-1]).filter(
+            einrichtung=self.einrichtung,
+            datum__in=tage
+        )
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):

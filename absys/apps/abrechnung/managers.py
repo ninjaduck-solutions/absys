@@ -28,7 +28,7 @@ class RechnungSozialamtManager(models.Manager):
         rechnung_sozialamt.save()
         for schueler in sozialamt.schueler.all():
             for schueler_in_einrichtung, tage in schueler.angemeldet_in_einrichtung.get_betreuungstage(startdatum, enddatum).items():
-                tage_abwesend = schueler_in_einrichtung.war_abwesend(tage[0], tage[-1])
+                tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
                 rechnung = Rechnung.objects.erstelle_rechnung(
                     rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend
                 )
