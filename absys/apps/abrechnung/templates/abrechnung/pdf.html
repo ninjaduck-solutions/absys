@@ -86,7 +86,7 @@
            <tr>
             <th>Datum</th>
             <th>Tagart</th>
-            <th>Abwesenheit</th>
+            <th>Anwesenheit</th>
             <th>Pflegesatz</th>
             <th>Einrichtung</th>
           </tr>
@@ -96,7 +96,8 @@
             <tr>
               <td>{{ position.datum|date:"d.m.Y" }}</td>
               <td>{{ position.tag_art }}</td>
-              <td>{{ position.abwesend }}</td>
+              <td>{% if position.abwesend %}<span class="glyphicon glyphicon-remove" aria-hidden="true">
+                {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
               <td>{{ position.pflegesatz }}</td>
               <td>{{ position.name_einrichtung }}</td>
             </tr>
