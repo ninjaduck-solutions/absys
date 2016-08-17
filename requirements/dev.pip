@@ -19,3 +19,5 @@ isort==4.2.2
 pdbpp==0.8.3  # rq.filter: !=0.8.2
 pg-activity==1.3.0
 thefuck==3.9
+pydotplus==2.0.2
+django-extensions==1.7.2
