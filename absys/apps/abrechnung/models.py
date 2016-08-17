@@ -107,7 +107,7 @@ class Rechnung(TimeStampedModel):
     fehltage_nicht_abgerechnet = models.PositiveIntegerField("Bisher nicht abgerechnete Fehltage", default=0)
     max_fehltage = models.PositiveIntegerField("Maximale Fehltage zum Abrechnungstag", default=0)
 
-    objects = managers.RechnungManager()
+    objects = managers.RechnungManager.from_queryset(managers.RechnungQuerySet)()
 
     class Meta:
         ordering = ('-rechnung_sozialamt__startdatum', '-rechnung_sozialamt__enddatum',
@@ -127,16 +127,19 @@ class Rechnung(TimeStampedModel):
     def fehltage_abrechnen(self, schueler_in_einrichtung):
         """
         Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
+
+        Das ``limit`` ist die Anzahl der erlaubten Fehltage minus der bisher abgerechneten Fehltage.
         """
         qs = RechnungsPosition.objects.nicht_abgerechnet(
             schueler_in_einrichtung, self.rechnung_sozialamt.enddatum
         )
-        limit = (
-            schueler_in_einrichtung.fehltage_erlaubt -
-            schueler_in_einrichtung.schueler.rechnungen.letzte_rechnung_fehltage_gesamt(
-                self.rechnung_sozialamt.enddatum.year
-            )
+        fehltage_vorletzte_rechnung = 0
+        letzte_rechnungen = schueler_in_einrichtung.schueler.rechnungen.letzte_rechnungen(
+            self.rechnung_sozialamt.enddatum.year
         )
+        if letzte_rechnungen.count() >= 2:
+            fehltage_vorletzte_rechnung = letzte_rechnungen[1].fehltage_gesamt
+        limit = schueler_in_einrichtung.fehltage_erlaubt - fehltage_vorletzte_rechnung
         if limit < 0:
             limit = 0
         for rechnung_pos in qs[:limit]:

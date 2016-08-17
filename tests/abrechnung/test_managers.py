@@ -70,3 +70,31 @@ class TestRechnungSozialamtManager:
             assert rechnung.summe > 0
             assert rechnung.fehltage == rechnung.fehltage_gesamt == rechnung.fehltage_nicht_abgerechnet == 0
             assert rechnung.max_fehltage == schueler_in_einrichtung.fehltage_erlaubt
+
+
+@pytest.mark.django_db
+class TestRechnungManager:
+
+    def test_letzte_rechnungen(self, rechnung_sozialamt_factory, rechnung_factory):
+        rechnung_sozialamt_0 = rechnung_sozialamt_factory(
+            startdatum=datetime.date(2015, 11, 1),
+            enddatum=datetime.date(2015, 11, 30)
+        )
+        rechnung_factory(rechnung_sozialamt=rechnung_sozialamt_0)
+        rechnung_sozialamt_1 = rechnung_sozialamt_factory(
+            startdatum=datetime.date(2016, 3, 1),
+            enddatum=datetime.date(2016, 3, 31)
+        )
+        rechnung_0 = rechnung_factory(rechnung_sozialamt=rechnung_sozialamt_1)
+        rechnung_sozialamt_2 = rechnung_sozialamt_factory(
+            startdatum=datetime.date(2016, 4, 1),
+            enddatum=datetime.date(2016, 4, 30)
+        )
+        rechnung_1 = rechnung_factory(rechnung_sozialamt=rechnung_sozialamt_2)
+        assert models.Rechnung.objects.letzte_rechnungen(2014).count() == 0
+        assert models.Rechnung.objects.letzte_rechnungen(2015).count() == 1
+        assert models.Rechnung.objects.letzte_rechnungen(2016).count() == 2
+        assert models.Rechnung.objects.letzte_rechnungen(2017).count() == 0
+        letzte_rechnungen = models.Rechnung.objects.letzte_rechnungen(2016)
+        assert letzte_rechnungen[0] == rechnung_1
+        assert letzte_rechnungen[1] == rechnung_0
