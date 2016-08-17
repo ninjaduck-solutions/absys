@@ -92,6 +92,7 @@ class SchuelerInEinrichtungFactory(factory.DjangoModelFactory):
     pers_pflegesatz_enddatum = factory.LazyAttribute(
         lambda obj: obj.pers_pflegesatz_startdatum + datetime.timedelta(obj.tage_pers_pflegesatz)
     )
+    fehltage_erlaubt = 5
 
     class Meta:
         model = SchuelerInEinrichtung

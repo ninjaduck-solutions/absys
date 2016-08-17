@@ -137,6 +137,8 @@ class Rechnung(TimeStampedModel):
                 self.rechnung_sozialamt.enddatum.year
             )
         )
+        if limit < 0:
+            limit = 0
         for rechnung_pos in qs[:limit]:
             rechnung_pos.rechnung = self
             rechnung_pos.save()
@@ -170,7 +172,7 @@ class RechnungsPosition(TimeStampedModel):
     - Pflegesatz
 
     Wenn der Wert von Rechnung ``None`` ist, wurde die ``RechnungsPosition``
-    noch nicht abgerechnet,
+    noch nicht abgerechnet.
     """
 
     TAG_ART = Choices(
