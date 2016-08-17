@@ -32,7 +32,7 @@ class RechnungSozialamtManager(models.Manager):
                 tage_abwesend = schueler_in_einrichtung.war_abwesend(startdatum, enddatum)
                 for tag in tage:
                     if tag in tage_abwesend:
-                        RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung)
+                        RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, abwesend=True)
                     else:
                         RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, rechnung)
                 rechnung.fehltage_abrechnen(schueler_in_einrichtung)
@@ -112,7 +112,7 @@ class RechnungsPositionQuerySet(models.QuerySet):
 
 class RechnungsPositionManager(models.Manager):
 
-    def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung=None):
+    def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung=None, abwesend=False):
         """
         Erstellt eine ``RechnungsPosition`` für einen Betreuungstag und einen Schüler.
 
@@ -125,7 +125,7 @@ class RechnungsPositionManager(models.Manager):
             'einrichtung': schueler_in_einrichtung.einrichtung,
             'datum': tag,
             'name_einrichtung': schueler_in_einrichtung.einrichtung.name,
-            'abwesend': bool(rechnung),
+            'abwesend': abwesend,
             'pflegesatz': schueler_in_einrichtung.schueler.berechne_pflegesatz(tag),
         }
         if schueler_in_einrichtung.einrichtung.hat_ferien(tag):
