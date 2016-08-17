@@ -28,10 +28,13 @@ class RechnungSozialamtManager(models.Manager):
         rechnung_sozialamt.save()
         for schueler in sozialamt.schueler.all():
             for schueler_in_einrichtung, tage in schueler.angemeldet_in_einrichtung.get_betreuungstage(startdatum, enddatum).items():
-                rechnung = Rechnung.objects.erstelle_rechnung(rechnung_sozialamt, schueler_in_einrichtung)
-                tage_abwesend = schueler_in_einrichtung.war_abwesend(startdatum, enddatum)
+                tage_abwesend = schueler_in_einrichtung.war_abwesend(tage[0], tage[-1])
+                rechnung = Rechnung.objects.erstelle_rechnung(
+                    rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend
+                )
+                tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
                 for tag in tage:
-                    if tag in tage_abwesend:
+                    if tag in tage_abwesend_datetime:
                         RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, abwesend=True)
                     else:
                         RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, rechnung)
@@ -52,16 +55,14 @@ class RechnungQuerySet(models.QuerySet):
 
 class RechnungManager(models.Manager):
 
-    def erstelle_rechnung(self, rechnung_sozialamt, schueler_in_einrichtung):
+    def erstelle_rechnung(self, rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend):
         """
         Erstellt eine ``Rechnung``-Instanz für einen Schüler.
 
         Der Übertrag der Fehltage erfolgt immer von der letzten vorhergehenden
         Rechnung des Schülers. Gibt es diese nicht, ist der Übertrag 0.
         """
-        fehltage = schueler_in_einrichtung.war_abwesend(
-            rechnung_sozialamt.startdatum, rechnung_sozialamt.enddatum
-        ).count()
+        fehltage = tage_abwesend.count()
         fehltage_uebertrag = 0
         letzte_rechnungen = schueler_in_einrichtung.schueler.rechnungen.letzte_rechnungen(
             rechnung_sozialamt.enddatum.year
