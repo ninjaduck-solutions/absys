@@ -71,8 +71,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
     class Meta:
         ordering = ("schueler__nachname", "schueler__vorname", "-austritt")
         unique_together = ('schueler', 'einrichtung', 'eintritt', 'austritt')
-        verbose_name = "Schueler in der Einrichtung"
-        verbose_name_plural = "Schueler in den Einrichtungen"
+        verbose_name = "Schüler in Einrichtung"
+        verbose_name_plural = "Schüler in Einrichtungen"
 
     def __str__(self):
         return '{s.schueler} in {s.einrichtung} ({s.eintritt} - {s.austritt})'.format(s=self)
