@@ -8,6 +8,7 @@ from import_export.admin import ImportExportActionModelAdmin
 class SchuelerInEinrichtungAdmin(admin.ModelAdmin):
     date_hierarchy = 'eintritt'
     list_display = ('schueler', 'einrichtung', 'eintritt', 'austritt', 'fehltage_erlaubt')
+    list_filter = ('einrichtung',)
 
 
 #TODO: dafuer sorgen, dass Zeilen richtig umgebrochen werden
