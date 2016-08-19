@@ -6,8 +6,6 @@ from absys.apps.schueler.models import Schueler
 
 from . import managers
 
-# TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs) oder Model Field Validatoren umsetzen
-
 
 class Einrichtung(TimeStampedModel):
 
@@ -59,6 +57,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
 
     schueler = models.ForeignKey(Schueler, related_name='angemeldet_in_einrichtung')
     einrichtung = models.ForeignKey(Einrichtung, related_name='anmeldungen')
+    # TODO sozialamt als ForeignKey hinzufügen, default beim Erstellen kommt von schueler.sozialamt
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
     pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
@@ -105,6 +104,9 @@ class SchuelerInEinrichtung(TimeStampedModel):
         return self.get_pers_pflegesatz(datum) or self.einrichtung.get_pflegesatz(datum)
 
     def clean(self):
+        # TODO Zeiträume dürfen sich nicht überlappen
+        # Gilt für die Kombination schueler, einrichtung, sozialamt, eintritt, austritt
+        # Falls sinnnvoll muss auf django.contrib.postgres.fields.DateRangeField umgestellt werden
         if self.eintritt and self.austritt and self.eintritt > self.austritt:
             raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
 

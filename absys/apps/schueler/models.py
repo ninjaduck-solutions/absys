@@ -56,6 +56,7 @@ class Schueler(TimeStampedModel):
     bemerkungen = models.TextField(blank=True)
     aktenzeichen = models.CharField("Aktenzeichen", max_length=30)
     pkz = models.CharField("PKZ", max_length=13, blank=True)
+    # TODO stufe entfernen
     stufe = models.ForeignKey(Stufe, related_name='schueler')
     gruppe = models.ForeignKey(Gruppe, related_name='schueler')
     sozialamt = models.ForeignKey(Sozialamt, related_name='schueler')
