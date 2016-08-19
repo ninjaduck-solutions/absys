@@ -12,13 +12,6 @@ class SchuelerInEinrichtungAdmin(admin.ModelAdmin):
     raw_id_fields = ('schueler',)
 
 
-#TODO: dafuer sorgen, dass Zeilen richtig umgebrochen werden
-class SchuelerInEinrichtungInline(admin.TabularInline):
-    model = models.SchuelerInEinrichtung
-    raw_id_fields = ('schueler',)
-    extra = 0
-
-
 class EinrichtungHatPflegesatzAdmin(admin.TabularInline):
     model = models.EinrichtungHatPflegesatz
     extra = 0
@@ -28,7 +21,6 @@ class EinrichtungAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'kuerzel')
     inlines = [
         EinrichtungHatPflegesatzAdmin,
-        SchuelerInEinrichtungInline,
     ]
 
 
