@@ -3,6 +3,7 @@ base:
     - apt
     - bashrc
     - git
+    - graphviz
     - curl
     - tree
     - nano
