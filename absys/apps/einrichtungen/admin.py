@@ -9,6 +9,7 @@ class SchuelerInEinrichtungAdmin(admin.ModelAdmin):
     date_hierarchy = 'eintritt'
     list_display = ('schueler', 'einrichtung', 'eintritt', 'austritt', 'fehltage_erlaubt')
     list_filter = ('einrichtung',)
+    raw_id_fields = ('schueler',)
 
 
 #TODO: dafuer sorgen, dass Zeilen richtig umgebrochen werden
