@@ -69,6 +69,9 @@ class TestSchuelerInEinrichtung:
     def test_save(self, schueler_in_einrichtung):
         assert schueler_in_einrichtung.sozialamt == schueler_in_einrichtung.schueler.sozialamt
 
+    def test_war_abwesend_keine_tage(self, schueler_in_einrichtung):
+        assert schueler_in_einrichtung.war_abwesend(tuple()).count() == 0
+
 
 @pytest.mark.django_db
 class TestEinrichtung:
