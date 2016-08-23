@@ -11,7 +11,6 @@ from . import factories
 
 
 register(factories.GruppeFactory)
-register(factories.StufeFactory)
 register(factories.SozialamtFactory)
 register(factories.SchuelerFactory)
 register(factories.EinrichtungFactory)

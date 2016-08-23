@@ -3,9 +3,6 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from model_utils.models import TimeStampedModel
 
-# TODO: CONSTRAINTS mit clean() (siehe ModelValidation in DjangoDocs) oder Model Field Validatoren umsetzen
-# TODO: Schueler kann inaktiv gesetzt werden -> Datensätze bleiben erhalten, wird aber nicht mehr berücksichtigt
-
 
 class Gruppe(TimeStampedModel):
 
@@ -15,19 +12,6 @@ class Gruppe(TimeStampedModel):
     class Meta:
         verbose_name = "Gruppe"
         verbose_name_plural = "Gruppen"
-
-    def __str__(self):
-        return self.name
-
-
-class Stufe(TimeStampedModel):
-
-    name = models.CharField(max_length=200)
-    bemerkungen = models.TextField(blank=True)
-
-    class Meta:
-        verbose_name = "Stufe"
-        verbose_name_plural = "Stufen"
 
     def __str__(self):
         return self.name
@@ -56,8 +40,6 @@ class Schueler(TimeStampedModel):
     bemerkungen = models.TextField(blank=True)
     aktenzeichen = models.CharField("Aktenzeichen", max_length=30)
     pkz = models.CharField("PKZ", max_length=13, blank=True)
-    # TODO stufe entfernen
-    stufe = models.ForeignKey(Stufe, related_name='schueler')
     gruppe = models.ForeignKey(Gruppe, related_name='schueler')
     sozialamt = models.ForeignKey(Sozialamt, related_name='schueler')
 

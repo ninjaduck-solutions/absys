@@ -4,7 +4,7 @@ import factory
 from django.utils.timezone import now
 
 from absys.apps.einrichtungen.models import Einrichtung, SchuelerInEinrichtung, EinrichtungHatPflegesatz, Ferien
-from absys.apps.schueler.models import Gruppe, Stufe, Sozialamt, Schueler
+from absys.apps.schueler.models import Gruppe, Sozialamt, Schueler
 
 
 class GruppeFactory(factory.DjangoModelFactory):
@@ -13,14 +13,6 @@ class GruppeFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Gruppe
-
-
-class StufeFactory(factory.DjangoModelFactory):
-
-    name = factory.Faker('word')
-
-    class Meta:
-        model = Stufe
 
 
 class SozialamtFactory(factory.DjangoModelFactory):
@@ -39,7 +31,6 @@ class SchuelerFactory(factory.DjangoModelFactory):
     vorname = factory.Faker('first_name')
     nachname = factory.Faker('last_name')
     geburtsdatum = factory.LazyAttribute(lambda obj: now().date())
-    stufe = factory.SubFactory(StufeFactory)
     gruppe = factory.SubFactory(GruppeFactory)
     sozialamt = factory.SubFactory(SozialamtFactory)
 
