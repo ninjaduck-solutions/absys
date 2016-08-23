@@ -31,7 +31,7 @@ requires = [
     'envdir==0.7',
     'fake-factory==0.5.7',
     'psycopg2==2.6.1',
-    'pytz==2015.7',
+    'pytz==2016.6.1',
     'django-import-export==0.4.5',
     #'django-wkhtmltopdf==3.0.0', ! erst wenn current_app per merge aus master entfernt wurde; bricht derzeit an dj 1.10 current_app
 ]
