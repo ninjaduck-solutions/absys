@@ -26,20 +26,19 @@ class RechnungSozialamtManager(models.Manager):
         )
         rechnung_sozialamt.clean()
         rechnung_sozialamt.save()
-        for schueler in sozialamt.schueler.all():
-            for schueler_in_einrichtung, tage in schueler.angemeldet_in_einrichtung.get_betreuungstage(startdatum, enddatum).items():
-                tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
-                rechnung = Rechnung.objects.erstelle_rechnung(
-                    rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend
-                )
-                tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
-                for tag in tage:
-                    if tag in tage_abwesend_datetime:
-                        RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, abwesend=True)
-                    else:
-                        RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, rechnung)
-                rechnung.fehltage_abrechnen(schueler_in_einrichtung)
-                rechnung.abschliessen(schueler_in_einrichtung)
+        for schueler_in_einrichtung, tage in sozialamt.anmeldungen.get_betreuungstage(startdatum, enddatum).items():
+            tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
+            rechnung = Rechnung.objects.erstelle_rechnung(
+                rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend
+            )
+            tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
+            for tag in tage:
+                if tag in tage_abwesend_datetime:
+                    RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, abwesend=True)
+                else:
+                    RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, rechnung)
+            rechnung.fehltage_abrechnen(schueler_in_einrichtung)
+            rechnung.abschliessen(schueler_in_einrichtung)
         return rechnung_sozialamt
 
 

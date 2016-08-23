@@ -66,6 +66,9 @@ class TestSchuelerInEinrichtung:
         datum = datetime.date(2016, 7, 15)
         assert schueler_in_einrichtung.get_pflegesatz(datum) > 0.0
 
+    def test_save(self, schueler_in_einrichtung):
+        assert schueler_in_einrichtung.sozialamt == schueler_in_einrichtung.schueler.sozialamt
+
 
 @pytest.mark.django_db
 class TestEinrichtung:

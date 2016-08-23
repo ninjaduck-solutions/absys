@@ -2,7 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
 
-from absys.apps.schueler.models import Schueler
+from absys.apps.schueler.models import Sozialamt, Schueler
 
 from . import managers
 
@@ -57,7 +57,15 @@ class SchuelerInEinrichtung(TimeStampedModel):
 
     schueler = models.ForeignKey(Schueler, related_name='angemeldet_in_einrichtung')
     einrichtung = models.ForeignKey(Einrichtung, related_name='anmeldungen')
-    # TODO sozialamt als ForeignKey hinzufügen, default beim Erstellen kommt von schueler.sozialamt
+    sozialamt = models.ForeignKey(Sozialamt, related_name='anmeldungen',
+        help_text="<span style=\"font-size: 1.3em\">"
+            "Es wird automatisch das aktuelle Sozialamt des Schülers ausgewählt.<br><br>"
+            "Soll der Schüler in dieser Einrichtung ein neues Sozialamt zugewiesen bekommen"
+            ", muss wie folgt vorgegangen werden:<br><br>"
+            "1. Das Austrittsdatum des aktuellen Datensatzes auf den letzten Tag für das alte Sozialamt setzen.<br>"
+            "2. Das Sozialamt am Datensatz des Schülers ändern.<br>"
+            "3. Den Schüler für den neuen Zeitraum der gleichen Einrichtung hinzufügen.<br><br>"
+            "</span>")
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
     pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
@@ -76,6 +84,11 @@ class SchuelerInEinrichtung(TimeStampedModel):
 
     def __str__(self):
         return '{s.schueler} in {s.einrichtung} ({s.eintritt} - {s.austritt})'.format(s=self)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.sozialamt = self.schueler.sozialamt
+        super().save(*args, **kwargs)
 
     def get_pers_pflegesatz(self, datum):
         """

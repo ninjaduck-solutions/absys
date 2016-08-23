@@ -20,9 +20,9 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         einem Tag im gesamten Abfragezeitraum angemeldet war, damit er erfasst
         wird.
 
-        Jeder Schlüssel enthält einen ``tuple`` von ``datetime`` Objekten, die
-        der Anzahl der Tage entsprechen, an denen der Schüler in der
-        Einrichtung angemeldet war.
+        Jeder Wert enthält einen ``tuple`` von ``datetime`` Objekten, die der
+        Anzahl der Tage entsprechen, an denen der Schüler in der Einrichtung
+        angemeldet war.
 
         Alle Samstage, Sonntage und Schliesstage werden entfernt.
         """

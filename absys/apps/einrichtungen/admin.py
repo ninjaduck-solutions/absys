@@ -7,9 +7,10 @@ from import_export.admin import ImportExportActionModelAdmin
 
 class SchuelerInEinrichtungAdmin(admin.ModelAdmin):
     date_hierarchy = 'eintritt'
-    list_display = ('schueler', 'einrichtung', 'eintritt', 'austritt', 'fehltage_erlaubt')
-    list_filter = ('einrichtung',)
+    list_display = ('schueler', 'einrichtung', 'sozialamt', 'eintritt', 'austritt', 'fehltage_erlaubt')
+    list_filter = ('einrichtung', 'sozialamt')
     raw_id_fields = ('schueler',)
+    readonly_fields = ('sozialamt',)
 
 
 class EinrichtungHatPflegesatzAdmin(admin.TabularInline):
