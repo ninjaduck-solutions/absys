@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-
-<!-- block.super entfernt -->
 {% block navigation %}
   {% block toggle_login %}
   {% endblock %}
 {% endblock %}
+
+<!-- ###DECKBLATT### -->
 
 {% block content %}
 <div>
@@ -29,6 +29,8 @@
   - 
   {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
 </p>
+
+<!-- ###UEBERSICHTSBLAETTER### -->
 
 <div style="page-break-before:always;">
   <h4>Übersicht</h4>
@@ -58,6 +60,8 @@
 </p>
 
 <h4 style="text-align:right">Rechnungsbetrag: {{ rechnungsozialamt.rechnungsbetrag }} €</h4>
+
+<!-- ###EINZELABRECHNUNGEN### -->
 
 <div style="page-break-before:always;">
   <h4>Einzelabrechnungen nach Schülern</h4>
