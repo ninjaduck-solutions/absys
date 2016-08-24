@@ -68,7 +68,7 @@ clean-test:
 	rm -fr htmlcov/
 
 coverage:
-	envdir envs/$(ENV) coverage run -m pytest $(TEST_ARGS) tests/
+	envdir envs/$(ENV) coverage run -m pytest tests/
 	coverage report
 
 coverage-html: coverage
@@ -134,10 +134,11 @@ glances:
 	glances -w
 
 test:
-	@echo "Use \"TEST_ARGS='--cache-clear'\" to clean up the test cache"
-	@echo "Use \"TEST_ARGS='--create-db'\" to force recreation of the test database"
+	@echo "Use the PYTEST_ADDOPTS environment variable to add extra command line options"
+	@echo "Use \"PYTEST_ADDOPTS='--cache-clear'\" to clean up the test cache"
+	@echo "Use \"PYTEST_ADDOPTS='--create-db'\" to force recreation of the test database"
 	@echo
-	envdir envs/$(ENV) python -m pytest --reuse-db --last-failed $(TEST_ARGS) tests/
+	envdir envs/$(ENV) python -m pytest --reuse-db --last-failed tests/
 
 test-fixtures:
 	envdir envs/$(ENV) python -m pytest --fixtures tests/
