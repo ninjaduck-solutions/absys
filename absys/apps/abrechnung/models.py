@@ -143,8 +143,8 @@ class Rechnung(TimeStampedModel):
             limit = 0
         for rechnung_pos in qs[:limit]:
             rechnung_pos.rechnung = self
-            if rechnung_pos.fehltage_nicht_abgerechnet == self:
-                rechnung_pos.fehltage_nicht_abgerechnet = None
+            if rechnung_pos.rechnung_nicht_abgerechnet == self:
+                rechnung_pos.rechnung_nicht_abgerechnet = None
             rechnung_pos.save()
 
     def abschliessen(self, schueler_in_einrichtung):
