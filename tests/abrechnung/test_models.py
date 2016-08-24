@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.utils.timezone import now
 
 
@@ -65,3 +66,16 @@ class TestRechnung:
         Zahlen eingeschränkt wurde.
         """
         rechnung.fehltage_abrechnen(schueler_in_einrichtung)
+
+
+@pytest.mark.django_db
+class TestRechnungPosition:
+
+    def test_clean(self, rechnung, rechnungs_position_factory):
+        with pytest.raises(IntegrityError) as exp:
+            rechnungs_position_factory.build(
+                datum=now(),
+                rechnung=rechnung,
+                rechnung_nicht_abgerechnet=rechnung
+            ).clean()
+        assert str(exp.value) == "Die Felder \"Rechnung\" und \"Rechnung, nicht abgerechnet\" dürfen nicht beide eine Rechnung enthalten."

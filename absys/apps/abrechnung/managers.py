@@ -33,10 +33,12 @@ class RechnungSozialamtManager(models.Manager):
             )
             tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
             for tag in tage:
-                if tag in tage_abwesend_datetime:
-                    RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, abwesend=True)
-                else:
-                    RechnungsPosition.objects.erstelle_fuer_tag(tag, schueler_in_einrichtung, rechnung)
+                RechnungsPosition.objects.erstelle_fuer_tag(
+                    tag,
+                    schueler_in_einrichtung,
+                    rechnung,
+                    tag in tage_abwesend_datetime
+                )
             rechnung.fehltage_abrechnen(schueler_in_einrichtung)
             rechnung.abschliessen(schueler_in_einrichtung)
         return rechnung_sozialamt
@@ -112,30 +114,29 @@ class RechnungsPositionQuerySet(models.QuerySet):
 
 class RechnungsPositionManager(models.Manager):
 
-    def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung=None, abwesend=False):
+    def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung, abwesend=False):
         """
         Erstellt eine ``RechnungsPosition`` für einen Betreuungstag und einen Schüler.
 
         Die ``RechnungsPosition`` wird mit der passenden ``Rechnung``-Instanz
-        verknüpft, falls eine übergeben wurde.
+        verknüpft.
         """
-        kwargs = {
-            'sozialamt': schueler_in_einrichtung.schueler.sozialamt,
-            'schueler': schueler_in_einrichtung.schueler,
-            'einrichtung': schueler_in_einrichtung.einrichtung,
-            'datum': tag,
-            'name_einrichtung': schueler_in_einrichtung.einrichtung.name,
-            'abwesend': abwesend,
-            'pflegesatz': schueler_in_einrichtung.schueler.berechne_pflegesatz(tag),
-        }
+        rechnung_pos = self.model(
+            sozialamt=schueler_in_einrichtung.schueler.sozialamt,
+            schueler=schueler_in_einrichtung.schueler,
+            einrichtung=schueler_in_einrichtung.einrichtung,
+            datum=tag,
+            name_einrichtung=schueler_in_einrichtung.einrichtung.name,
+            abwesend=abwesend,
+            pflegesatz=schueler_in_einrichtung.schueler.berechne_pflegesatz(tag)
+        )
         if schueler_in_einrichtung.einrichtung.hat_ferien(tag):
-            kwargs['tag_art'] = self.model.TAG_ART.ferien
-        if rechnung:
-            # Nutzt die create() Methode der Relation zwischen Rechnung und
-            # RechnungsPosition
-            create = rechnung.positionen.create
+            rechnung_pos.tag_art = self.model.TAG_ART.ferien
+        if abwesend:
+            # RechnungsPosition wird als nicht abgerechneter Fehltag markiert
+            rechnung_pos.fehltage_nicht_abgerechnet = rechnung
         else:
-            # Nutzt die create() Methode von RechnungsPosition, dadurch wird
-            # keine Rechnung zugewiesen
-            create = self.create
-        return create(**kwargs)
+            # RechnungsPosition wird als abgerechnet markiert
+            rechnung_pos.rechnung = rechnung
+        rechnung_pos.clean()
+        return rechnung_pos.save(force_insert=True)

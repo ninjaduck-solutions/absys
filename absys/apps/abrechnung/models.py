@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import IntegrityError, models
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from model_utils import Choices
@@ -104,7 +104,6 @@ class Rechnung(TimeStampedModel):
     summe = models.DecimalField("Gesamtbetrag", max_digits=7, decimal_places=2, null=True)
     fehltage = models.PositiveIntegerField("Fehltage im Abrechnungszeitraum", default=0)
     fehltage_gesamt = models.PositiveIntegerField("Fehltage seit Eintritt in die Einrichtung", default=0)
-    fehltage_nicht_abgerechnet = models.PositiveIntegerField("Bisher nicht abgerechnete Fehltage", default=0)
     max_fehltage = models.PositiveIntegerField("Maximale Fehltage zum Abrechnungstag", default=0)
 
     objects = managers.RechnungManager.from_queryset(managers.RechnungQuerySet)()
@@ -144,6 +143,8 @@ class Rechnung(TimeStampedModel):
             limit = 0
         for rechnung_pos in qs[:limit]:
             rechnung_pos.rechnung = self
+            if rechnung_pos.fehltage_nicht_abgerechnet == self:
+                rechnung_pos.fehltage_nicht_abgerechnet = None
             rechnung_pos.save()
 
     def abschliessen(self, schueler_in_einrichtung):
@@ -154,7 +155,7 @@ class Rechnung(TimeStampedModel):
         self.fehltage_nicht_abgerechnet = RechnungsPosition.objects.nicht_abgerechnet(
             schueler_in_einrichtung,
             self.rechnung_sozialamt.enddatum
-        ).count()
+        )
         self.save()
 
 
@@ -185,8 +186,18 @@ class RechnungsPosition(TimeStampedModel):
     sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt")
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
     einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung")
-    rechnung = models.ForeignKey(Rechnung, verbose_name="Rechnung", null=True,
-        related_name='positionen')
+    rechnung = models.ForeignKey(
+        Rechnung,
+        verbose_name="Rechnung",
+        null=True,
+        related_name='positionen'
+    )
+    rechnung_nicht_abgerechnet = models.ForeignKey(
+        Rechnung,
+        verbose_name="Rechnung, nicht abgerechnet",
+        null=True,
+        related_name='fehltage_nicht_abgerechnet'
+    )
     datum = models.DateField("Datum")
     name_einrichtung = models.CharField("Einrichtung", max_length=20)
     tag_art = models.CharField("Schul- oder Ferientag", choices=TAG_ART, default=TAG_ART.schule, max_length=20)
@@ -203,3 +214,8 @@ class RechnungsPosition(TimeStampedModel):
 
     def __str__(self):
         return "Rechnungsposition für {s.schueler.voller_name} am {s.datum}".format(s=self)
+
+    def clean(self):
+        if self.rechnung is not None and self.rechnung_nicht_abgerechnet is not None:
+            raise IntegrityError("Die Felder \"Rechnung\" und"
+                " \"Rechnung, nicht abgerechnet\" dürfen nicht beide eine Rechnung enthalten.")
