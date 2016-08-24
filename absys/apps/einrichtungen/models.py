@@ -171,14 +171,17 @@ class Ferien(TimeStampedModel):
 class Schliesstag(TimeStampedModel):
 
     name = models.CharField(max_length=100)
-    datum = models.DateField()
+    datum = models.DateField(unique=True)
     art = models.CharField(max_length=50)
-
-    # TODO ManyToManyField(Einrichtung) hinzufügen, siehe Ferien
+    einrichtungen = models.ManyToManyField(
+        Einrichtung,
+        verbose_name='Einrichtungen',
+        related_name='schliesstage'
+    )
 
     class Meta:
         verbose_name = "Schließ­tag"
         verbose_name_plural = "Schließ­tage"
 
     def __str__(self):
-        return '{s.name}: {s.datum}) '.format(s=self)
+        return '{s.name}: {s.datum} '.format(s=self)

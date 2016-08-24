@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.db import IntegrityError
 
 
 @pytest.mark.django_db
@@ -117,3 +118,11 @@ class TestEinrichtung:
         datum = datetime.date(2016, 7, 15)
         with pytest.raises(einrichtung_hat_pflegesatz.DoesNotExist):
             einrichtung_hat_pflegesatz.einrichtung.get_pflegesatz(datum)
+
+
+@pytest.mark.django_db
+class TestSchliesstag:
+
+    def test_datum_unique(self, schliesstag, schliesstag_factory):
+        with pytest.raises(IntegrityError):
+            schliesstag_factory.create(datum=schliesstag.datum)

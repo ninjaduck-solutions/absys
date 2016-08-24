@@ -70,6 +70,8 @@ class TestSchuelerInEinrichtungQuerySet:
     def test_get_betreuungstage(
             self, schueler, betreuungstage_start, betreuungstage_ende, schliesstag,
             schueler_in_einrichtung, count):
+        schliesstag.einrichtungen = [schueler_in_einrichtung.einrichtung]
+        schliesstag.save()
         betreuungstage = schueler.angemeldet_in_einrichtung.get_betreuungstage(
             betreuungstage_start,
             betreuungstage_ende
@@ -101,13 +103,25 @@ class TestSchuelerInEinrichtungQuerySet:
             self, schueler, schueler_factory, betreuungstage_start, betreuungstage_ende,
             schliesstag_factory, schueler_in_einrichtung, schueler_in_einrichtung_factory,
             einrichtung_factory):
-        schliesstag_factory(datum=datetime.date(2016, 7, 12))
-        schliesstag_factory(datum=datetime.date(2016, 7, 14))
         schueler_in_einrichtung_2 = schueler_in_einrichtung_factory(
             schueler=schueler,
             einrichtung=einrichtung_factory(),
             eintritt=datetime.date(2016, 7, 14),
             austritt=datetime.date(2016, 7, 19)
+        )
+        schliesstag_factory(
+            datum=datetime.date(2016, 7, 12),
+            einrichtungen=[
+                schueler_in_einrichtung.einrichtung,
+                schueler_in_einrichtung_2.einrichtung,
+            ]
+        )
+        schliesstag_factory(
+            datum=datetime.date(2016, 7, 14),
+            einrichtungen=[
+                schueler_in_einrichtung.einrichtung,
+                schueler_in_einrichtung_2.einrichtung,
+            ]
         )
         schueler_in_einrichtung_factory(
             schueler=schueler_factory(),

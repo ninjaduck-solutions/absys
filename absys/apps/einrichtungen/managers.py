@@ -27,7 +27,6 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         Alle Samstage, Sonntage und Schließ­tage werden entfernt.
         """
         from .models import Schliesstag
-        schliesstage = tuple(Schliesstag.objects.values_list('datum', flat=True))
         qs = self.filter(
             (
                 models.Q(eintritt__range=(startdatum, enddatum)) |
@@ -38,7 +37,13 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
             )
         ).order_by('eintritt')
         betreuungstage = {}
+        schliesstage = {}
         for schueler_in_einrichtung in qs:
+            einrichtung = schueler_in_einrichtung.einrichtung
+            if einrichtung not in schliesstage:
+                schliesstage[einrichtung] = tuple(
+                    Schliesstag.objects.filter(einrichtungen__in=[einrichtung]).values_list('datum', flat=True)
+                )
             tage = []
             tag = schueler_in_einrichtung.eintritt
             if schueler_in_einrichtung.eintritt < startdatum:
@@ -47,7 +52,7 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
             if schueler_in_einrichtung.austritt > enddatum:
                 letzter_tag = enddatum
             while tag <= letzter_tag:
-                if tag.isoweekday() not in (6, 7) and tag not in schliesstage:
+                if tag.isoweekday() not in (6, 7) and tag not in schliesstage[einrichtung]:
                     tage.append(tag)
                 tag += datetime.timedelta(1)
             betreuungstage[schueler_in_einrichtung] = tuple(tage)
