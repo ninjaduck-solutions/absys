@@ -29,7 +29,8 @@ help:
 	@echo "  isort                    to run isort on the whole project"
 	@echo "  makemigrations           to build migrations after altering the models"
 	@echo "  migrate                  to synchronize Django's database state with the current set of models and migrations"
-	@echo "  models_graphed           to generate a visualisation of your models and their relations and inheritances."
+	@echo "  modelgraph_easy          to generate a visualisation of your models and their relations WITHOUT inheritances."
+	@echo "  modelgraph_complete      to generate a visualisation of your models and their relations AND inheritances."
 	@echo "  reset-db                 to reset the PostgreSQL database"
 	@echo "  runserver                to start Django's development Web server"
 	@echo "  serve-docs               to serve the project documentation in the default browser"
@@ -111,8 +112,11 @@ makemigrations:
 migrate:
 	envdir envs/$(ENV) python manage.py migrate
 
-modelgraph:
-	envdir envs/$(ENV) python  manage.py graph_models -a -g -o docs/_static/models_graphed.png
+modelgraph_easy:
+	envdir envs/$(ENV) python  manage.py graph_models -a -E -o docs/_static/modelgraph_easy.png
+
+modelgraph_complete:
+	envdir envs/$(ENV) python  manage.py graph_models -a -g -o docs/_static/modelgraph_complete.png
 
 runserver:
 	envdir envs/$(ENV) python manage.py runserver 0.0.0.0:$(PORT)
