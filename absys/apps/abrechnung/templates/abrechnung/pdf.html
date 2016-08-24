@@ -86,8 +86,7 @@
       <br>
       Fehltage nicht abgerechnet: {% spaceless %}
       {% for fehltag in rechnung.fehltage_nicht_abgerechnet.all %}
-        {{ fehltag.datum }}
-        {% if not forloop.last %},{% endif %}
+        {{ fehltag.datum }}{% if not forloop.last %},{% endif %}
       {% empty %}
         Keine
       {% endfor %}
