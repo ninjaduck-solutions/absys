@@ -177,8 +177,8 @@ class Schliesstag(TimeStampedModel):
     # TODO ManyToManyField(Einrichtung) hinzufügen, siehe Ferien
 
     class Meta:
-        verbose_name = "Schliesstag"
-        verbose_name_plural = "Schliesstage"
+        verbose_name = "Schließ­tag"
+        verbose_name_plural = "Schließ­tage"
 
     def __str__(self):
         return '{s.name}: {s.datum}) '.format(s=self)

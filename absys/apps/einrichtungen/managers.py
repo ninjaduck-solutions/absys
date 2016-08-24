@@ -24,7 +24,7 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         Anzahl der Tage entsprechen, an denen der Schüler in der Einrichtung
         angemeldet war.
 
-        Alle Samstage, Sonntage und Schliesstage werden entfernt.
+        Alle Samstage, Sonntage und Schließ­tage werden entfernt.
         """
         from .models import Schliesstag
         schliesstage = tuple(Schliesstag.objects.values_list('datum', flat=True))

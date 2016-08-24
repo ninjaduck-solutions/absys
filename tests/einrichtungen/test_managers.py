@@ -12,49 +12,49 @@ class TestSchuelerInEinrichtungQuerySet:
         'schueler_in_einrichtung__austritt',
         'count'
     ), [
-        (  # Eintritt vor Start, Austritt nach Ende, ein Schliesstag
+        (  # Eintritt vor Start, Austritt nach Ende, ein Schließ­tag
             datetime.date(2016, 7, 12),
             datetime.date(2016, 7, 1),
             datetime.date(2016, 7, 31),
             4
         ),
-        (  # Eintritt vor Start, Austritt nach Ende, kein Schliesstag
+        (  # Eintritt vor Start, Austritt nach Ende, kein Schließ­tag
             datetime.date(2016, 6, 2),
             datetime.date(2016, 7, 1),
             datetime.date(2016, 7, 31),
             5
         ),
-        (  # Eintritt am Start, Austritt am Ende, kein Schliesstag
+        (  # Eintritt am Start, Austritt am Ende, kein Schließ­tag
             datetime.date(2016, 6, 2),
             datetime.date(2016, 7, 11),
             datetime.date(2016, 7, 17),
             5
         ),
-        (  # Eintritt vor Start, Austritt am Ende, kein Schliesstag
+        (  # Eintritt vor Start, Austritt am Ende, kein Schließ­tag
             datetime.date(2016, 6, 2),
             datetime.date(2016, 7, 1),
             datetime.date(2016, 7, 17),
             5
         ),
-        (  # Eintritt nach Start, Austritt vor Ende, kein Schliesstag
+        (  # Eintritt nach Start, Austritt vor Ende, kein Schließ­tag
             datetime.date(2016, 6, 2),
             datetime.date(2016, 7, 12),
             datetime.date(2016, 7, 14),
             3
         ),
-        (  # Eintritt am Start, Austritt nach Ende, kein Schliesstag
+        (  # Eintritt am Start, Austritt nach Ende, kein Schließ­tag
             datetime.date(2016, 6, 2),
             datetime.date(2016, 7, 11),
             datetime.date(2016, 7, 31),
             5
         ),
-        (  # Eintritt vor Start, Austritt vor Ende, kein Schliesstag
+        (  # Eintritt vor Start, Austritt vor Ende, kein Schließ­tag
             datetime.date(2016, 6, 2),
             datetime.date(2016, 6, 15),
             datetime.date(2016, 7, 14),
             4
         ),
-        (  # Eintritt nach Start, Austritt nach Ende, kein Schliesstag
+        (  # Eintritt nach Start, Austritt nach Ende, kein Schließ­tag
             datetime.date(2016, 6, 2),
             datetime.date(2016, 7, 12),
             datetime.date(2016, 7, 31),
