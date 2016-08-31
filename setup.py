@@ -14,9 +14,6 @@ def read(*paths):
         return f.read()
 
 extras_require = {
-    'raven': [
-        'raven==5.8.1',
-    ],
 }
 
 requires = [

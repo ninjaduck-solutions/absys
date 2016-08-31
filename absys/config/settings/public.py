@@ -1,26 +1,6 @@
 from configurations import values
 
 from . import common, databases, email
-from .. import __version__
-
-
-class Raven(object):
-    """Report uncaught exceptions to the Sentry server."""
-
-    INSTALLED_APPS = common.Common.INSTALLED_APPS + ('raven.contrib.django.raven_compat',)
-
-    RAVEN_CONFIG = {
-        'dsn': values.URLValue(environ_name='RAVEN_CONFIG_DSN'),
-        'release': __version__,
-    }
-
-
-class Sentry404(Raven):
-    """Log 404 events to the Sentry server."""
-
-    MIDDLEWARE_CLASSES = values.ListValue([
-        'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
-    ]) + common.Common.MIDDLEWARE_CLASSES
 
 
 class Public(email.Email, databases.Databases, common.Common):
