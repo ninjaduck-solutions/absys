@@ -8,31 +8,28 @@ from import_export.admin import ImportExportActionModelAdmin
 
 
 class HeuteAngemeldetListFilter(admin.SimpleListFilter):
-    title = ('Zeitraum')
+    title = 'Zeitraum'
     parameter_name = 'angemeldet'
 
     def lookups(self, request, model_admin):
         return (
-            ('heute', ('heute')),
-            ('aktueller Monat', ('aktueller Monat - noch nicht fertig:')),
-            ('aktuelles Jahr', ('aktuelles Jahr - noch nicht fertig')),
-            )
+            ('heute', 'heute'),
+            ('aktueller Monat', 'aktueller Monat - noch nicht fertig:'),
+            ('aktuelles Jahr', 'aktuelles Jahr - noch nicht fertig'),
+        )
 
     def queryset(self, request, queryset):
         if self.value() == 'heute':
             return queryset.war_angemeldet(timezone.now().date())
-
-    def queryset(self, request, queryset):
         if self.value() == 'aktueller Monat':
             return queryset.filter(
                 #TODO
                 )
-
-    def queryset(self, request, queryset):
         if self.value() == 'aktuelles Jahr':
             return queryset.filter(
                 #TODO
                 )
+
 
 class SchuelerInEinrichtungAdmin(admin.ModelAdmin):
     list_display = ('schueler', 'einrichtung', 'sozialamt', 'eintritt', 'austritt', 'fehltage_erlaubt')
