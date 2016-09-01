@@ -10,7 +10,6 @@ Contents:
    :maxdepth: 2
 
    releases
-   deployment
 
 Indices and tables
 ==================
