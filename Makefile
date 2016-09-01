@@ -5,7 +5,7 @@ SPHINXOPTS =
 
 .PHONY: help clean clean-build clean-docs clean-pyc clean-test coverage coverage-html \
     create-db develop docs isort migrate serve-docs runserver shell startapp test \
-    test-all glances fixtures reset-db test-fixtures
+    test-all glances fixtures reset-db test-fixtures modelgraph
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
@@ -29,8 +29,7 @@ help:
 	@echo "  isort                    to run isort on the whole project"
 	@echo "  makemigrations           to build migrations after altering the models"
 	@echo "  migrate                  to synchronize Django's database state with the current set of models and migrations"
-	@echo "  modelgraph_easy          to generate a visualisation of your models and their relations WITHOUT inheritances."
-	@echo "  modelgraph_complete      to generate a visualisation of your models and their relations AND inheritances."
+	@echo "  modelgraph               to generate a visualisation of your models and their relations"
 	@echo "  reset-db                 to reset the PostgreSQL database"
 	@echo "  runserver                to start Django's development Web server"
 	@echo "  serve-docs               to serve the project documentation in the default browser"
@@ -112,11 +111,13 @@ makemigrations:
 migrate:
 	envdir envs/$(ENV) python manage.py migrate
 
-modelgraph_easy:
+modelgraph:
+	git diff --quiet docs
+	git diff --cached --quiet
 	envdir envs/$(ENV) python  manage.py graph_models -a -E -o docs/_static/modelgraph_easy.png
-
-modelgraph_complete:
 	envdir envs/$(ENV) python  manage.py graph_models -a -g -o docs/_static/modelgraph_complete.png
+	git add docs
+	git commit -m "docs: Modelgraphen aktualisiert"
 
 runserver:
 	envdir envs/$(ENV) python manage.py runserver 0.0.0.0:$(PORT)

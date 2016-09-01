@@ -2,22 +2,21 @@ include *.rst
 include LICENSE
 include Makefile
 include manage.py
+include MANIFEST.in
 include tox.ini
-
+recursive-include requirements *.pip
+graft docs
+prune docs/_build
+prune envs
+prune salt
+graft absys
+prune absys/media
+include absys/media/.gitkeep
+prune absys/static_root
+graft tests
 exclude .bumpversion.cfg
 exclude .editorconfig
 exclude pep257.sh
-
-recursive-include docs *.rst .gitkeep conf.py Makefile make.bat
-recursive-include requirements *.pip
-
-recursive-exclude * __pycache__
-recursive-exclude * *.py[co]
-
-graft absys
-graft tests
-
-prune envs
-prune absys/.cache
-prune absys/media
-prune absys/static_root
+exclude Vagrantfile
+global-exclude *.py[co]
+global-exclude __pycache__
