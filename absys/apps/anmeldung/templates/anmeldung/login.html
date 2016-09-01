@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %} - Anmeldung{% endblock %}
+
+{% block toggle_login %}{% endblock %}
+
+<h3>Anmelden</h3>
+
+
+{% block content %}
+<p>
+    <h3>Herzlich Willkommen bei AbSys!</h3>
+</p>
+
+<br><br>
+
+  <form action="{% url "absys_login" %}" method="post" accept-charset="utf-8">
+    {{ form|crispy }}
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <input class="btn btn-default" type="submit" value="Anmelden">
+  </form>
+{% endblock %}

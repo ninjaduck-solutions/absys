@@ -1,0 +1,23 @@
+{% if user.is_authenticated %}
+<ul class="nav navbar-nav navbar-right">
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+        aria-expanded="false">{{ user.username }} <span class="caret"></span></a>
+    <ul class="dropdown-menu" role="menu">
+      <li><a href="{% url "absys_logout" %}">Abmelden</a></li>
+    </ul>
+  </li>
+</ul>
+{% else %}
+<form class="navbar-form navbar-right" role="form" action="{% url "absys_login" %}"
+    method="post" accept-charset="utf-8">
+  <div class="form-group">
+    <input type="text" placeholder="Benutzername" class="form-control" name="username">
+  </div>
+  <div class="form-group">
+    <input type="password" placeholder="Passwort" class="form-control" name="password">
+  </div>
+  {% csrf_token %}
+  <button type="submit" class="btn btn-success">Anmelden</button>
+</form>
+{% endif %}

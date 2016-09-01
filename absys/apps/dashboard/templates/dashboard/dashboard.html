@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %} - Dashboard{% endblock title %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<div class="panel panel col-md-12">
+</div>
+
+<center>
+
+    <div class="panel panel-default col-md-3" style="background-color: Orange; margin: 4%">
+        <div class="panel-body" style="background-color: Orange"><a href="{% url 'abrechnung_rechnungsozialamt_form' %}"><h3>Rechnungen</h3></a></div>
+    </div>
+
+    <div class="panel panel-default col-md-3" style="background-color: Tomato; margin: 4%">
+        <div class="panel-body" style="background-color: Tomato"><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}"><h3>Anwesenheiten</h3></a></div>
+    </div>
+
+    <div class="panel panel-default col-md-3" style="background-color: LightSkyBlue; margin: 4%">
+        <div class="panel-body" style="background-color: LightSkyBlue"><a href="{% url 'admin:index' %}"><h3>Verwaltung</h3></a></div>
+    </div>
+
+</center>
+
+</div>
+
+{% endblock content %}

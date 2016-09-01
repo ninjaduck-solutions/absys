@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Rechnungen{% endblock title %}
+
+{% block content %}
+  <h3>Rechnungen</h3>
+  {% crispy form %}
+  <table class="table table-striped">
+    <thead>
+       <tr>
+        <th>Startdatum</th>
+        <th>Enddatum</th>
+        <th>Sozialamt</th>
+        <th>Nr.</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rechnung in object_list %}
+        <tr>
+          <td>{{ rechnung.startdatum|date:"d.m.Y" }}</td>
+          <td>{{ rechnung.enddatum|date:"d.m.Y" }}</td>
+          <td>{{ rechnung.sozialamt }}</td>
+          <td>
+            <a href="{% url 'abrechnung_rechnungsozialamt_pdf' pk=rechnung.id %}">{{ rechnung.nummer }}</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock content %}
+
+
