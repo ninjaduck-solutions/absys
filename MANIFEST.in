@@ -1,4 +1,5 @@
 include *.rst
+include LICENSE
 include Makefile
 include manage.py
 include MANIFEST.in
@@ -11,10 +12,11 @@ prune salt
 graft absys
 prune absys/media
 include absys/media/.gitkeep
-prune absys/static
+prune absys/static_root
 graft tests
 exclude .bumpversion.cfg
 exclude .editorconfig
+exclude pep257.sh
 exclude Vagrantfile
 global-exclude *.py[co]
 global-exclude __pycache__
