@@ -24,6 +24,7 @@ requires = [
     'django-configurations==2.0',
     'django-crispy-forms==1.6.0',
     'django-extra-views==0.8.0',
+    'django-lockdown==1.3',
     'django-model-utils==2.5.1',
     'envdir==0.7',
     'fake-factory==0.5.7',
