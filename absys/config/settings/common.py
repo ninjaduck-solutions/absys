@@ -221,4 +221,6 @@ class Common(Configuration):
         message_constants.ERROR: 'danger',
     }
 
+    # Anzahl der Tage, die im aktuellen Monat für rückwirkende Änderungen der
+    # Anwesenheitsliste im Frontend zur Verfügung stehen.
     ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT = values.IntegerValue(15)
