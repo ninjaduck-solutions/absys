@@ -13,6 +13,7 @@ Vagrant.configure(2) do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "boxcutter/debian82"
   config.ssh.forward_agent = true
+  config.vm.hostname = "absys-dev"
 
   # Port forwarding for Django's development server.
   config.vm.network "forwarded_port", guest: 8000, host: 8000,
