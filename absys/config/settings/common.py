@@ -23,9 +23,7 @@ class Common(Configuration):
 
     DEBUG = values.BooleanValue(False)
 
-    ADMINS = AdminsValue(
-        (('IMTB', 'errors@example.com'),)
-    )
+    ADMINS = AdminsValue()
     MANAGERS = ADMINS
 
     LOGGING = {
