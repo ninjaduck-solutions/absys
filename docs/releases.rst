@@ -7,14 +7,6 @@ work in feature branches it will also be used to create the releases. Before
 you start a new release make sure all feature branches you want to be part of
 the release have been merged into the ``develop`` branch.
 
-Furthermore it's assumed that `protected branches
-<https://help.github.com/articles/configuring-protected-branches/>`_ and
-`required status checks
-<https://help.github.com/articles/enabling-required-status-checks/>`_ are
-enabled on GitHub. Usually the branches ``develop`` and ``master`` are
-configured as protected branches and status checks for continuous integration
-and code coverage are required.
-
 Start a new release branch
 ==========================
 
@@ -43,6 +35,12 @@ releases (example: ``0.8.2``) and ``minor`` for minor releases (example
 
     $ bumpversion major
 
+Also update the model graphs:
+
+::
+
+    $ make modelgraph
+
 Now run the test suite to make sure everything works as expected:
 
 ::
@@ -51,27 +49,17 @@ Now run the test suite to make sure everything works as expected:
 
 Fix any errors or failures that occur directly in the release branch.
 
-Publish the release branch
-==========================
-
-Then push the new branch ``release/1.0.0`` to the GitHub remote to run the
-required status checks for the release branch:
-
-::
-
-    $ git push --set-upstream origin release/1.0.0
-
 Finish the release branch
 =========================
 
-After all GitHub status checks have passed you can finish the release branch:
+Now you can finish the release branch:
 
 ::
 
     $ git flow release finish 1.0.0
 
 Now you change to the ``master`` branch and push it together with the new tag
-``1.0.0`` to the GitHub remote:
+``1.0.0`` to the Git remote:
 
 ::
 
@@ -79,56 +67,17 @@ Now you change to the ``master`` branch and push it together with the new tag
     $ git push origin master
     $ git push origin master --tags
 
-Create an integration branch to merge ``master`` into ``develop``
-=================================================================
+After that create the distribution:
 
-Then checkout the ``develop`` branch:
+::
+
+    $ git checkout 1.0.0
+    $ make dist
+
+Finally change back to the ``develop`` branch and push it to the Git remote:
 
 ::
 
     $ git checkout develop
+    $ git push origin develop
 
-You will recognize that it has already been merged with ``master``. But for a
-protected branches configuration where ``master`` and ``develop`` are protected
-this does not work.
-
-So create a new integration branch to merge ``master`` into ``develop``:
-
-::
-
-    $ git checkout -b merge-master-into-develop-for-release-1.0.0
-
-After that fetch the latest changes, merge with the integration branch and push
-it:
-
-::
-
-    $ git fetch
-    $ git merge origin/develop
-    $ git push --set-upstream origin merge-master-into-develop-for-release-1.0.0
-
-Now that we have the merge of ``master`` into ``develop`` in a separate
-integration branch we can safely reset the ``develop`` branch:
-
-::
-
-    $ git checkout develop
-    $ git reset --hard origin/develop
-
-The last step create a new pull request for the integration branch
-``merge-master-into-develop-for-release-1.0.0`` on GitHub, merge and delete it
-after all required status checks have passed.
-
-Clean up
-========
-
-Finally delete all stale remote-tracking branches for ``origin``, the local
-branch ``merge-master-into-develop-for-release-1.0.0`` and the remote-tracking
-branch ``release/1.0.0``:
-
-::
-
-    $ git pull
-    $ git remote prune origin
-    $ git branch -d merge-master-into-develop-for-release-1.0.0
-    $ git push origin :release/1.0.0

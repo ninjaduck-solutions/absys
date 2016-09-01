@@ -1,9 +1,9 @@
 from configurations import values
 
-from . import common, databases, email
+from . import common, databases, email, lockdown
 
 
-class Public(email.Email, databases.Databases, common.Common):
+class Public(email.Email, databases.Databases, lockdown.Lockdown, common.Common):
     """General settings for all public servers."""
 
     CSRF_COOKIE_HTTPONLY = True
