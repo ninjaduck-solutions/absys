@@ -7,6 +7,7 @@ include tox.ini
 recursive-include requirements *.pip
 graft docs
 prune docs/_build
+prune bin
 prune envs
 prune salt
 graft absys
@@ -16,7 +17,6 @@ prune absys/static_root
 graft tests
 exclude .bumpversion.cfg
 exclude .editorconfig
-exclude pep257.sh
 exclude Vagrantfile
 global-exclude *.py[co]
 global-exclude __pycache__
