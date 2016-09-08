@@ -44,16 +44,6 @@ class RechnungSozialamtManager(models.Manager):
         return rechnung_sozialamt
 
 
-class RechnungQuerySet(models.QuerySet):
-
-    def letzte_rechnungen(self, jahr):
-        """Gibt die letzten Rechnungen im angegebenen Jahr zurück."""
-        return self.filter(
-            rechnung_sozialamt__startdatum__gte=timezone.make_aware(datetime(jahr, 1, 1)),
-            rechnung_sozialamt__enddatum__lte=timezone.make_aware(datetime(jahr, 12, 31))
-        ).order_by('-rechnung_sozialamt__startdatum')
-
-
 class RechnungManager(models.Manager):
 
     def erstelle_rechnung(self, rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend):
@@ -110,6 +100,19 @@ class RechnungsPositionQuerySet(models.QuerySet):
             rechnung=None,
             datum__gte=self.get_betrachtungszeitraum(schueler_in_einrichtung, enddatum.year)
         )
+
+    def fehltage_abgerechnet(self, schueler_in_einrichtung, enddatum):
+        """Gibt alle abgerechneten Rechnungs-Positionen zurück, die Fehltage sind.
+
+        - Ist auf den Schüler und die Einrichtung, in der dieser angemeldet ist, eingeschränkt.
+        - Beginn am 1.1. des Abrechnungsjahres oder am Eintrittsdatum, wenn dieses im aktuellen Jahr liegt.
+        """
+        return self.filter(
+            schueler=schueler_in_einrichtung.schueler,
+            einrichtung=schueler_in_einrichtung.einrichtung,
+            abwesend=True,
+            datum__gte=self.get_betrachtungszeitraum(schueler_in_einrichtung, enddatum.year)
+        ).exclude(rechnung=None)
 
 
 class RechnungsPositionManager(models.Manager):

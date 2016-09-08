@@ -132,13 +132,11 @@ class Rechnung(TimeStampedModel):
         qs = RechnungsPosition.objects.nicht_abgerechnet(
             schueler_in_einrichtung, self.rechnung_sozialamt.enddatum
         )
-        fehltage_vorletzte_rechnung = 0
-        letzte_rechnungen = schueler_in_einrichtung.schueler.rechnungen.letzte_rechnungen(
-            self.rechnung_sozialamt.enddatum.year
-        )
-        if letzte_rechnungen.count() >= 2:
-            fehltage_vorletzte_rechnung = letzte_rechnungen[1].fehltage_gesamt
-        limit = schueler_in_einrichtung.fehltage_erlaubt - fehltage_vorletzte_rechnung
+        fehltage_abgerechnet = RechnungsPosition.objects.fehltage_abgerechnet(
+            schueler_in_einrichtung,
+            self.rechnung_sozialamt.enddatum
+        ).count()
+        limit = schueler_in_einrichtung.fehltage_erlaubt - fehltage_abgerechnet
         if limit < 0:
             limit = 0
         for rechnung_pos in qs[:limit]:

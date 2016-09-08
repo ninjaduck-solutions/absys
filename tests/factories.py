@@ -5,6 +5,7 @@ from django.utils.timezone import now
 
 from absys.apps.einrichtungen.models import Einrichtung, SchuelerInEinrichtung, EinrichtungHatPflegesatz, Ferien
 from absys.apps.schueler.models import Gruppe, Sozialamt, Schueler
+from absys.apps.anwesenheitsliste.models import Anwesenheit
 
 
 class GruppeFactory(factory.DjangoModelFactory):
@@ -117,3 +118,14 @@ class FerienFactory(factory.DjangoModelFactory):
 
     class Params:
         dauer = 15
+
+
+class AnwesenheitFactory(factory.DjangoModelFactory):
+
+    schueler = factory.SubFactory(SchuelerFactory)
+    einrichtung = factory.SubFactory(EinrichtungFactory)
+    datum = factory.LazyAttribute(lambda obj: now().date())
+    abwesend = False
+
+    class Meta:
+        model = Anwesenheit
