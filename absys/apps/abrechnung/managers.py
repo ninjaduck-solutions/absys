@@ -11,7 +11,7 @@ class RechnungSozialamtManager(models.Manager):
         """
         Erzeugt eine ``Rechnung`` pro Schüler des Sozialamts im gewählten Zeitraum.
 
-        1. Erstellen einer ``Rechnung``-Instanz pro Schüler.
+        1. Erstellen oder Aktualisieren einer ``Rechnung``-Instanz pro Schüler.
         2. Abwesenheitstage pro Schüler im gewählten Zeitraum ermitteln.
         3. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine ``RechnungsPosition`` erstellen und wenn nötig mit passender ``Rechnung``-Instanz verknüpfen.
         4. Noch nicht abgerechnete ``RechnungsPosition``-Instanzen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
@@ -58,7 +58,7 @@ class RechnungManager(models.Manager):
 
     def erstelle_rechnung(self, rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend):
         """
-        Erstellt eine ``Rechnung``-Instanz für einen Schüler.
+        Erstellt oder aktualisiert eine ``Rechnung``-Instanz für einen Schüler.
 
         Der Übertrag der Fehltage erfolgt immer von der letzten vorhergehenden
         Rechnung des Schülers. Gibt es diese nicht, ist der Übertrag 0.
