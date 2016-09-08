@@ -47,7 +47,7 @@ if os.path.dirname(os.path.abspath(__file__)) == '/vagrant':
 
 setup(
     name='absys',
-    version='0.2.1',
+    version='0.2.2',
     description='Abrechnungssystem der SLSH und LZH.',
     long_description=read(BASE_DIR, 'README.rst'),
     author='IMTB',
