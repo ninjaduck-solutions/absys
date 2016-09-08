@@ -5,18 +5,18 @@ from . import models
 from import_export.admin import ImportExportActionModelAdmin
 
 
-class RechnungInline(admin.TabularInline):
-    model = models.Rechnung
+class RechnungSchuelerInline(admin.TabularInline):
+    model = models.RechnungSchueler
 
 
 class RechnungSozialamtAdmin(ImportExportActionModelAdmin):
 
     list_display = ('sozialamt', 'startdatum', 'enddatum')
     inlines = [
-        RechnungInline,
+        RechnungSchuelerInline,
     ]
 
 
-admin.site.register(models.Rechnung)
-admin.site.register(models.RechnungsPosition)
+admin.site.register(models.RechnungSchueler)
+admin.site.register(models.RechnungsPositionSchueler)
 admin.site.register(models.RechnungSozialamt, RechnungSozialamtAdmin)

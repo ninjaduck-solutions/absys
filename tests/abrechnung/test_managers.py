@@ -59,11 +59,11 @@ class TestRechnungSozialamtManager:
             abwesend=True
         )
         assert models.RechnungSozialamt.objects.count() == 0
-        assert models.Rechnung.objects.count() == 0
+        assert models.RechnungSchueler.objects.count() == 0
         models.RechnungSozialamt.objects.rechnungslauf(sozialamt, start, ende)
         assert models.RechnungSozialamt.objects.count() == 1
-        assert models.Rechnung.objects.count() == anzahl
-        # TODO Nachfolgende Assertions in Tests für RechnungSozialamt und Rechnung Models verschieben
+        assert models.RechnungSchueler.objects.count() == anzahl
+        # TODO Nachfolgende Assertions in Tests für RechnungSozialamt und RechnungSchueler Models verschieben
         if anzahl:
             rechnung_sozialamt = models.RechnungSozialamt.objects.first()
             assert rechnung_sozialamt.sozialamt == sozialamt
@@ -71,12 +71,12 @@ class TestRechnungSozialamtManager:
             assert rechnung_sozialamt.startdatum == start
             assert rechnung_sozialamt.enddatum == ende
             assert rechnung_sozialamt.enddatum > rechnung_sozialamt.startdatum
-            rechnung = models.Rechnung.objects.first()
+            rechnung = models.RechnungSchueler.objects.first()
             assert rechnung.rechnung_sozialamt == rechnung_sozialamt
             assert rechnung.schueler == schueler_in_einrichtung.schueler
             assert rechnung.name_schueler == schueler_in_einrichtung.schueler.voller_name
             assert rechnung.summe > 0
             assert rechnung.fehltage == 1
             assert rechnung.fehltage_nicht_abgerechnet.count() == 0
-            assert type(rechnung.fehltage_nicht_abgerechnet.all()) is managers.RechnungsPositionQuerySet
+            assert type(rechnung.fehltage_nicht_abgerechnet.all()) is managers.RechnungsPositionSchuelerQuerySet
             assert rechnung.positionen.count() == 5
