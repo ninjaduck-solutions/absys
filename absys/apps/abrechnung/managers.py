@@ -58,9 +58,13 @@ class RechnungManager(models.Manager):
             schueler=schueler_in_einrichtung.schueler,
             defaults={
                 'name_schueler': schueler_in_einrichtung.schueler.voller_name,
-                'fehltage': models.F('fehltage') + tage_abwesend.count(),
             }
         )
+        if created:
+            rechnung.fehltage = tage_abwesend.count()
+        else:
+            rechnung.fehltage = models.F('fehltage') + tage_abwesend.count()
+        rechnung.save()
         return rechnung
 
 
