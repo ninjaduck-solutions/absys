@@ -146,7 +146,7 @@ class Rechnung(TimeStampedModel):
         self.summe = 0
         if self.positionen.count():
             self.summe = self.positionen.aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
-        self.fehltage_nicht_abgerechnet = RechnungsPosition.objects.nicht_abgerechnet(
+        self.fehltage_nicht_abgerechnet = models.F('fehltage_nicht_abgerechnet') + RechnungsPosition.objects.nicht_abgerechnet(
             schueler_in_einrichtung,
             self.rechnung_sozialamt.enddatum
         )
