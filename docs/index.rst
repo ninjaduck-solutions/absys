@@ -10,6 +10,7 @@ Contents:
    :maxdepth: 2
 
    releases
+   demo_server_setup
 
 Indices and tables
 ==================

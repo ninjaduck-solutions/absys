@@ -11,17 +11,28 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "boxcutter/debian82"
-  config.ssh.forward_agent = true
-  config.vm.hostname = "absys-dev"
+  config.vm.box = "boxcutter/ubuntu1604"
 
-  # Port forwarding for Django's development server.
-  config.vm.network "forwarded_port", guest: 8000, host: 8000,
-    auto_correct: true
+  config.vm.define "dev", primary: true do |dev|
+    config.ssh.forward_agent = true
+    config.vm.hostname = "absys-dev"
 
-  # Port forwarding for Glances server.
-  config.vm.network "forwarded_port", guest: 61208, host: 61208,
-    auto_correct: true
+    # Port forwarding for Django's development server.
+    config.vm.network "forwarded_port", guest: 8000, host: 8000,
+      auto_correct: true
+
+    # Port forwarding for Glances server.
+    config.vm.network "forwarded_port", guest: 61208, host: 61208,
+      auto_correct: true
+  end
+
+  config.vm.define "deployment", autostart: false do |deployment|
+    config.vm.hostname = "absys-deployment"
+
+    # Port forwarding for Apache server.
+    config.vm.network "forwarded_port", guest: 80, host: 8080,
+      auto_correct: true
+  end
 
   # Salt provisioning.
   config.vm.synced_folder "salt/roots/", "/srv/"

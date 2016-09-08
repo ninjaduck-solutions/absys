@@ -115,11 +115,11 @@ Um am Django Projekt zu arbeiten müssen die folgenden Befehle ausgeführt werde
 
 ::
 
-    $ cd /vagrant  # Wechselt ins Projektverzeichnis; nach jeder Anmeldung auszuführen
-    $ make develop  # Installiert alle benötigten Pakete für das Projekt; nach jeder Veränderung an den verwendeten Django/Python Packages auszuführen
-    $ make migrate  # Führt die Datenbank Migrationen aus; nach jeder Änderung an der Datenbank und beim initialen Erstellen nach 'make develop' auszuführen
-    $ envdir envs/dev/ python manage.py createsuperuser  # Einen neuen Django Superuser erstellen
-    $ make runserver  #  Startet den Development-Webserver; vor jedem Versuch, die Website im Browser zu testen  auszuführen
+    (pyvenv) vagrant@absys-dev:~$ cd /vagrant  # Wechselt ins Projektverzeichnis; nach jeder Anmeldung auszuführen
+    (pyvenv) vagrant@absys-dev:/vagrant$ make develop  # Installiert alle benötigten Pakete für das Projekt; nach jeder Veränderung an den verwendeten Django/Python Packages auszuführen
+    (pyvenv) vagrant@absys-dev:/vagrant$ make migrate  # Führt die Datenbank Migrationen aus; nach jeder Änderung an der Datenbank und beim initialen Erstellen nach 'make develop' auszuführen
+    (pyvenv) vagrant@absys-dev:/vagrant$ make createsuperuser  # Einen neuen Django Superuser erstellen
+    (pyvenv) vagrant@absys-dev:/vagrant$ make runserver  #  Startet den Development-Webserver; vor jedem Versuch, die Website im Browser zu testen  auszuführen
 
 Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen werden.
 
@@ -129,7 +129,7 @@ Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen we
 
 	::
 
-		$ git reset --hard
+		(pyvenv) vagrant@absys-dev:/vagrant$ git reset --hard
 
 	ausführen. Dies setzt die Änderungen zurück und ``git status`` sollte keine Dateien mehr als ``modified`` anzeigen.
 
@@ -140,14 +140,14 @@ Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen we
 
     ::
 
-        $ make
+        (pyvenv) vagrant@absys-dev:/vagrant$ make
 
     Für alle Django Management Commands, die nicht von ``make`` erfasst werden,
     bitte folgendes Kommando benutzen:
 
     ::
 
-        $ envdir envs/dev/ python manage.py <DJANGO_COMMAND>
+        (pyvenv) vagrant@absys-dev:/vagrant$ envdir envs/dev/ python manage.py <DJANGO_COMMAND>
 
 .. note::
 
@@ -155,19 +155,19 @@ Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen we
 
     ::
 
-        $ cd  # Wechselt in das Home Verzeichnis
-        $ rm -fr pyvenv
-        $ exit
+        (pyvenv) vagrant@absys-dev:/vagrant$ cd  # Wechselt in das Home Verzeichnis
+        (pyvenv) vagrant@absys-dev:~$ rm -fr pyvenv
+        (pyvenv) vagrant@absys-dev:~$ exit
         > vagrant provision
         > vagrant ssh
-        $ cd /vagrant
-        $ make develop
+        (pyvenv) vagrant@absys-dev:~$ cd /vagrant
+        (pyvenv) vagrant@absys-dev:/vagrant$ make develop
 
 .. note::
 
-	Sollte die Vagrant Maschine einmal merkwürdiges Verhalten an den Tag legen, halte dich nicht lange mit der
-	Fehlersuche auf. Committe und pushe deine letzten Änderungen am Code und führe anschließend in dem Terminal,
-	in dem du erst ``vagrant up`` ausgeführt hast ``vagrant destroy`` und anschließend wieder ``vagrant up`` durch.
+    Sollte die Vagrant Maschine einmal merkwürdiges Verhalten an den Tag legen, halte dich nicht lange mit der
+    Fehlersuche auf. Committe und pushe deine letzten Änderungen am Code und führe anschließend in dem Terminal,
+    in dem du erst ``vagrant up`` ausgeführt hast ``vagrant destroy`` und anschließend wieder ``vagrant up`` durch.
 
 Arbeiten mit git-flow
 =====================
@@ -181,6 +181,22 @@ find a `high-quality PDF illustrating the model
 there also the `git-flow cheatsheet
 <https://danielkummer.github.io/git-flow-cheatsheet/>`_ created by Daniel
 Kummer, which is very helpful.
+
+Dokumentation erstellen und öffnen
+==================================
+
+Die Dokumentation erklärt unter anderem das Erstellen eines Releases und
+Deployment des Demo Servers.
+
+Dokumentation erstellen:
+
+::
+
+    (pyvenv) vagrant@absys-dev:/vagrant$ make docs
+
+Danch ist die Dokumentation unter ``docs/_build/html/index.html`` zu finden
+(aus Sicht des Hosts).
+
 
 Tipps
 =====
@@ -198,5 +214,44 @@ Tipps
 
 	::
 
-		$ import imp
-		$ imp.reload(<Datei-/Modulname>)
+		>>> import imp
+		>>> imp.reload(<Datei-/Modulname>)
+
+Einrichten der Deployment Vagrant Box
+=====================================
+
+Um die Deployment Vagrant Box zu benutzen, muss vorher das ``absys`` Paket
+erstellt werden. Dazu wie folgt vorgehen:
+
+::
+
+    (pyvenv) vagrant@absys-dev:/vagrant$ make dist
+
+.. note::
+
+    Das ``absys`` Paket sollte am besten aus einem Release erstellt werden.
+
+Danach folgende Befehle in einem neuen Terminal ausführen, um die Deployment
+Vagrant Box zu starten:
+
+::
+
+    > vagrant up deployment
+    > vagrant ssh deployment
+    vagrant@absys-deployment:~$ /vagrant/setup/install.sh
+
+.. note::
+
+    Hinweise zum Port Forwarding und zur Nutzung von ``vagrant ssh`` unter
+    Windows finden sich weiter oben unter der Überschrift "Einrichten der
+    Entwicklungsumgebung".
+
+Zum Extrahieren der Konfiguration für Staging- und Production-Server folgenden
+Befehl ausführen:
+
+::
+
+    vagrant@absys-deployment:~$ /vagrant/bin/extract.sh
+
+Danch kann der Inhalt des Verzeichnisses ``setup`` an den Dienstleister
+übergeben werden.

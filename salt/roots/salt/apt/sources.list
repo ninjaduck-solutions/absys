@@ -1,6 +1,11 @@
-deb http://ftp.de.debian.org/debian jessie main contrib non-free
-deb-src http://ftp.de.debian.org/debian jessie main contrib non-free
-deb http://ftp.debian.org/debian/ jessie-updates main contrib non-free
-deb-src http://ftp.debian.org/debian/ jessie-updates main contrib non-free
-deb http://security.debian.org/ jessie/updates main contrib non-free
-deb-src http://security.debian.org/ jessie/updates main contrib non-free
+deb http://de.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
+#deb-src http://de.archive.ubuntu.com/ubuntu xenial main restricted universe multiverse
+
+deb http://de.archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
+#deb-src http://de.archive.ubuntu.com/ubuntu xenial-updates main restricted universe multiverse
+
+deb http://de.archive.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
+#deb-src http://de.archive.ubuntu.com/ubuntu xenial-security main restricted universe multiverse
+
+deb http://de.archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
+#deb-src http://de.archive.ubuntu.com/ubuntu xenial-backports main restricted universe multiverse
