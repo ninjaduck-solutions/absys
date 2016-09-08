@@ -65,6 +65,7 @@ class RechnungManager(models.Manager):
         else:
             rechnung.fehltage = models.F('fehltage') + tage_abwesend.count()
         rechnung.save()
+        rechnung.refresh_from_db()
         return rechnung
 
 
