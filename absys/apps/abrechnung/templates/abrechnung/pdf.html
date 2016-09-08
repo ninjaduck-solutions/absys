@@ -47,7 +47,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for rechnung in rechnungsozialamt.rechnungen.all %}
+      {% for rechnung in rechnungsozialamt.rechnungen_schueler.all %}
         <tr>
           <td>{{ rechnung.schueler.pkz }}</td>
           <td>{{ rechnung.schueler.aktenzeichen }}</td>
@@ -71,7 +71,7 @@
 
 <div style="page-break-before:always;"></div>
 
-{% for rechnung in rechnungsozialamt.rechnungen.all %}
+{% for rechnung in rechnungsozialamt.rechnungen_schueler.all %}
 <div style="page-break-before:always;">
   <p>
       Schueler: {{ rechnung.name_schueler }}
