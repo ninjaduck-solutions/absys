@@ -106,7 +106,7 @@ class Rechnung(TimeStampedModel):
     fehltage_gesamt = models.PositiveIntegerField("Fehltage seit Eintritt in die Einrichtung", default=0)
     max_fehltage = models.PositiveIntegerField("Maximale Fehltage zum Abrechnungstag", default=0)
 
-    objects = managers.RechnungManager.from_queryset(managers.RechnungQuerySet)()
+    objects = managers.RechnungManager()
 
     class Meta:
         ordering = ('-rechnung_sozialamt__startdatum', '-rechnung_sozialamt__enddatum',
