@@ -53,21 +53,12 @@ class RechnungManager(models.Manager):
         Der Übertrag der Fehltage erfolgt immer von der letzten vorhergehenden
         Rechnung des Schülers. Gibt es diese nicht, ist der Übertrag 0.
         """
-        fehltage = tage_abwesend.count()
-        fehltage_uebertrag = 0
-        letzte_rechnungen = schueler_in_einrichtung.schueler.rechnungen.letzte_rechnungen(
-            rechnung_sozialamt.enddatum.year
-        )
-        if letzte_rechnungen.count():
-            fehltage_uebertrag = letzte_rechnungen.first().fehltage_gesamt
         rechnung, created = self.update_or_create(
             rechnung_sozialamt=rechnung_sozialamt,
             schueler=schueler_in_einrichtung.schueler,
             defaults={
                 'name_schueler': schueler_in_einrichtung.schueler.voller_name,
-                'fehltage': fehltage,
-                'fehltage_gesamt': (fehltage_uebertrag + fehltage),
-                'max_fehltage': schueler_in_einrichtung.fehltage_erlaubt,
+                'fehltage': tage_abwesend.count(),
             }
         )
         return rechnung

@@ -76,8 +76,7 @@ class TestRechnungSozialamtManager:
             assert rechnung.schueler == schueler_in_einrichtung.schueler
             assert rechnung.name_schueler == schueler_in_einrichtung.schueler.voller_name
             assert rechnung.summe > 0
-            assert rechnung.fehltage == rechnung.fehltage_gesamt == 1
+            assert rechnung.fehltage == 1
             assert rechnung.fehltage_nicht_abgerechnet.count() == 0
             assert type(rechnung.fehltage_nicht_abgerechnet.all()) is managers.RechnungsPositionQuerySet
-            assert rechnung.max_fehltage == schueler_in_einrichtung.fehltage_erlaubt
             assert rechnung.positionen.count() == 5

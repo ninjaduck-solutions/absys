@@ -80,8 +80,6 @@
       <br>
       Fehltage im Abrechnungszeitraum: {{ rechnung.fehltage }}
       <br>
-      Fehltage Gesamt in Einrichtung: {{ rechnung.fehltage_gesamt }}
-      <br>
       Anzahl Fehltage nicht abgerechnet: {{ rechnung.fehltage_nicht_abgerechnet.count }}
       <br>
       Fehltage nicht abgerechnet: {% spaceless %}
@@ -91,8 +89,6 @@
         Keine
       {% endfor %}
       {% endspaceless %}
-      <br>
-      Anzahl maximale Fehltage lt. Sozialamtsbescheid: {{ rechnung.max_fehltage }}
   </p>
 
       <table class="table table-striped">

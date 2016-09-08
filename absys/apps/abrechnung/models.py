@@ -92,9 +92,7 @@ class Rechnung(TimeStampedModel):
     - Name des Schülers (Erstellung)
     - Rechnungssumme (Abschluss)
     - Fehltage im Abrechnungszeitraum (Erstellung)
-    - Fehltage seit Eintritt in die Einrichtung (Erstellung)
     - Bisher nicht abgerechnete Fehltage (Abschluss)
-    - Maximale Fehltage zum Abrechnungstag (Erstellung)
     """
 
     rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
@@ -103,8 +101,6 @@ class Rechnung(TimeStampedModel):
     name_schueler = models.CharField("Name des Schülers", max_length=61)
     summe = models.DecimalField("Gesamtbetrag", max_digits=7, decimal_places=2, null=True)
     fehltage = models.PositiveIntegerField("Fehltage im Abrechnungszeitraum", default=0)
-    fehltage_gesamt = models.PositiveIntegerField("Fehltage seit Eintritt in die Einrichtung", default=0)
-    max_fehltage = models.PositiveIntegerField("Maximale Fehltage zum Abrechnungstag", default=0)
 
     objects = managers.RechnungManager()
 

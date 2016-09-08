@@ -25,7 +25,6 @@ class RechnungFactory(factory.DjangoModelFactory):
 
     rechnung_sozialamt = factory.SubFactory(RechnungSozialamtFactory)
     schueler = factory.SubFactory(SchuelerFactory)
-    fehltage_gesamt = 10
 
     class Meta:
         model = models.Rechnung
