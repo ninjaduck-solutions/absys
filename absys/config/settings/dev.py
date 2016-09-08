@@ -17,7 +17,9 @@ class Development(databases.Databases, common.Common):
 
     EMAIL_BACKEND = values.Value('django.core.mail.backends.console.EmailBackend')
 
-    INSTALLED_APPS = common.Common.INSTALLED_APPS + ('debug_toolbar', 'django_extensions',)
+    @property
+    def INSTALLED_APPS(self):
+        return super().INSTALLED_APPS + ('debug_toolbar', 'django_extensions',)
 
     @property
     def INTERNAL_IPS(self):
