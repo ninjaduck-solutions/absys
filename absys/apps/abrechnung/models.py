@@ -151,7 +151,7 @@ class Rechnung(TimeStampedModel):
             self.rechnung_sozialamt.enddatum
         )
         if nicht_abgerechnet.count():
-            self.fehltage_nicht_abgerechnet.add(nicht_abgerechnet)
+            self.fehltage_nicht_abgerechnet.add(*nicht_abgerechnet)
         self.save()
 
 
