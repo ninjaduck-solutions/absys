@@ -22,6 +22,7 @@ class Sozialamt(TimeStampedModel):
     name = models.CharField(max_length=200)
     anschrift = models.TextField()
     konto_iban = models.CharField(max_length=22)
+    konto_bic = models.CharField(max_length=12)
     konto_institut = models.CharField(max_length=100)
 
     class Meta:

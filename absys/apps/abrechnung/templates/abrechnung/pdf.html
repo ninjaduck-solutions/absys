@@ -17,11 +17,12 @@
 <p>
   Sozialamt: <br>
   {{ rechnungsozialamt.sozialamt }}<br>
-  {{ rechnungsozialamt.sozialamt_anschrift }}<br>
+  {{ rechnungsozialamt.sozialamt_anschrift|linebreaks }}<br>
   <br>
   Bankverbindung<br>
-  {{ rechnungsozialamt.sozialamt.konto_iban }}<br>
-  {{ rechnungsozialamt.sozialamt.konto_institut }}<br>
+  IBAN: {{ rechnungsozialamt.sozialamt.konto_iban }}<br>
+  BIC: {{ rechnungsozialamt.sozialamt.konto_bic }}<br>
+  Institut{{ rechnungsozialamt.sozialamt.konto_institut }}<br>
   <br>
   Rechnungsnummer: {{ rechnungsozialamt.nummer }} <br>
   Abrechnungszeitraum:

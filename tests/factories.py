@@ -21,6 +21,7 @@ class SozialamtFactory(factory.DjangoModelFactory):
     name = factory.Faker('word')
     anschrift = factory.Faker('address')
     konto_iban = factory.Faker('pyint')
+    konto_bic = factory.Faker('pyint')
     konto_institut = factory.Faker('pyint')
 
     class Meta:
