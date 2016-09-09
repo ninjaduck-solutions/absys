@@ -10,10 +10,14 @@ class Standort(TimeStampedModel):
 
     anschrift = models.TextField()
 
+    class Meta:
+        verbose_name='Standort'
+        verbose_name_plural='Standorte'
+
 class Einrichtung(TimeStampedModel):
 
     name = models.CharField("Name", max_length=30, unique=True)
-    kuerzel = models.CharField("Kürzel", max_length=1, unique=True)
+    kuerzel = models.CharField("Kürzel", max_length=3, unique=True)
     schueler = models.ManyToManyField(
         Schueler,
         verbose_name='Schüler',
