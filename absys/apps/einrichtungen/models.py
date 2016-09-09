@@ -6,6 +6,9 @@ from absys.apps.schueler.models import Sozialamt, Schueler
 
 from . import managers
 
+class Standort(TimeStampedModel):
+
+    anschrift = models.TextField()
 
 class Einrichtung(TimeStampedModel):
 
@@ -17,6 +20,7 @@ class Einrichtung(TimeStampedModel):
         through='SchuelerInEinrichtung',
         related_name='einrichtungen'
     )
+    standort = models.ForeignKey(Standort, related_name='einrichtungen')
 
     class Meta:
         ordering = ['name']
