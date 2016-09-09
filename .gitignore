@@ -13,7 +13,6 @@ dist
 build
 eggs
 parts
-bin
 var
 sdist
 develop-eggs
@@ -33,6 +32,7 @@ absys/static_root/*
 
 # Logs
 *.log
+!setup/history.log
 *.log.*
 pip-log.txt
 
