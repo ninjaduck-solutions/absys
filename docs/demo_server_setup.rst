@@ -23,6 +23,7 @@ Zum Setup eines Demo Servers wie folgt vorgehen:
     vagrant:~$ git clone ssh://git@h2516835.stratoserver.net:2050/srv/git/absys.git
     vagrant:~$ cd absys
     vagrant:absys-deployment$ sudo salt-call --local --file-root=salt/roots/salt --pillar-root=salt/roots/pillar state.apply
+    vagrant:absys-deployment$ sudo salt-call --local --file-root=salt/roots/salt --pillar-root=salt/roots/pillar state.sls apache
     vagrant:absys-deployment$ sed -i 's/PACKAGE_PATH=.*/PACKAGE_PATH=\/home\/vagrant/' setup/install.sh
     vagrant:absys-deployment$ ./setup/install.sh
     vagrant:absys-deployment$ exit
