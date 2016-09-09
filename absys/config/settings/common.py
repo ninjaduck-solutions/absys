@@ -225,3 +225,6 @@ class Common(Configuration):
     # Anzahl der Tage, die im aktuellen Monat für rückwirkende Änderungen der
     # Anwesenheitsliste im Frontend zur Verfügung stehen.
     ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT = values.IntegerValue(15)
+
+    # Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
+    ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG = values.IntegerValue(31)

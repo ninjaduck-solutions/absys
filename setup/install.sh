@@ -82,6 +82,9 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Anwesenheitsliste im Frontend zur Verfügung stehen.
 # echo '15' | sudo tee /var/envdir/absys/DJANGO_ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT
 
+# Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
+# echo '31' | sudo tee /var/envdir/absys/DJANGO_ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
+
 # Lockdown-Schutz aktivieren/deaktivieren
 # echo 'True' | sudo tee /var/envdir/absys/DJANGO_LOCKDOWN_ENABLED
 
