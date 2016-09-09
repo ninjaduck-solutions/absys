@@ -190,7 +190,8 @@ class Common(Configuration):
         'absys.apps.anwesenheitsliste.apps.AnwesenheitslisteConfig',
         'absys.apps.einrichtungen.apps.EinrichtungenConfig',
         'absys.apps.schueler.apps.SchuelerConfig',
-        'absys.apps.dashboard.apps.DashboardConfig'
+        'absys.apps.dashboard.apps.DashboardConfig',
+        'absys.apps.buchungskennzeichen.apps.BuchungskennzeichenConfig',
     )
 
     CACHES = values. DictValue({
