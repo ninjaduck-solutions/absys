@@ -6,17 +6,25 @@ from absys.apps.schueler.models import Sozialamt, Schueler
 
 from . import managers
 
+class Standort(TimeStampedModel):
+
+    anschrift = models.TextField()
+
+    class Meta:
+        verbose_name='Standort'
+        verbose_name_plural='Standorte'
 
 class Einrichtung(TimeStampedModel):
 
     name = models.CharField("Name", max_length=30, unique=True)
-    kuerzel = models.CharField("Kürzel", max_length=1, unique=True)
+    kuerzel = models.CharField("Kürzel", max_length=3, unique=True)
     schueler = models.ManyToManyField(
         Schueler,
         verbose_name='Schüler',
         through='SchuelerInEinrichtung',
         related_name='einrichtungen'
     )
+    standort = models.ForeignKey(Standort, related_name='einrichtungen')
 
     class Meta:
         ordering = ['name']

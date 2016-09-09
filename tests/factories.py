@@ -3,9 +3,17 @@ import datetime
 import factory
 from django.utils.timezone import now
 
-from absys.apps.einrichtungen.models import Einrichtung, SchuelerInEinrichtung, EinrichtungHatPflegesatz, Ferien
+from absys.apps.einrichtungen.models import Standort, Einrichtung, SchuelerInEinrichtung, EinrichtungHatPflegesatz, Ferien
 from absys.apps.schueler.models import Gruppe, Sozialamt, Schueler
 from absys.apps.anwesenheitsliste.models import Anwesenheit
+
+
+class StandortFactory(factory.DjangoModelFactory):
+
+    anschrift = factory.Faker('address')
+
+    class Meta:
+        model = Standort
 
 
 class GruppeFactory(factory.DjangoModelFactory):
@@ -44,6 +52,7 @@ class EinrichtungFactory(factory.DjangoModelFactory):
 
     name = factory.Faker('word')
     kuerzel = factory.Faker('pystr', max_chars=1)
+    standort = factory.SubFactory(StandortFactory)
 
     @factory.post_generation
     def schueler(self, create, extracted, **kwargs):

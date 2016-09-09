@@ -10,6 +10,7 @@ from pytest_factoryboy import register
 from . import factories
 
 
+register(factories.StandortFactory)
 register(factories.GruppeFactory)
 register(factories.SozialamtFactory)
 register(factories.SchuelerFactory)
