@@ -253,5 +253,13 @@ Befehl ausführen:
 
     vagrant@absys-deployment:~$ /vagrant/bin/extract.sh
 
+Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit machen:
+
+::
+
+    (pyvenv) vagrant@absys-dev:/vagrant$ git status
+    (pyvenv) vagrant@absys-dev:/vagrant$ git add setup
+    (pyvenv) vagrant@absys-dev:/vagrant$ git commit
+
 Danch kann der Inhalt des Verzeichnisses ``setup`` an den Dienstleister
 übergeben werden.
