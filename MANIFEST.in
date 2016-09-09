@@ -10,6 +10,7 @@ prune docs/_build
 prune bin
 prune envs
 prune salt
+prune setup
 graft absys
 prune absys/media
 include absys/media/.gitkeep
