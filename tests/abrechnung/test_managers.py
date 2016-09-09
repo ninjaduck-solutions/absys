@@ -48,15 +48,22 @@ class TestRechnungSozialamtManager:
             )
         ),
     ])
-    def test_rechnungslauf(self, sozialamt, schueler_in_einrichtung, einrichtung_hat_pflegesatz, anzahl):
+    def test_rechnungslauf(self, sozialamt, schueler_in_einrichtung, einrichtung_hat_pflegesatz,
+            anwesenheit_factory, anzahl):
         start = datetime.date(2016, 6, 12)
         ende = datetime.date(2016, 6, 17)
+        anwesenheit_factory.create(
+            schueler=schueler_in_einrichtung.schueler,
+            einrichtung=schueler_in_einrichtung.einrichtung,
+            datum=ende,
+            abwesend=True
+        )
         assert models.RechnungSozialamt.objects.count() == 0
-        assert models.Rechnung.objects.count() == 0
+        assert models.RechnungSchueler.objects.count() == 0
         models.RechnungSozialamt.objects.rechnungslauf(sozialamt, start, ende)
         assert models.RechnungSozialamt.objects.count() == 1
-        assert models.Rechnung.objects.count() == anzahl
-        # TODO Nachfolgende Assertions in Tests für RechnungSozialamt und Rechnung Models verschieben
+        assert models.RechnungSchueler.objects.count() == anzahl
+        # TODO Nachfolgende Assertions in Tests für RechnungSozialamt und RechnungSchueler Models verschieben
         if anzahl:
             rechnung_sozialamt = models.RechnungSozialamt.objects.first()
             assert rechnung_sozialamt.sozialamt == sozialamt
@@ -64,40 +71,12 @@ class TestRechnungSozialamtManager:
             assert rechnung_sozialamt.startdatum == start
             assert rechnung_sozialamt.enddatum == ende
             assert rechnung_sozialamt.enddatum > rechnung_sozialamt.startdatum
-            rechnung = models.Rechnung.objects.first()
+            rechnung = models.RechnungSchueler.objects.first()
             assert rechnung.rechnung_sozialamt == rechnung_sozialamt
             assert rechnung.schueler == schueler_in_einrichtung.schueler
             assert rechnung.name_schueler == schueler_in_einrichtung.schueler.voller_name
             assert rechnung.summe > 0
-            assert rechnung.fehltage == rechnung.fehltage_gesamt == rechnung.fehltage_nicht_abgerechnet.count() == 0
-            assert type(rechnung.fehltage_nicht_abgerechnet.all()) is managers.RechnungsPositionQuerySet
-            assert rechnung.max_fehltage == schueler_in_einrichtung.fehltage_erlaubt
+            assert rechnung.fehltage == 1
+            assert rechnung.fehltage_nicht_abgerechnet.count() == 0
+            assert type(rechnung.fehltage_nicht_abgerechnet.all()) is managers.RechnungsPositionSchuelerQuerySet
             assert rechnung.positionen.count() == 5
-
-
-@pytest.mark.django_db
-class TestRechnungManager:
-
-    def test_letzte_rechnungen(self, rechnung_sozialamt_factory, rechnung_factory):
-        rechnung_sozialamt_0 = rechnung_sozialamt_factory(
-            startdatum=datetime.date(2015, 11, 1),
-            enddatum=datetime.date(2015, 11, 30)
-        )
-        rechnung_factory(rechnung_sozialamt=rechnung_sozialamt_0)
-        rechnung_sozialamt_1 = rechnung_sozialamt_factory(
-            startdatum=datetime.date(2016, 3, 1),
-            enddatum=datetime.date(2016, 3, 31)
-        )
-        rechnung_0 = rechnung_factory(rechnung_sozialamt=rechnung_sozialamt_1)
-        rechnung_sozialamt_2 = rechnung_sozialamt_factory(
-            startdatum=datetime.date(2016, 4, 1),
-            enddatum=datetime.date(2016, 4, 30)
-        )
-        rechnung_1 = rechnung_factory(rechnung_sozialamt=rechnung_sozialamt_2)
-        assert models.Rechnung.objects.letzte_rechnungen(2014).count() == 0
-        assert models.Rechnung.objects.letzte_rechnungen(2015).count() == 1
-        assert models.Rechnung.objects.letzte_rechnungen(2016).count() == 2
-        assert models.Rechnung.objects.letzte_rechnungen(2017).count() == 0
-        letzte_rechnungen = models.Rechnung.objects.letzte_rechnungen(2016)
-        assert letzte_rechnungen[0] == rechnung_1
-        assert letzte_rechnungen[1] == rechnung_0

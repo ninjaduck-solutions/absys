@@ -1,6 +1,12 @@
 base:
   '*':
     - apt
+    - deps
+    - python3
+    - pyvenv
+    - postgresql
+    - wkhtmltopdf
+  '*-dev':
     - bashrc
     - git
     - graphviz
@@ -8,9 +14,6 @@ base:
     - tree
     - nano
     - vim
-    - deps
-    - python3
-    - pyvenv
     - npm
-    - postgresql
-    - wkhtmltopdf
+  '*-deployment':
+    - apache

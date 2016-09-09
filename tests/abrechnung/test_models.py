@@ -51,31 +51,31 @@ class TestRechnungSozialamt:
 
 
 @pytest.mark.django_db
-class TestRechnung:
+class TestRechnungSchueler:
 
-    def test_nummer(self, rechnung):
-        assert rechnung.nummer.endswith(str(rechnung.pk))
-        assert rechnung.nummer.startswith("R0")
-        assert len(rechnung.nummer) == 7
+    def test_nummer(self, rechnung_schueler):
+        assert rechnung_schueler.nummer.endswith(str(rechnung_schueler.pk))
+        assert rechnung_schueler.nummer.startswith("SR0")
+        assert len(rechnung_schueler.nummer) == 8
 
-    def test_fehltage_abrechnen_negatives_limit(self, rechnung, schueler_in_einrichtung):
+    def test_fehltage_abrechnen_negatives_limit(self, rechnung_schueler, schueler_in_einrichtung):
         """
         Darf kein ``AssertionError: Negative indexing is not supported.`` werfen.
 
         Test für eine Regression bei der ``limit`` nicht auf Null oder positive
         Zahlen eingeschränkt wurde.
         """
-        rechnung.fehltage_abrechnen(schueler_in_einrichtung)
+        rechnung_schueler.fehltage_abrechnen(schueler_in_einrichtung)
 
 
 @pytest.mark.django_db
-class TestRechnungPosition:
+class TestRechnungsPositionSchueler:
 
-    def test_clean(self, rechnung, rechnungs_position_factory):
+    def test_clean(self, rechnung_schueler, rechnungs_position_schueler_factory):
         with pytest.raises(IntegrityError) as exp:
-            rechnungs_position_factory.build(
+            rechnungs_position_schueler_factory.build(
                 datum=now(),
-                rechnung=rechnung,
-                rechnung_nicht_abgerechnet=rechnung
+                rechnung_schueler=rechnung_schueler,
+                rechnung_nicht_abgerechnet=rechnung_schueler
             ).clean()
-        assert str(exp.value) == "Die Felder \"Rechnung\" und \"Rechnung, nicht abgerechnet\" dürfen nicht beide eine Rechnung enthalten."
+        assert str(exp.value) == "Die Felder \"Schüler-Rechnung\" und \"Schüler-Rechnung, nicht abgerechnet\" dürfen nicht beide eine Schüler-Rechnung enthalten."

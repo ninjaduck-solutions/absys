@@ -4,5 +4,5 @@ from . import factories
 
 
 register(factories.RechnungSozialamtFactory)
-register(factories.RechnungFactory)
-register(factories.RechnungsPositionFactory)
+register(factories.RechnungSchuelerFactory)
+register(factories.RechnungsPositionSchuelerFactory)

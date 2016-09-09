@@ -1,12 +1,12 @@
 postgresql:
-  pkg.installed:
-    - name: postgresql-9.4
+  pkg:
+    - installed
   service.running:
     - enable: True
     - watch:
-        - file: /etc/postgresql/9.4/main/pg_hba.conf
+        - file: /etc/postgresql/9.5/main/pg_hba.conf
 
-/etc/postgresql/9.4/main/pg_hba.conf:
+/etc/postgresql/9.5/main/pg_hba.conf:
   file.managed:
     - user: postgres
     - group: postgres
@@ -14,7 +14,7 @@ postgresql:
     - source: salt://postgresql/pg_hba.conf
     - template: jinja
     - require:
-      - pkg: postgresql-9.4
+      - pkg: postgresql
 
 postgresql-user-django:
   postgres_user.present:

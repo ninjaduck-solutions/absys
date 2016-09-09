@@ -10,7 +10,7 @@ class Lockdown(object):
 
     @property
     def MIDDLEWARE_CLASSES(self):
-        return super().MIDDLEWARE_CLASSES.append('lockdown.middleware.LockdownMiddleware')
+        return super().MIDDLEWARE_CLASSES + ['lockdown.middleware.LockdownMiddleware']
 
     LOCKDOWN_ENABLED = values.BooleanValue(False)
 

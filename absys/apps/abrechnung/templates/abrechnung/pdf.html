@@ -47,7 +47,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for rechnung in rechnungsozialamt.rechnungen.all %}
+      {% for rechnung in rechnungsozialamt.rechnungen_schueler.all %}
         <tr>
           <td>{{ rechnung.schueler.pkz }}</td>
           <td>{{ rechnung.schueler.aktenzeichen }}</td>
@@ -71,7 +71,7 @@
 
 <div style="page-break-before:always;"></div>
 
-{% for rechnung in rechnungsozialamt.rechnungen.all %}
+{% for rechnung in rechnungsozialamt.rechnungen_schueler.all %}
 <div style="page-break-before:always;">
   <p>
       Schueler: {{ rechnung.name_schueler }}
@@ -79,8 +79,6 @@
       Summe aller Abrechnungstage: {{ rechnung.summe }}
       <br>
       Fehltage im Abrechnungszeitraum: {{ rechnung.fehltage }}
-      <br>
-      Fehltage Gesamt in Einrichtung: {{ rechnung.fehltage_gesamt }}
       <br>
       Anzahl Fehltage nicht abgerechnet: {{ rechnung.fehltage_nicht_abgerechnet.count }}
       <br>
@@ -91,8 +89,6 @@
         Keine
       {% endfor %}
       {% endspaceless %}
-      <br>
-      Anzahl maximale Fehltage lt. Sozialamtsbescheid: {{ rechnung.max_fehltage }}
   </p>
 
       <table class="table table-striped">

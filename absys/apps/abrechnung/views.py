@@ -61,4 +61,4 @@ class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
             self.object.enddatum,
             self.object.sozialamt,
             self.object.nummer,
-            )
+        )

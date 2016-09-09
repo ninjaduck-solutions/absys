@@ -18,6 +18,7 @@ register(factories.EinrichtungHatPflegesatzFactory)
 register(factories.SchuelerInEinrichtungFactory)
 register(factories.SchuelerAngemeldetInEinrichtungFactory)
 register(factories.FerienFactory)
+register(factories.AnwesenheitFactory)
 
 
 @pytest.fixture

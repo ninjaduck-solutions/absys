@@ -21,23 +21,22 @@ class RechnungSozialamtFactory(factory.DjangoModelFactory):
         zeitraum = 30
 
 
-class RechnungFactory(factory.DjangoModelFactory):
+class RechnungSchuelerFactory(factory.DjangoModelFactory):
 
     rechnung_sozialamt = factory.SubFactory(RechnungSozialamtFactory)
     schueler = factory.SubFactory(SchuelerFactory)
-    fehltage_gesamt = 10
 
     class Meta:
-        model = models.Rechnung
+        model = models.RechnungSchueler
 
 
-class RechnungsPositionFactory(factory.DjangoModelFactory):
+class RechnungsPositionSchuelerFactory(factory.DjangoModelFactory):
 
     sozialamt = factory.SubFactory(SozialamtFactory)
     schueler = factory.SubFactory(SchuelerFactory)
     einrichtung = factory.SubFactory(EinrichtungFactory)
-    rechnung = factory.SubFactory(RechnungFactory)
+    rechnung_schueler = factory.SubFactory(RechnungSchuelerFactory)
     pflegesatz = factory.Faker('pydecimal', left_digits=2, right_digits=2, positive=True)
 
     class Meta:
-        model = models.RechnungsPosition
+        model = models.RechnungsPositionSchueler
