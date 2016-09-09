@@ -73,7 +73,7 @@ echo "$HOME/static_root" | sudo tee /var/envdir/absys/DJANGO_STATIC_ROOT
 # Liste der Hostnamen und Domains, die diese Website ausliefern soll. Hier die
 # IP Adresse und/oder den Domainnamen mit Kommata getrennt eintragen.
 # Bei fehlerhafter Konfiguration ist "Bad Request (400)" im Browser zu sehen.
-echo '127.0.0.1' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
+echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 
 # Liste von Administratoren, die über Fehler via E-Mail informiert werden.
 # echo "'Ada Lovelace',ada@example.com;'Bea Blue',bea@example.com" | sudo tee /var/envdir/absys/DJANGO_ADMINS
