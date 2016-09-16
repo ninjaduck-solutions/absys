@@ -91,8 +91,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
             "</span>")
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
-    pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    pers_pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2, default=0)
+    pers_pflegesatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    pers_pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
     pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
     fehltage_erlaubt = models.PositiveIntegerField(default=45)
@@ -159,8 +159,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
 class EinrichtungHatPflegesatz(TimeStampedModel):
 
     einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
-    pflegesatz = models.DecimalField(max_digits=4, decimal_places=2)
-    pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2)
+    pflegesatz = models.DecimalField(max_digits=5, decimal_places=2)
+    pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2)
     pflegesatz_startdatum = models.DateField()
     pflegesatz_enddatum = models.DateField()
 

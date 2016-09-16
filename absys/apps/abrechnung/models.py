@@ -100,7 +100,7 @@ class RechnungSchueler(TimeStampedModel):
         related_name='rechnungen_schueler')
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler", related_name='rechnungen_schueler')
     name_schueler = models.CharField("Name des Schülers", max_length=61)
-    summe = models.DecimalField("Gesamtbetrag", max_digits=7, decimal_places=2, null=True)
+    summe = models.DecimalField("Gesamtbetrag", max_digits=8, decimal_places=2, null=True)
     fehltage = models.PositiveIntegerField("Fehltage im Abrechnungszeitraum", default=0)
 
     objects = managers.RechnungSchuelerManager()
@@ -199,7 +199,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     name_einrichtung = models.CharField("Einrichtung", max_length=20)
     tag_art = models.CharField("Schul- oder Ferientag", choices=TAG_ART, default=TAG_ART.schule, max_length=20)
     abwesend = models.BooleanField("Abwesenheit", default=False)
-    pflegesatz = models.DecimalField("Pflegesatz", max_digits=4, decimal_places=2)
+    pflegesatz = models.DecimalField("Pflegesatz", max_digits=5, decimal_places=2)
 
     objects = managers.RechnungsPositionSchuelerManager.from_queryset(managers.RechnungsPositionSchuelerQuerySet)()
 
@@ -245,7 +245,7 @@ class RechnungEinrichtung(TimeStampedModel):
     buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20)
     datum_faellig = models.DateField("Fälligkeitsdatum")
     betreuungstage = models.PositiveIntegerField(default=0)
-    summe = models.DecimalField("Gesamtbetrag", max_digits=7, decimal_places=2, null=True)
+    summe = models.DecimalField("Gesamtbetrag", max_digits=8, decimal_places=2, null=True)
 
     objects = managers.RechnungEinrichtungManager()
 
@@ -302,9 +302,9 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
         verbose_name="Einrichtungs-Rechnung",
         related_name='positionen'
     )
-    pers_pflegesatz = models.DecimalField("Persönlicher Pflegesatz", max_digits=4,
+    pers_pflegesatz = models.DecimalField("Persönlicher Pflegesatz", max_digits=5,
         decimal_places=2)
-    pers_pflegesatz_ferien = models.DecimalField("Persönlicher Pflegesatz Ferien", max_digits=4,
+    pers_pflegesatz_ferien = models.DecimalField("Persönlicher Pflegesatz Ferien", max_digits=5,
         decimal_places=2)
 
     class Meta:
