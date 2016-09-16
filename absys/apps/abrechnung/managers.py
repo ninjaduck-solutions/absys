@@ -166,7 +166,7 @@ class RechnungEinrichtungManager(models.Manager):
             rechnung_sozialamt=rechnung_sozialamt,
             einrichtung=einrichtung,
             defaults={
-                'einrichtung_name': einrichtung.name,
+                'name_einrichtung': einrichtung.name,
                 'datum_faellig': timezone.now().date() + tage_faelligkeit,
             }
         )

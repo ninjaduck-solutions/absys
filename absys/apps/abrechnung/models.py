@@ -241,7 +241,7 @@ class RechnungEinrichtung(TimeStampedModel):
     rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
         related_name='rechnungen_einrichtungen')
     einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung", related_name='rechnungen')
-    einrichtung_name = models.CharField("Name der Einrichtung", max_length=30)
+    name_einrichtung = models.CharField("Name der Einrichtung", max_length=30)
     buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20)
     datum_faellig = models.DateField("Fälligkeitsdatum")
     betreuungstage = models.PositiveIntegerField(default=0)
@@ -258,7 +258,7 @@ class RechnungEinrichtung(TimeStampedModel):
 
     def __str__(self):
         msg = (
-            "Einrichtungs-Rechnung {s.nummer} für {s.einrichtung_name}"
+            "Einrichtungs-Rechnung {s.nummer} für {s.name_einrichtung}"
             " ({s.rechnung_sozialamt.startdatum} - {s.rechnung_sozialamt.enddatum})"
         )
         return msg.format(s=self)
