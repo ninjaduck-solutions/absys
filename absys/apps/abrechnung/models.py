@@ -81,8 +81,9 @@ class RechnungSchueler(TimeStampedModel):
     """
     Metadaten einer Rechnung für einen Schüler in einem bestimmten Zeitraum.
 
-    Pro Model-Instanz eindeutig:
+    Pro Model-Instanz zusammen eindeutig:
 
+    - Sozialamtsrechnung (Fremdschlüssel)
     - Schüler (Fremdschlüssel)
 
     Die folgenden Felder werden beim Erstellen oder Abschluss der Rechnung
@@ -164,7 +165,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     - Sozialamt (Fremdschlüssel)
     - Schüler (Fremdschlüssel)
     - Einrichtung (Fremdschlüssel)
-    - Rechnung (Fremdschlüssel oder None)
+    - Schüler-Rechnung (Fremdschlüssel oder None)
     - Datum
     - Einrichtung (String)
     - Schul- oder Ferientag
@@ -215,3 +216,112 @@ class RechnungsPositionSchueler(TimeStampedModel):
         if self.rechnung_schueler is not None and self.rechnung_nicht_abgerechnet is not None:
             raise IntegrityError("Die Felder \"Schüler-Rechnung\" und"
                 " \"Schüler-Rechnung, nicht abgerechnet\" dürfen nicht beide eine Schüler-Rechnung enthalten.")
+
+
+class RechnungEinrichtung(TimeStampedModel):
+    """
+    Metadaten einer Rechnung für eine Einrichtung in einem bestimmten Zeitraum.
+
+    Pro Model-Instanz zusammen eindeutig:
+
+    - Sozialamtsrechnung (Fremdschlüssel)
+    - Einrichtung (Fremdschlüssel)
+
+    Die folgenden Felder werden beim Erstellen oder Abschluss der Rechnung
+    befüllt und können nicht mehr verändert werden. Es sind keine
+    Fremdschlüssel.
+
+    - Name der Einrichtung (Erstellung)
+    - Buchungskennzeichen (Erstellung)
+    - Fälligkeitsdatum (Erstellung)
+    - Betreuungstage (Erstellung)
+    - Rechnungssumme (Abschluss)
+    """
+
+    rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
+        related_name='rechnungen_einrichtungen')
+    einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung", related_name='rechnungen')
+    einrichtung_name = models.CharField("Name der Einrichtung", max_length=30)
+    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20)
+    datum_faellig = models.DateField("Fälligkeitsdatum")
+    betreuungstage = models.PositiveIntegerField(default=0)
+    summe = models.DecimalField("Gesamtbetrag", max_digits=7, decimal_places=2, null=True)
+
+    objects = managers.RechnungEinrichtungManager()
+
+    class Meta:
+        ordering = ('-rechnung_sozialamt__startdatum', '-rechnung_sozialamt__enddatum',
+            'rechnung_sozialamt', 'einrichtung')
+        unique_together = ('rechnung_sozialamt', 'einrichtung')
+        verbose_name = "Einrichtungs-Rechnung"
+        verbose_name_plural = "Einrichtungs-Rechnungen"
+
+    def __str__(self):
+        msg = (
+            "Einrichtungs-Rechnung {s.nummer} für {s.einrichtung_name}"
+            " ({s.rechnung_sozialamt.startdatum} - {s.rechnung_sozialamt.enddatum})"
+        )
+        return msg.format(s=self)
+
+    @property
+    def nummer(self):
+        return "ER{:06d}".format(self.pk)
+
+    def abschliessen(self):
+        """Rechnung abschließen."""
+        self.summe = 0
+        if self.positionen.count():
+            self.summe = self.positionen.aggregate(models.Sum('summe'))['summe__sum']
+        self.save()
+
+
+class RechnungsPositionEinrichtung(TimeStampedModel):
+    """
+    Daten einer Rechnungsposition für einen Schüler in einer Einrichtung in einem bestimmten Zeitraum.
+
+    Jede Rechnungsposition hat folgende Felder:
+
+    - Schüler (Fremdschlüssel)
+    - Einrichtungs-Rechnung (Fremdschlüssel)
+    - Persönlicher Pflegesatz
+    - Persönlicher Pflegesatz Ferien
+    - Voraussichtliche Anwesenheit
+    - Maximale Fehltage
+    - Anwesend
+    - Fehltage
+    - Übertrag Fehltage ab 1.1. des laufenden Jahres
+    - Fehltage gesamt
+    - Fehltage zur Abrechnung im Abrechnungszeitraum
+    - Zahltage im Abrechnungszeitraum
+    - Summe der Aufwendungen
+    """
+
+    schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
+    rechnung_einrichtung = models.ForeignKey(
+        RechnungEinrichtung,
+        verbose_name="Einrichtungs-Rechnung",
+        related_name='positionen'
+    )
+    pers_pflegesatz = models.DecimalField("Persönlicher Pflegesatz", max_digits=4,
+        decimal_places=2)
+    pers_pflegesatz_ferien = models.DecimalField("Persönlicher Pflegesatz Ferien", max_digits=4,
+        decimal_places=2)
+
+    class Meta:
+        ordering = (
+            'schueler',
+            'rechnung_einrichtung',
+            'rechnung_einrichtung__rechnung_sozialamt__startdatum'
+        )
+        unique_together = ('schueler', 'rechnung_einrichtung')
+        verbose_name = "Einrichtungs-Rechnungsposition"
+        verbose_name_plural = "Einrichtungs-Rechnungspositionen"
+
+    def __str__(self):
+        msg = (
+            "Einrichtungs-Rechnungsposition für {s.schueler_name}"
+            " in {s.rechnung_einrichtung.name_einrichtung}"
+            " ({s.rechnung_einrichtung.rechnung_sozialamt.startdatum}"
+            " - {s.rechnung_einrichtung.rechnung_sozialamt.enddatum})"
+        )
+        return msg.format(s=self)

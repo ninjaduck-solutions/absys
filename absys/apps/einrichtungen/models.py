@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
@@ -6,13 +8,15 @@ from absys.apps.schueler.models import Sozialamt, Schueler
 
 from . import managers
 
+
 class Standort(TimeStampedModel):
 
     anschrift = models.TextField()
 
     class Meta:
-        verbose_name='Standort'
-        verbose_name_plural='Standorte'
+        verbose_name = 'Standort'
+        verbose_name_plural = 'Standorte'
+
 
 class Einrichtung(TimeStampedModel):
 
@@ -48,7 +52,7 @@ class Einrichtung(TimeStampedModel):
         """
         Gibt den Pflegesatz der Einrichtung für das Datum zurück.
 
-        Es exitieren zwei Pflegesätze: Für Schultage und für Ferien.
+        Es existieren zwei Pflegesätze: Für Schultage und für Ferien.
         """
         pflegesaetze = self.pflegesaetze.get(
             pflegesatz_startdatum__lte=datum,
@@ -59,6 +63,17 @@ class Einrichtung(TimeStampedModel):
         else:
             pflegesatz = pflegesaetze.pflegesatz
         return pflegesatz
+
+    def get_betreuungstage(self, start, ende):
+        """Gibt die Betreuungstage für den angegebenen Zeitraum zurück."""
+        betreuungstage = []
+        schliesstage = self.schliesstage.values_list('datum', flat=True)
+        tag = start
+        while tag <= ende:
+            if tag.isoweekday() not in (6, 7) and tag not in schliesstage:
+                betreuungstage.append(tag)
+            tag += datetime.timedelta(1)
+        return betreuungstage
 
 
 class SchuelerInEinrichtung(TimeStampedModel):

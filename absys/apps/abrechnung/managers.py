@@ -1,7 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.db import models, transaction
 from django.utils import timezone
+
+from absys.apps.buchungskennzeichen.models import Buchungskennzeichen
 
 
 class RechnungSozialamtManager(models.Manager):
@@ -17,7 +20,7 @@ class RechnungSozialamtManager(models.Manager):
         4. Noch nicht abgerechnete ``RechnungsPositionSchueler``-Instanzen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
         5. ``RechnungSchueler``-Instanz pro Schüler aktualisieren (Summe und Fehltage).
         """
-        from .models import RechnungSchueler, RechnungsPositionSchueler
+        from .models import RechnungEinrichtung, RechnungSchueler, RechnungsPositionSchueler
         rechnung_sozialamt = self.model(
             sozialamt=sozialamt,
             sozialamt_anschrift=sozialamt.anschrift,
@@ -41,6 +44,10 @@ class RechnungSozialamtManager(models.Manager):
                 )
             rechnung_schueler.fehltage_abrechnen(schueler_in_einrichtung)
             rechnung_schueler.abschliessen(schueler_in_einrichtung)
+            rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
+                rechnung_sozialamt, schueler_in_einrichtung.einrichtung
+            )
+            rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt
 
 
@@ -139,3 +146,34 @@ class RechnungsPositionSchuelerManager(models.Manager):
             rechnung_pos.rechnung_schueler = rechnung_schueler
         rechnung_pos.clean()
         return rechnung_pos.save(force_insert=True)
+
+
+class RechnungEinrichtungManager(models.Manager):
+
+    def erstelle_rechnung(self, rechnung_sozialamt, einrichtung):
+        """
+        Erstellt eine Rechnung für eine :model:`RechnungEinrichtung`-Instanz.
+
+        Sollte für :model:`RechnungSozialamt` und :model:`Einrichtung` schon
+        eine Rechnung existieren wird diese zurückgegeben und keine neue
+        erstellt.
+        """
+        tage_faelligkeit = timedelta(
+            settings.ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
+        )
+        rechnung, created = self.get_or_create(
+            rechnung_sozialamt=rechnung_sozialamt,
+            einrichtung=einrichtung,
+            defaults={
+                'einrichtung_name': einrichtung.name,
+                'datum_faellig': timezone.now().date() + tage_faelligkeit,
+            }
+        )
+        if created:
+            rechnung.betreuungstage = len(einrichtung.get_betreuungstage(
+                rechnung_sozialamt.startdatum,
+                rechnung_sozialamt.enddatum
+            ))
+            rechnung.buchungskennzeichen = Buchungskennzeichen.objects.benutzen()
+            rechnung.save()
+        return rechnung
