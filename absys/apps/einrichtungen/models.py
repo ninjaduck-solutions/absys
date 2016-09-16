@@ -14,6 +14,9 @@ class Standort(TimeStampedModel):
         verbose_name='Standort'
         verbose_name_plural='Standorte'
 
+    def __str__(self):
+        return self.anschrift
+
 class Einrichtung(TimeStampedModel):
 
     name = models.CharField("Name", max_length=30, unique=True)
