@@ -17,6 +17,8 @@ class RechnungSozialamtAdmin(ImportExportActionModelAdmin):
     ]
 
 
+admin.site.register(models.RechnungEinrichtung)
+admin.site.register(models.RechnungsPositionEinrichtung)
 admin.site.register(models.RechnungSchueler)
 admin.site.register(models.RechnungsPositionSchueler)
 admin.site.register(models.RechnungSozialamt, RechnungSozialamtAdmin)
