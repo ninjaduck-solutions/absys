@@ -49,8 +49,12 @@ class EinrichtungAdmin(ImportExportActionModelAdmin):
         EinrichtungHatPflegesatzAdmin,
     ]
 
+class StandortAdmin(admin.ModelAdmin):
+    model = models.Standort
+
 
 admin.site.register(models.SchuelerInEinrichtung, SchuelerInEinrichtungAdmin)
 admin.site.register(models.Einrichtung, EinrichtungAdmin)
 admin.site.register(models.Ferien)
 admin.site.register(models.Schliesstag)
+admin.site.register(models.Standort)
