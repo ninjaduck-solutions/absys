@@ -307,6 +307,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     """
 
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
+    name_schueler = models.CharField("Name des Schülers", max_length=61)
     rechnung_einrichtung = models.ForeignKey(
         RechnungEinrichtung,
         verbose_name="Einrichtungs-Rechnung",
@@ -334,7 +335,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
 
     def __str__(self):
         msg = (
-            "Einrichtungs-Rechnungsposition für {s.schueler_name}"
+            "Einrichtungs-Rechnungsposition für {s.name_schueler}"
             " in {s.rechnung_einrichtung.name_einrichtung}"
             " ({s.rechnung_einrichtung.rechnung_sozialamt.startdatum}"
             " - {s.rechnung_einrichtung.rechnung_sozialamt.enddatum})"
