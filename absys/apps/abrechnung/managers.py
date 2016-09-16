@@ -47,6 +47,7 @@ class RechnungSozialamtManager(models.Manager):
             rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
                 rechnung_sozialamt, schueler_in_einrichtung.einrichtung
             )
+            rechnung_einrichtung.abrechnen(schueler_in_einrichtung.schueler)
             rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt
 

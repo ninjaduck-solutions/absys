@@ -267,6 +267,19 @@ class RechnungEinrichtung(TimeStampedModel):
     def nummer(self):
         return "ER{:06d}".format(self.pk)
 
+    def abrechnen(self, schueler):
+        return self.positionen.create(
+            schueler=schueler,
+            fehltage_max=0,
+            anwesend=0,
+            fehltage=0,
+            fehltage_uebertrag=0,
+            fehltage_gesamt=0,
+            fehltage_abrechnung=0,
+            zahltage=0,
+            summe=0
+        )
+
     def abschliessen(self):
         """Rechnung abschließen."""
         self.summe = 0
@@ -283,16 +296,13 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
 
     - Schüler (Fremdschlüssel)
     - Einrichtungs-Rechnung (Fremdschlüssel)
-    - Persönlicher Pflegesatz
-    - Persönlicher Pflegesatz Ferien
-    - Voraussichtliche Anwesenheit
     - Maximale Fehltage
     - Anwesend
     - Fehltage
-    - Übertrag Fehltage ab 1.1. des laufenden Jahres
+    - Übertrag Fehltage ab 1.1. des laufenden Jahres oder Eintritt
     - Fehltage gesamt
     - Fehltage zur Abrechnung im Abrechnungszeitraum
-    - Zahltage im Abrechnungszeitraum
+    - Zahltage im Abrechnungszeitraum (Anwesend + Fehltage zur Abrechnung im Abrechnungszeitraum)
     - Summe der Aufwendungen
     """
 
@@ -302,10 +312,15 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
         verbose_name="Einrichtungs-Rechnung",
         related_name='positionen'
     )
-    pers_pflegesatz = models.DecimalField("Persönlicher Pflegesatz", max_digits=5,
-        decimal_places=2)
-    pers_pflegesatz_ferien = models.DecimalField("Persönlicher Pflegesatz Ferien", max_digits=5,
-        decimal_places=2)
+    fehltage_max = models.PositiveIntegerField("Maximale Fehltage")
+    anwesend = models.PositiveIntegerField("Anwesend")
+    fehltage = models.PositiveIntegerField("Fehltage")
+    fehltage_uebertrag = models.PositiveIntegerField("Übertrag Fehltage ab 1.1. des laufenden Jahres oder Eintritt")
+    fehltage_gesamt = models.PositiveIntegerField("Fehltage gesamt")
+    fehltage_abrechnung = models.PositiveIntegerField("Fehltage zur Abrechnung im Abrechnungszeitraum")
+    zahltage = models.PositiveIntegerField("Zahltage im Abrechnungszeitraum")
+    summe = models.DecimalField("Summe der Aufwendungen", max_digits=8, decimal_places=2,
+        null=True)
 
     class Meta:
         ordering = (
@@ -325,3 +340,12 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
             " - {s.rechnung_einrichtung.rechnung_sozialamt.enddatum})"
         )
         return msg.format(s=self)
+
+    @cached_property
+    def detailabrechnung(self):
+        return self.schueler.rechnungspositionschueler_set.filter(
+            datum__range=(
+                self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
+                self.rechnung_einrichtung.rechnung_sozialamt.enddatum
+            )
+        )
