@@ -91,7 +91,7 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Passwort für den Lockdown-Schutz
 # echo '1234' | sudo tee /var/envdir/absys/DJANGO_LOCKDOWN_PASSWORDS
 
-# Berichtigungen korrigieren
+# Berechtigungen korrigieren
 sudo chgrp -R www-data /var/envdir/absys && sudo chmod -R g=rX,o= /var/envdir/absys
 
 # Installation/Upgrade von pip, AbSys und den abhängigen Paketen
