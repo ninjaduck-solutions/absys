@@ -12,6 +12,9 @@ from . import managers
 class Standort(TimeStampedModel):
 
     anschrift = models.TextField()
+    konto_iban = models.CharField("IBAN", max_length=22)
+    konto_bic = models.CharField("BIC", max_length=12)
+    konto_institut = models.CharField("Institut", max_length=100)
 
     class Meta:
         verbose_name = 'Standort'
