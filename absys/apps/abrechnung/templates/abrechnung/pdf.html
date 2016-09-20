@@ -5,6 +5,7 @@
   {% endblock %}
 {% endblock %}
 
+
 {# DECKBLATT #}
 
 {% block content %}
@@ -12,87 +13,117 @@
 <h1> Rechnung </h1>
 <br>
 <br>
-<br>
-<br>
-<p>
-  Sozialamt: <br>
-  {{ rechnungsozialamt.sozialamt }}<br>
+<h2>
+  an:<br>
+  Sozialamt: {{ rechnungsozialamt.sozialamt }}<br>
   {{ rechnungsozialamt.sozialamt_anschrift|linebreaks }}<br>
   <br>
-  Bankverbindung<br>
-  IBAN: {{ rechnungsozialamt.sozialamt.konto_iban }}<br>
-  BIC: {{ rechnungsozialamt.sozialamt.konto_bic }}<br>
-  Institut: {{ rechnungsozialamt.sozialamt.konto_institut }}<br>
+  <br>
+  von: <br>
+  {{ rechnungsozialamt.rechnungen_einrichtungen.first.einrichtung.standort.anschrift|linebreaks }}
+  <br>
+  <br>
   <br>
   Rechnungsnummer: {{ rechnungsozialamt.nummer }} <br>
   Abrechnungszeitraum:
   {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
   -
   {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
-</p>
 
-{# ÜBERSICHTSBLÄTTER #}
+</h2>
 
-<div style="page-break-before:always;">
-  <h4>Übersicht</h4>
-</div>
 
-<p>
-  <table class="table table-striped">
-    <thead style="display: table-row-group">
-       <tr>
-        <th>PKZ</th>
-        <th>AZ</th>
-        <th>Name</th>
-        <th>Gesamtbetrag</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for rechnung in rechnungsozialamt.rechnungen_schueler.all %}
-        <tr>
-          <td>{{ rechnung.schueler.pkz }}</td>
-          <td>{{ rechnung.schueler.aktenzeichen }}</td>
-          <td>{{ rechnung.name_schueler }}</td>
-          <td>{{ rechnung.summe }} €</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</p>
+{# BEGINN EINRICHTUNGSRECHNUNGEN #}
 
-<h4 style="text-align:right">Rechnungsbetrag: {{ rechnungsozialamt.rechnungsbetrag }} €</h4>
+{% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
 
-{# DECKBLATT EINZELABRECHNUNGEN #}
+  <div style="page-break-before:always;">
 
-<div style="page-break-before:always;">
-  <h4>Einzelabrechnungen nach Schülern</h4>
-</div>
+  <h4>Einrichtung: {{ einrichtungsrechnung.name_einrichtung }} </h4>
 
-{# EINZELABRECHNUNGEN #}
-
-<div style="page-break-before:always;"></div>
-
-{% for rechnung in rechnungsozialamt.rechnungen_schueler.all %}
-<div style="page-break-before:always;">
   <p>
-      Schueler: {{ rechnung.name_schueler }}
-      <br>
-      Summe aller Abrechnungstage: {{ rechnung.summe }}
-      <br>
-      Fehltage im Abrechnungszeitraum: {{ rechnung.fehltage }}
-      <br>
-      Anzahl Fehltage nicht abgerechnet: {{ rechnung.fehltage_nicht_abgerechnet.count }}
-      <br>
-      Fehltage nicht abgerechnet: {% spaceless %}
-      {% for fehltag in rechnung.fehltage_nicht_abgerechnet.all %}
-        {{ fehltag.datum }}{% if not forloop.last %},{% endif %}
-      {% empty %}
-        Keine
-      {% endfor %}
-      {% endspaceless %}
+    Anschrift:
+    {{ einrichtungsrechnung.einrichtung.standort.anschrift|linebreaks }}
   </p>
 
-      <table class="table table-striped">
+  <p>
+    Bankverbindung:<br>
+    BIC: {{ einrichtungsrechnung.einrichtung.standort.konto_bic }}<br>
+    Institut: {{ einrichtungsrechnung.einrichtung.standort.konto_institut }}<br>
+    IBAN: {{ einrichtungsrechnung.einrichtung.standort.konto_iban }}<br>
+    Buchungsstelle: ??? <br>
+    Buchungskennzeichen: {{ einrichtungsrechnung.buchungskennzeichen }}<br>
+    Fälligkeitsdatum: {{ einrichtungsrechnung.datum_faellig }}<br>
+  </p>
+
+  <p>
+    Abrechnungszeitraum:
+    {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
+    -
+    {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
+    <br>
+    Betreuungstage: {{ einrichtungsrechnung.betreuungstage }} <br>
+    gegenüber Sozialamt {{ rechnungsozialamt.sozialamt }}
+  </p>
+
+  <p>
+    Aufwendungen Gesamt: {{ einrichtungsrechnung.summe }} € <br>
+    Datum: <br>
+    Unterschrift: <br>
+  </p>
+
+{# BEGINN EINRICHTUNGSPOSITIONEN #}
+
+  <p>
+    <table class="table table-striped">
+      <thead style="display: table-row-group">
+         <tr>
+          <th>Pos.</th>
+          <th>Name</th>
+          <th>Aktenzeichen</th>
+          <th>Geburtsdatum</th>
+          <th>Maximale Fehltage</th>
+          <th>Anzahl Tage anwesend</th>
+          <th>Fehltage im Abrechnungs-zeitraum</th>
+          <th>Übertrag abgerechnete Fehltage</th>
+          <th>Fehltage Gesamt</th>
+          <th>Fehltage zur Anrechnung</th>
+          <th>Zahltage dieser Rechnung</th>
+          <th>Gesamtbetrag (€)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
+          <tr>
+            <td>{{ einrichtungsposition.id}}</td>
+            <td>{{ einrichtungsposition.schueler.nachname }}, 
+              {{ einrichtungsposition.schueler.vorname }} </td> 
+              {# name_schuler wird im Rechnungslauf noch nicht in das Model geschrieben; außerdem brauchen wir NACHNAME, VORNAME #}
+            <td>{{ einrichtungsposition.schueler.aktenzeichen}}</td>
+            <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"d.m.Y"}}</td>
+            <td>{{ einrichtungsposition.fehltage_max}}</td>
+            <td>{{ einrichtungsposition.anwesend}}</td>
+            <td>{{ einrichtungsposition.fehltage}}</td>
+            <td>{{ einrichtungsposition.fehltage_uebertrag}}</td>
+            <td>{{ einrichtungsposition.fehltage_gesamt}}</td>
+            <td>{{ einrichtungsposition.fehltage_abrechnung}}</td>
+            <td>{{ einrichtungsposition.zahltage}}</td>
+            <td>{{ einrichtungsposition.summe}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </p>
+{# ENDE EINRICHTUNGSPOSITIONEN #}
+
+{# BEGINN SCHUELERPOSITIONEN #}
+
+<div style="page-break-before:always;"></div>
+{% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
+  <div style="page-break-before:always;"></div>
+  {{ einrichtungsposition.schueler.nachname }}, {{ einrichtungsposition.schueler.vorname }}
+
+       <table class="table table-striped">
         <thead style="display: table-row-group">
            <tr>
             <th>Datum</th>
@@ -103,19 +134,25 @@
           </tr>
         </thead>
         <tbody>
-          {% for position in rechnung.positionen.all %}
+          {% for schuelerposition in einrichtungsposition.detailabrechnung.all %} {# ist das Queryset detailabrechnung falsch? #}
             <tr>
-              <td>{{ position.datum|date:"d.m.Y" }}</td>
-              <td>{{ position.tag_art }}</td>
-              <td>{% if position.abwesend %}<span class="glyphicon glyphicon-remove" aria-hidden="true">
+              <td>{{ schuelerposition.datum|date:"d.m.Y" }} </td>
+              <td>{{ schuelerposition.tag_art }}</td>
+              <td>{% if schuelerposition.abwesend %}<span class="glyphicon glyphicon-remove" aria-hidden="true">
                 {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
-              <td>{{ position.pflegesatz }}</td>
-              <td>{{ position.name_einrichtung }}</td>
+              <td>{{ schuelerposition.pflegesatz }}</td>
+              <td>{{ schuelerposition.name_einrichtung }}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
+  
+  {% endfor %}
+{# ENDE SCHUELERPOSITIONEN #}
 </div>
+{#ENDE EINRICHTUNGSRECHNUNG #}
 {% endfor %}
 
 {% endblock %}
+
+
