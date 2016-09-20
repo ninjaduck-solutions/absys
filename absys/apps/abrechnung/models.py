@@ -72,9 +72,9 @@ class RechnungSozialamt(TimeStampedModel):
     def nummer(self):
         return "S{:06d}".format(self.pk)
 
-    @cached_property
-    def rechnungsbetrag(self):
-        return self.rechnungen_schueler.aggregate(Sum('summe'))['summe__sum']
+    #@cached_property
+    #def rechnungsbetrag(self):
+    #    return self.rechnungen_schueler.aggregate(Sum('summe'))['summe__sum']
 
     def fehltage_abrechnen(self, schueler_in_einrichtung):
         """
@@ -242,7 +242,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     """
 
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
-    name_schueler = models.CharField("Name des Schülers", max_length=61)
+    name_schueler = models.CharField("Name des Schülers", max_length=61) # name_schuler wird im Rechnungslauf noch nicht in das Model geschrieben
     rechnung_einrichtung = models.ForeignKey(
         RechnungEinrichtung,
         verbose_name="Einrichtungs-Rechnung",
