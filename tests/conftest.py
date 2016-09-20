@@ -8,6 +8,7 @@ from faker import Faker
 from pytest_factoryboy import register
 
 from . import factories
+from .buchungskennzeichen import factories as buchungskennzeichen_factories
 
 
 register(factories.StandortFactory)
@@ -20,6 +21,7 @@ register(factories.SchuelerInEinrichtungFactory)
 register(factories.SchuelerAngemeldetInEinrichtungFactory)
 register(factories.FerienFactory)
 register(factories.AnwesenheitFactory)
+register(buchungskennzeichen_factories.BuchungskennzeichenFactory)
 
 
 @pytest.fixture
