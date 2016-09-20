@@ -125,7 +125,8 @@ class RechnungsPositionSchueler(TimeStampedModel):
     )
     rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
         related_name='positionen_schueler')
-    schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
+    schueler = models.ForeignKey(Schueler, verbose_name="Schüler",
+        related_name='positionen_schueler')
     einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung")
     datum = models.DateField("Datum")
     abgerechnet = models.BooleanField("abgerechnet", default=False)
@@ -241,7 +242,8 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     - Summe der Aufwendungen
     """
 
-    schueler = models.ForeignKey(Schueler, verbose_name="Schüler")
+    schueler = models.ForeignKey(Schueler, verbose_name="Schüler",
+        related_name='positionen_einrichtung')
     name_schueler = models.CharField("Name des Schülers", max_length=61)
     rechnung_einrichtung = models.ForeignKey(
         RechnungEinrichtung,
@@ -279,7 +281,10 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
 
     @cached_property
     def detailabrechnung(self):
-        return self.schueler.rechnungspositionschueler_set.filter(
+        """
+        Gibt alle :model:`RechnungsPositionSchueler`-Instanzen zurück, die zu dieser Instanz gehören.
+        """
+        return self.schueler.positionen_schueler.filter(
             datum__range=(
                 self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
                 self.rechnung_einrichtung.rechnung_sozialamt.enddatum
