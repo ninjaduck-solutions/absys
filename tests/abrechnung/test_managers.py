@@ -106,3 +106,4 @@ class TestRechnungSozialamtManager:
             )
             assert pos_einrichtung.fehltage_abrechnung == 0
             assert pos_einrichtung.zahltage == 5
+            assert pos_einrichtung.detailabrechnung.count() == 5
