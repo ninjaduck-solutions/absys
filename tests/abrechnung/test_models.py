@@ -2,7 +2,6 @@ import datetime
 
 import pytest
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.utils.timezone import now
 
 
@@ -49,33 +48,11 @@ class TestRechnungSozialamt:
         with pytest.raises(ValidationError):
             rechnung_sozialamt.clean()
 
-
-@pytest.mark.django_db
-class TestRechnungSchueler:
-
-    def test_nummer(self, rechnung_schueler):
-        assert rechnung_schueler.nummer.endswith(str(rechnung_schueler.pk))
-        assert rechnung_schueler.nummer.startswith("SR0")
-        assert len(rechnung_schueler.nummer) == 8
-
-    def test_fehltage_abrechnen_negatives_limit(self, rechnung_schueler, schueler_in_einrichtung):
+    def test_fehltage_abrechnen_negatives_limit(self, rechnung_sozialamt, schueler_in_einrichtung):
         """
         Darf kein ``AssertionError: Negative indexing is not supported.`` werfen.
 
         Test für eine Regression bei der ``limit`` nicht auf Null oder positive
         Zahlen eingeschränkt wurde.
         """
-        rechnung_schueler.fehltage_abrechnen(schueler_in_einrichtung)
-
-
-@pytest.mark.django_db
-class TestRechnungsPositionSchueler:
-
-    def test_clean(self, rechnung_schueler, rechnungs_position_schueler_factory):
-        with pytest.raises(IntegrityError) as exp:
-            rechnungs_position_schueler_factory.build(
-                datum=now(),
-                rechnung_schueler=rechnung_schueler,
-                rechnung_nicht_abgerechnet=rechnung_schueler
-            ).clean()
-        assert str(exp.value) == "Die Felder \"Schüler-Rechnung\" und \"Schüler-Rechnung, nicht abgerechnet\" dürfen nicht beide eine Schüler-Rechnung enthalten."
+        rechnung_sozialamt.fehltage_abrechnen(schueler_in_einrichtung)
