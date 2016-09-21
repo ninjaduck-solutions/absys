@@ -215,7 +215,9 @@ class RechnungEinrichtung(TimeStampedModel):
             tage[0]
         ).get().fehltage_erlaubt
         fehltage = len(tage_abwesend)
-        fehltage_uebertrag = RechnungEinrichtung.objects.fehltage_uebertrag(tage[0].year, eintritt)
+        fehltage_uebertrag = RechnungEinrichtung.objects.fehltage_uebertrag(
+            tage[0].year, eintritt, self.einrichtung
+        )
         summen = schueler.positionen_schueler.filter(datum__range=(tage[0], tage[-1]),).summen()
         return self.positionen.create(
             schueler=schueler,

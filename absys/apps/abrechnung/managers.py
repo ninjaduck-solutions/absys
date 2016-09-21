@@ -133,22 +133,23 @@ class RechnungsPositionSchuelerManager(models.Manager):
 
 class RechnungEinrichtungQuerySet(models.QuerySet):
 
-    def letzte_rechnung(self, jahr, eintritt):
+    def letzte_rechnung(self, jahr, eintritt, einrichtung):
         """Gibt die letzte Rechnung im angegebenen Jahr zurück."""
         return self.filter(
+            einrichtung=einrichtung,
             rechnung_sozialamt__startdatum__gte=services.get_betrachtungszeitraum(jahr, eintritt)
         ).order_by('-rechnung_sozialamt__startdatum').first()
 
 
 class RechnungEinrichtungManager(models.Manager):
 
-    def fehltage_uebertrag(self, jahr, eintritt):
+    def fehltage_uebertrag(self, jahr, eintritt, einrichtung):
         """
         Gibt die Gesamtanzahl aller Fehltage der letzten Rechnung im angegebenen Jahr zurück.
 
         Sollte keine Rechnung für dieses Jahr existieren, wird 0 zurückgegeben.
         """
-        return getattr(self.letzte_rechnung(jahr, eintritt), 'fehltage_gesamt', 0)
+        return getattr(self.letzte_rechnung(jahr, eintritt, einrichtung), 'fehltage_abrechnung', 0)
 
     def erstelle_rechnung(self, rechnung_sozialamt, einrichtung):
         """
