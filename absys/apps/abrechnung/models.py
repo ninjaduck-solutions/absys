@@ -288,5 +288,6 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
             datum__range=(
                 self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
                 self.rechnung_einrichtung.rechnung_sozialamt.enddatum
-            )
+            ),
+            einrichtung=self.rechnung_einrichtung.einrichtung
         )
