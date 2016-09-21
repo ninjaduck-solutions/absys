@@ -7,6 +7,19 @@ from django.utils import timezone
 from absys.apps.buchungskennzeichen.models import Buchungskennzeichen
 
 
+def get_betrachtungszeitraum(jahr, eintritt):
+    """
+    Gibt den Beginn des Betrachtungszeitraums für das angegebene Jahr zurück.
+
+    Beginnn ist entweder am 1.1. des angegebenen Jahres oder am
+    Eintrittsdatum, wenn dieses im angegebenen Jahr liegt.
+    """
+    beginn = timezone.make_aware(datetime(jahr, 1, 1))
+    if eintritt.year == jahr:
+        beginn = eintritt
+    return beginn
+
+
 class RechnungSozialamtManager(models.Manager):
 
     @transaction.atomic
@@ -44,25 +57,17 @@ class RechnungSozialamtManager(models.Manager):
             rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
                 rechnung_sozialamt, schueler_in_einrichtung.einrichtung
             )
-            rechnung_einrichtung.abrechnen(schueler_in_einrichtung.schueler)
+            rechnung_einrichtung.abrechnen(
+                schueler_in_einrichtung.schueler,
+                schueler_in_einrichtung.eintritt,
+                tage,
+                tage_abwesend_datetime
+            )
             rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt
 
 
 class RechnungsPositionSchuelerQuerySet(models.QuerySet):
-
-    @staticmethod
-    def get_betrachtungszeitraum(schueler_in_einrichtung, jahr):
-        """
-        Gibt den Beginn des Betrachtungszeitraums für das angegebene Jahr zurück.
-
-        Beginnn ist entweder am 1.1. des angegebenen Jahres oder am Eintrittsdatum,
-        wenn dieses im angegebenen Jahr liegt.
-        """
-        beginn = timezone.make_aware(datetime(jahr, 1, 1))
-        if schueler_in_einrichtung.eintritt.year == jahr:
-            beginn = schueler_in_einrichtung.eintritt
-        return beginn
 
     def nicht_abgerechnet(self, schueler_in_einrichtung, enddatum):
         """Gibt alle nicht abgerechneten Rechnungs-Positionen zurück.
@@ -74,7 +79,9 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
             abgerechnet=False,
-            datum__gte=self.get_betrachtungszeitraum(schueler_in_einrichtung, enddatum.year)
+            datum__gte=get_betrachtungszeitraum(
+                enddatum.year, schueler_in_einrichtung.eintritt
+            )
         )
 
     def fehltage_abgerechnet(self, schueler_in_einrichtung, enddatum):
@@ -87,8 +94,28 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
             abwesend=True,
-            datum__gte=self.get_betrachtungszeitraum(schueler_in_einrichtung, enddatum.year)
+            datum__gte=get_betrachtungszeitraum(
+                enddatum.year, schueler_in_einrichtung.eintritt
+            )
         ).exclude(abgerechnet=False)
+
+    def summen(self):
+        """Aggregiert die Summen für Fehltage, Zahltage und Aufwände."""
+        return self.aggregate(
+            fehltage=models.Count(
+                models.Case(
+                    models.When(abwesend=True, then=1),
+                    output_field=models.IntegerField()
+                )
+            ),
+            zahltage=models.Count(
+                models.Case(
+                    models.When(abgerechnet=True, then=1),
+                    output_field=models.IntegerField()
+                )
+            ),
+            aufwaende=models.Sum('pflegesatz')
+        )
 
 
 class RechnungsPositionSchuelerManager(models.Manager):
@@ -116,7 +143,24 @@ class RechnungsPositionSchuelerManager(models.Manager):
         return rechnung_pos.save(force_insert=True)
 
 
+class RechnungEinrichtungQuerySet(models.QuerySet):
+
+    def letzte_rechnung(self, jahr, eintritt):
+        """Gibt die letzte Rechnung im angegebenen Jahr zurück."""
+        return self.filter(
+            rechnung_sozialamt__startdatum__gte=get_betrachtungszeitraum(jahr, eintritt)
+        ).order_by('-rechnung_sozialamt__startdatum').first()
+
+
 class RechnungEinrichtungManager(models.Manager):
+
+    def fehltage_uebertrag(self, jahr, eintritt):
+        """
+        Gibt die Gesamtanzahl aller Fehltage der letzten Rechnung im angegebenen Jahr zurück.
+
+        Sollte keine Rechnung für dieses Jahr existieren, wird 0 zurückgegeben.
+        """
+        return getattr(self.letzte_rechnung(jahr, eintritt), 'fehltage_gesamt', 0)
 
     def erstelle_rechnung(self, rechnung_sozialamt, einrichtung):
         """

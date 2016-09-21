@@ -4,7 +4,6 @@ from django.utils.timezone import now
 from model_utils import Choices
 from django.utils.functional import cached_property
 from model_utils.models import TimeStampedModel
-from django.db.models import Sum
 
 from absys.apps.einrichtungen.models import Einrichtung
 from absys.apps.schueler.models import Schueler, Sozialamt
@@ -127,7 +126,8 @@ class RechnungsPositionSchueler(TimeStampedModel):
         related_name='positionen_schueler')
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler",
         related_name='positionen_schueler')
-    einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung")
+    einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung",
+        related_name='positionen_schueler')
     datum = models.DateField("Datum")
     abgerechnet = models.BooleanField("abgerechnet", default=False)
     name_schueler = models.CharField("Name des Schülers", max_length=62)
@@ -183,7 +183,9 @@ class RechnungEinrichtung(TimeStampedModel):
     betreuungstage = models.PositiveIntegerField(default=0)
     summe = models.DecimalField("Gesamtbetrag", max_digits=8, decimal_places=2, null=True)
 
-    objects = managers.RechnungEinrichtungManager()
+    objects = managers.RechnungEinrichtungManager.from_queryset(
+        managers.RechnungEinrichtungQuerySet
+    )()
 
     class Meta:
         ordering = ('-rechnung_sozialamt__startdatum', '-rechnung_sozialamt__enddatum',
@@ -203,18 +205,29 @@ class RechnungEinrichtung(TimeStampedModel):
     def nummer(self):
         return "ER{:06d}".format(self.pk)
 
-    def abrechnen(self, schueler):
+    def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
+        """Erstellt für jeden Schüler eine Rechnungsposition.
+
+        Die Abrechnung erfolgt für die übergebenen Anwesenheits- und
+        Abwesenheitstage.
+        """
+        fehltage_max = self.einrichtung.anmeldungen.filter(schueler=schueler).war_angemeldet(
+            tage[0]
+        ).get().fehltage_erlaubt
+        fehltage = len(tage_abwesend)
+        fehltage_uebertrag = RechnungEinrichtung.objects.fehltage_uebertrag(tage[0].year, eintritt)
+        summen = schueler.positionen_schueler.filter(datum__range=(tage[0], tage[-1]),).summen()
         return self.positionen.create(
             schueler=schueler,
             name_schueler=schueler.voller_name,
-            fehltage_max=2,
-            anwesend=5,
-            fehltage=0,
-            fehltage_uebertrag=0,
-            fehltage_gesamt=0,
-            fehltage_abrechnung=0,
-            zahltage=5,
-            summe=10
+            fehltage_max=fehltage_max,
+            anwesend=len(tage) - fehltage,
+            fehltage=fehltage,
+            fehltage_uebertrag=fehltage_uebertrag,
+            fehltage_gesamt=fehltage + fehltage_uebertrag,
+            fehltage_abrechnung=summen['fehltage'],
+            zahltage=summen['zahltage'],
+            summe=summen['aufwaende']
         )
 
     def abschliessen(self):

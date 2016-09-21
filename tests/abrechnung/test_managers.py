@@ -97,13 +97,13 @@ class TestRechnungSozialamtManager:
             assert rechnung.positionen.count() == 1
             # RechnungsPositionEinrichtung
             pos_einrichtung = rechnung.positionen.first()
-            assert pos_einrichtung.fehltage_max > 0
-            assert pos_einrichtung.anwesend == 5
-            assert pos_einrichtung.fehltage == 0
+            assert pos_einrichtung.fehltage_max == schueler_in_einrichtung.fehltage_erlaubt > 0
+            assert pos_einrichtung.anwesend == 4
+            assert pos_einrichtung.fehltage == 1
             assert pos_einrichtung.fehltage_uebertrag == 0
             assert pos_einrichtung.fehltage_gesamt == (
                 pos_einrichtung.fehltage + pos_einrichtung.fehltage_uebertrag
             )
-            assert pos_einrichtung.fehltage_abrechnung == 0
+            assert pos_einrichtung.fehltage_abrechnung == 1
             assert pos_einrichtung.zahltage == 5
             assert pos_einrichtung.detailabrechnung.count() == 5
