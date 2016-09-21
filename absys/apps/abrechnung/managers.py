@@ -1,23 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
 from django.db import models, transaction
 from django.utils import timezone
 
 from absys.apps.buchungskennzeichen.models import Buchungskennzeichen
-
-
-def get_betrachtungszeitraum(jahr, eintritt):
-    """
-    Gibt den Beginn des Betrachtungszeitraums für das angegebene Jahr zurück.
-
-    Beginnn ist entweder am 1.1. des angegebenen Jahres oder am
-    Eintrittsdatum, wenn dieses im angegebenen Jahr liegt.
-    """
-    beginn = timezone.make_aware(datetime(jahr, 1, 1))
-    if eintritt.year == jahr:
-        beginn = eintritt
-    return beginn
+from . import services
 
 
 class RechnungSozialamtManager(models.Manager):
@@ -79,7 +67,7 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
             abgerechnet=False,
-            datum__gte=get_betrachtungszeitraum(
+            datum__gte=services.get_betrachtungszeitraum(
                 enddatum.year, schueler_in_einrichtung.eintritt
             )
         )
@@ -94,7 +82,7 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
             abwesend=True,
-            datum__gte=get_betrachtungszeitraum(
+            datum__gte=services.get_betrachtungszeitraum(
                 enddatum.year, schueler_in_einrichtung.eintritt
             )
         ).exclude(abgerechnet=False)
@@ -148,7 +136,7 @@ class RechnungEinrichtungQuerySet(models.QuerySet):
     def letzte_rechnung(self, jahr, eintritt):
         """Gibt die letzte Rechnung im angegebenen Jahr zurück."""
         return self.filter(
-            rechnung_sozialamt__startdatum__gte=get_betrachtungszeitraum(jahr, eintritt)
+            rechnung_sozialamt__startdatum__gte=services.get_betrachtungszeitraum(jahr, eintritt)
         ).order_by('-rechnung_sozialamt__startdatum').first()
 
 
