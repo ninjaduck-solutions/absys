@@ -128,11 +128,19 @@ class SchuelerInEinrichtung(TimeStampedModel):
         return self.get_pers_pflegesatz(datum) or self.einrichtung.get_pflegesatz(datum)
 
     def clean(self):
-        # TODO Zeiträume dürfen sich nicht überlappen
-        # Gilt für die Kombination schueler, einrichtung, sozialamt, eintritt, austritt
-        # Falls sinnnvoll muss auf django.contrib.postgres.fields.DateRangeField umgestellt werden
-        if self.eintritt and self.austritt and self.eintritt > self.austritt:
-            raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
+        if self.eintritt and self.austritt:
+            if self.eintritt > self.austritt:
+                raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
+            if self.schueler:
+                dubletten = SchuelerInEinrichtung.objects.dubletten(
+                    self.schueler, self.eintritt, self.austritt
+                ).count()
+                if dubletten > 0:
+                    msg = (
+                        "Für diesen Zeitraum existiert schon eine Anmeldung für {s.schueler}"
+                        " für eine Einrichtung."
+                    )
+                    raise ValidationError(msg.format(s=self))
 
     def war_abwesend(self, tage):
         """Abwesenheitstage für Schüler in Einrichtung im gewählten Zeitraum ermitteln."""
