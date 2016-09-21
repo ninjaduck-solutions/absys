@@ -143,7 +143,7 @@ class RechnungsPositionEinrichtungQuerySet(models.QuerySet):
         return self.filter(
             rechnung_einrichtung__einrichtung=einrichtung,
             rechnung_einrichtung__rechnung_sozialamt__sozialamt=sozialamt,
-            rechnung_einrichtung__rechnung_sozialamt__startdatum__gte=start
+            rechnung_einrichtung__rechnung_sozialamt__enddatum__gte=start
         ).order_by('-rechnung_einrichtung__rechnung_sozialamt__startdatum').first()
 
 
