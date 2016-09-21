@@ -15,7 +15,7 @@
 <br>
 <h2>
   an:<br>
-  Sozialamt: {{ rechnungsozialamt.sozialamt }}<br>
+  {{ rechnungsozialamt.sozialamt }}<br>
   {{ rechnungsozialamt.sozialamt_anschrift|linebreaks }}<br>
   <br>
   <br>
@@ -63,7 +63,7 @@
     {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
     <br>
     Betreuungstage: {{ einrichtungsrechnung.betreuungstage }} <br>
-    gegenüber Sozialamt {{ rechnungsozialamt.sozialamt }}
+    gegenüber: {{ rechnungsozialamt.sozialamt }}
   </p>
 
   <p>
@@ -95,7 +95,7 @@
       <tbody>
         {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
           <tr>
-            <td>{{ einrichtungsposition.id}}</td>
+            <td>{{ forloop.counter }}</td>
             <td>{{ einrichtungsposition.schueler.nachname }}, 
               {{ einrichtungsposition.schueler.vorname }} </td> 
               {# name_schuler wird im Rechnungslauf noch nicht in das Model geschrieben; außerdem brauchen wir NACHNAME, VORNAME #}
