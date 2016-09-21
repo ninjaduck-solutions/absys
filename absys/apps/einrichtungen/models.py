@@ -149,7 +149,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
         if self.eintritt and self.austritt:
             if self.eintritt > self.austritt:
                 raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
-            if self.schueler:
+            if not self.pk and self.schueler:
                 dubletten = SchuelerInEinrichtung.objects.dubletten(
                     self.schueler, self.eintritt, self.austritt
                 ).count()
