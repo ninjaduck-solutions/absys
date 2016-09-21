@@ -50,7 +50,7 @@ class Schueler(TimeStampedModel):
 
     @property
     def voller_name(self):
-        return "{s.vorname} {s.nachname}".format(s=self)
+        return "{s.nachname}, {s.vorname}".format(s=self)
 
     def get_einrichtung(self, datum):
         """

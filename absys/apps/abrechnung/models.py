@@ -130,7 +130,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung")
     datum = models.DateField("Datum")
     abgerechnet = models.BooleanField("abgerechnet", default=False)
-    name_schueler = models.CharField("Name des Schülers", max_length=61)
+    name_schueler = models.CharField("Name des Schülers", max_length=62)
     name_einrichtung = models.CharField("Einrichtung", max_length=20)
     tag_art = models.CharField("Schul- oder Ferientag", choices=TAG_ART, default=TAG_ART.schule, max_length=20)
     abwesend = models.BooleanField("Abwesenheit", default=False)
@@ -206,6 +206,7 @@ class RechnungEinrichtung(TimeStampedModel):
     def abrechnen(self, schueler):
         return self.positionen.create(
             schueler=schueler,
+            name_schueler=schueler.voller_name,
             fehltage_max=2,
             anwesend=5,
             fehltage=0,
@@ -244,7 +245,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
 
     schueler = models.ForeignKey(Schueler, verbose_name="Schüler",
         related_name='positionen_einrichtung')
-    name_schueler = models.CharField("Name des Schülers", max_length=61)
+    name_schueler = models.CharField("Name des Schülers", max_length=62)
     rechnung_einrichtung = models.ForeignKey(
         RechnungEinrichtung,
         verbose_name="Einrichtungs-Rechnung",
