@@ -45,3 +45,17 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
                 schueler_in_einrichtung.einrichtung.get_betreuungstage(start, ende)
             )
         return betreuungstage
+
+    def dubletten(self, schueler, eintritt, austritt):
+        """Findet alle Dubletten für den Schüler im angegebenen Zeitraum."""
+        return self.filter(
+            schueler=schueler
+        ).filter(
+            (
+                models.Q(eintritt__range=(eintritt, austritt)) |
+                models.Q(austritt__range=(eintritt, austritt))
+            ) | (
+                models.Q(eintritt__lt=eintritt) &
+                models.Q(austritt__gt=austritt)
+            )
+        )
