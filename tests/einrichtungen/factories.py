@@ -28,6 +28,9 @@ class SchliesstagFactory(factory.DjangoModelFactory):
 class StandortFactory(factory.DjangoModelFactory):
 
     anschrift = factory.Faker('address')
+    konto_iban = factory.Faker('pyint')
+    konto_bic = factory.Faker('pyint')
+    konto_institut = factory.Faker('pyint')
 
     class Meta:
         model = models.Standort
