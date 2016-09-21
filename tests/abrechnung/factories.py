@@ -3,7 +3,8 @@ import datetime
 import factory
 
 from absys.apps.abrechnung import models
-from tests.factories import EinrichtungFactory, SchuelerFactory, SozialamtFactory
+from ..einrichtungen.factories import EinrichtungFactory
+from ..schueler.factories import SchuelerFactory, SozialamtFactory
 
 
 class RechnungSozialamtFactory(factory.DjangoModelFactory):
