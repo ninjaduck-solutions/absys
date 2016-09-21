@@ -183,9 +183,7 @@ class RechnungEinrichtung(TimeStampedModel):
     betreuungstage = models.PositiveIntegerField(default=0)
     summe = models.DecimalField("Gesamtbetrag", max_digits=8, decimal_places=2, null=True)
 
-    objects = managers.RechnungEinrichtungManager.from_queryset(
-        managers.RechnungEinrichtungQuerySet
-    )()
+    objects = managers.RechnungEinrichtungManager()
 
     class Meta:
         ordering = ('-rechnung_sozialamt__startdatum', '-rechnung_sozialamt__enddatum',
@@ -215,8 +213,8 @@ class RechnungEinrichtung(TimeStampedModel):
             tage[0]
         ).get().fehltage_erlaubt
         fehltage = len(tage_abwesend)
-        fehltage_uebertrag = RechnungEinrichtung.objects.fehltage_uebertrag(
-            tage[0].year, eintritt, self.einrichtung
+        fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
+            tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
         )
         summen = schueler.positionen_schueler.filter(datum__range=(tage[0], tage[-1]),).summen()
         return self.positionen.create(
@@ -275,6 +273,10 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     zahltage = models.PositiveIntegerField("Zahltage im Abrechnungszeitraum")
     summe = models.DecimalField("Summe der Aufwendungen", max_digits=8, decimal_places=2,
         null=True)
+
+    objects = managers.RechnungsPositionEinrichtungManager.from_queryset(
+        managers.RechnungsPositionEinrichtungQuerySet
+    )()
 
     class Meta:
         ordering = (

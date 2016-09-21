@@ -131,25 +131,36 @@ class RechnungsPositionSchuelerManager(models.Manager):
         return rechnung_pos.save(force_insert=True)
 
 
-class RechnungEinrichtungQuerySet(models.QuerySet):
+class RechnungsPositionEinrichtungQuerySet(models.QuerySet):
 
-    def letzte_rechnung(self, jahr, eintritt, einrichtung):
-        """Gibt die letzte Rechnung im angegebenen Jahr zurück."""
-        return self.filter(
-            einrichtung=einrichtung,
-            rechnung_sozialamt__startdatum__gte=services.get_betrachtungszeitraum(jahr, eintritt)
-        ).order_by('-rechnung_sozialamt__startdatum').first()
-
-
-class RechnungEinrichtungManager(models.Manager):
-
-    def fehltage_uebertrag(self, jahr, eintritt, einrichtung):
+    def letzte_position(self, jahr, eintritt, sozialamt, einrichtung):
         """
-        Gibt die Gesamtanzahl aller Fehltage der letzten Rechnung im angegebenen Jahr zurück.
+        Gibt die letzte Rechnungs-Position im angegebenen Jahr zurück.
+
+        Sozialamt und Einrichtung müssen die gleiche sein.
+        """
+        start = services.get_betrachtungszeitraum(jahr, eintritt)
+        return self.filter(
+            rechnung_einrichtung__einrichtung=einrichtung,
+            rechnung_einrichtung__rechnung_sozialamt__sozialamt=sozialamt,
+            rechnung_einrichtung__rechnung_sozialamt__startdatum__gte=start
+        ).order_by('-rechnung_einrichtung__rechnung_sozialamt__startdatum').first()
+
+
+class RechnungsPositionEinrichtungManager(models.Manager):
+
+    def fehltage_uebertrag(self, jahr, eintritt, sozialamt, einrichtung):
+        """
+        Gibt die Gesamtanzahl aller Fehltage der letzten Rechnungs-Positionen im angegebenen Jahr zurück.
+
+        Sozialamt und Einrichtung müssen die gleiche sein.
 
         Sollte keine Rechnung für dieses Jahr existieren, wird 0 zurückgegeben.
         """
-        return getattr(self.letzte_rechnung(jahr, eintritt, einrichtung), 'fehltage_abrechnung', 0)
+        return getattr(self.letzte_position(jahr, eintritt, sozialamt, einrichtung), 'fehltage_abrechnung', 0)
+
+
+class RechnungEinrichtungManager(models.Manager):
 
     def erstelle_rechnung(self, rechnung_sozialamt, einrichtung):
         """
