@@ -4,6 +4,8 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 
+from absys.apps.abrechnung import models
+
 
 @pytest.mark.django_db
 class TestRechnungSozialamt:
@@ -56,3 +58,38 @@ class TestRechnungSozialamt:
         Zahlen eingeschränkt wurde.
         """
         rechnung_sozialamt.fehltage_abrechnen(schueler_in_einrichtung)
+
+
+@pytest.mark.django_db
+class TestRechnungsPositionEinrichtung:
+
+    def test_detailabrechnung(self, schueler, einrichtung_hat_pflegesatz_factory,
+            schueler_in_einrichtung_factory):
+        start = datetime.date(2016, 6, 1)
+        ende = datetime.date(2016, 6, 30)
+        schueler_in_einrichtung_1 = schueler_in_einrichtung_factory(
+            schueler=schueler,
+            eintritt=start,
+            tage_angemeldet=14
+        )
+        einrichtung_hat_pflegesatz_factory(
+            einrichtung=schueler_in_einrichtung_1.einrichtung,
+            pflegesatz_startdatum=schueler_in_einrichtung_1.eintritt
+        )
+        schueler_in_einrichtung_2 = schueler_in_einrichtung_factory(
+            schueler=schueler,
+            eintritt=start + datetime.timedelta(15),
+            tage_angemeldet=14
+        )
+        einrichtung_hat_pflegesatz_factory(
+            einrichtung=schueler_in_einrichtung_2.einrichtung,
+            pflegesatz_startdatum=schueler_in_einrichtung_2.eintritt
+        )
+        assert schueler_in_einrichtung_1.einrichtung != schueler_in_einrichtung_2.einrichtung
+        rechnung_sozialamt = models.RechnungSozialamt.objects.rechnungslauf(schueler.sozialamt, start, ende)
+        assert rechnung_sozialamt.rechnungen_einrichtungen.count() == 2
+        assert schueler.positionen_schueler.count() == 22
+        for rechnung_einrichtung in rechnung_sozialamt.rechnungen_einrichtungen.all():
+            assert rechnung_einrichtung.positionen.filter(schueler=schueler).count() == 1
+            pos = rechnung_einrichtung.positionen.filter(schueler=schueler).first()
+            assert pos.detailabrechnung.count() == 11

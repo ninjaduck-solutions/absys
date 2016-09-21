@@ -52,7 +52,7 @@ class TestRechnungSozialamtManager:
             anwesenheit_factory, buchungskennzeichen, anzahl):
         start = datetime.date(2016, 6, 12)
         ende = datetime.date(2016, 6, 17)
-        anwesenheit_factory.create(
+        anwesenheit_factory(
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
             datum=ende,
