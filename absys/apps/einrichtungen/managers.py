@@ -57,3 +57,17 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
                 tag += datetime.timedelta(1)
             betreuungstage[schueler_in_einrichtung] = tuple(tage)
         return betreuungstage
+
+    def dubletten(self, schueler, eintritt, austritt):
+        """Findet alle Dubletten für den Schüler im angegebenen Zeitraum."""
+        return self.filter(
+            schueler=schueler
+        ).filter(
+            (
+                models.Q(eintritt__range=(eintritt, austritt)) |
+                models.Q(austritt__range=(eintritt, austritt))
+            ) | (
+                models.Q(eintritt__lt=eintritt) &
+                models.Q(austritt__gt=austritt)
+            )
+        )
