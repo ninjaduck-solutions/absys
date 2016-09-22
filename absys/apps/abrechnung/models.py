@@ -290,11 +290,11 @@ class RechnungEinrichtung(TimeStampedModel):
     @cached_property
     def schliesstage(self):
         """
-        Gibt alle Schliesstage einer Einrichtung im 
+        Gibt alle Schliesstage einer Einrichtung im
         gewählten Zeitraum der Einrichtungsrechnung aus.
         """
         return self.einrichtung.schliesstage.filter(
-            datum__range=(self.rechnung_sozialamt.startdatum, 
+            datum__range=(self.rechnung_sozialamt.startdatum,
                 self.rechnung_sozialamt.enddatum)
         )
 
