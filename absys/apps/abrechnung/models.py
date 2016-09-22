@@ -21,8 +21,9 @@ class RechnungSozialamt(TimeStampedModel):
     - Enddatum
     """
 
-    sozialamt = models.ForeignKey(Sozialamt, verbose_name="Sozialamt", related_name='rechnungen')
     sozialamt_anschrift = models.TextField()
+    sozialamt = models.ForeignKey(Sozialamt, models.SET_NULL, null=True, verbose_name="Sozialamt",
+        related_name='rechnungen')
     startdatum = models.DateField("Startdatum")
     enddatum = models.DateField(
         "Enddatum",
@@ -124,10 +125,10 @@ class RechnungsPositionSchueler(TimeStampedModel):
     )
     rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
         related_name='positionen_schueler')
-    schueler = models.ForeignKey(Schueler, verbose_name="Schüler",
+    schueler = models.ForeignKey(Schueler, models.SET_NULL, null=True, verbose_name="Schüler",
         related_name='positionen_schueler')
-    einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung",
-        related_name='positionen_schueler')
+    einrichtung = models.ForeignKey(Einrichtung, models.SET_NULL, null=True,
+        verbose_name="Einrichtung", related_name='positionen_schueler')
     datum = models.DateField("Datum")
     abgerechnet = models.BooleanField("abgerechnet", default=False)
     name_schueler = models.CharField("Name des Schülers", max_length=62)
@@ -176,7 +177,8 @@ class RechnungEinrichtung(TimeStampedModel):
 
     rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
         related_name='rechnungen_einrichtungen')
-    einrichtung = models.ForeignKey(Einrichtung, verbose_name="Einrichtung", related_name='rechnungen')
+    einrichtung = models.ForeignKey(Einrichtung, models.SET_NULL, null=True,
+        verbose_name="Einrichtung", related_name='rechnungen')
     name_einrichtung = models.CharField("Name der Einrichtung", max_length=30)
     buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20)
     datum_faellig = models.DateField("Fälligkeitsdatum")
@@ -268,7 +270,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     - Summe der Aufwendungen
     """
 
-    schueler = models.ForeignKey(Schueler, verbose_name="Schüler",
+    schueler = models.ForeignKey(Schueler, models.SET_NULL, null=True, verbose_name="Schüler",
         related_name='positionen_einrichtung')
     name_schueler = models.CharField("Name des Schülers", max_length=62)
     rechnung_einrichtung = models.ForeignKey(
