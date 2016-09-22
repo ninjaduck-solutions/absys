@@ -41,6 +41,7 @@ Zum Upgrade eines Demo Servers wie folgt vorgehen:
     $ scp dist/absys-*.whl root@absys-demo:/root
     $ ssh root@absys-demo
     root:~$ cp --verbose absys-*.whl /home/vagrant
+    root:~$ chown --verbose vagrant: /home/vagrant/absys-*.whl
     root:~$ su -l vagrant
     vagrant:~$ cd absys
     vagrant:absys$ git pull
