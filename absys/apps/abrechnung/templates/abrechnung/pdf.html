@@ -68,7 +68,15 @@
                 {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
                 -
                 {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
-                <br><br>
+                <br>
+                <b>Schließtage:</b>
+                {# TODO umbauen auf Zeitraumauswahl fuer vorliegende Rechnung #}
+                {% for schliesstag in einrichtungsrechnung.schliesstage %}
+                  {{ schliesstag.datum|date:"d.m.Y" }}{% if not forloop.last %},{% endif %}
+                {% empty %}
+                  keine Schließtage definiert
+                {% endfor %}
+                <br>
                 <b>Betreuungstage:</b> {{ einrichtungsrechnung.betreuungstage }} <br><br>
                 <b>gegenüber:</b>
                 <br>
@@ -101,7 +109,7 @@
             <th>Maximale Fehltage</th>
             <th>Anzahl Tage anwesend</th>
             <th>Fehltage im Abrechnungs-zeitraum</th>
-            <th>Übertrag abgerechnete Fehltage</th>
+            <th>Übertrag Fehltage</th>
             <th>Fehltage Gesamt</th>
             <th>Fehltage zur Anrechnung</th>
             <th>Zahltage dieser Rechnung</th>

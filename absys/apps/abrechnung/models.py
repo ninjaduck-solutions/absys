@@ -239,6 +239,16 @@ class RechnungEinrichtung(TimeStampedModel):
             self.summe = self.positionen.aggregate(models.Sum('summe'))['summe__sum']
         self.save()
 
+    @cached_property
+    def schliesstage(self):
+        """
+        Gibt alle Schliesstage einer Einrichtung im 
+        gewählten Zeitraum der Einrichtungsrechnung aus.
+        """
+        return self.einrichtung.schliesstage.filter(
+            datum__range=(self.rechnung_sozialamt.startdatum, 
+                self.rechnung_sozialamt.enddatum)
+        )
 
 class RechnungsPositionEinrichtung(TimeStampedModel):
     """
