@@ -25,7 +25,7 @@
       {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}<br><br><br>
       <b>Einrichtungen zur Abrechnung: </b>
         {% for einrichtung in rechnungsozialamt.rechnungen_einrichtungen.all %}
-          {{ einrichtung.name_einrichtung|linebreaks }} 
+          {{ einrichtung.name_einrichtung }}{% if not forloop.last %},{% endif %} 
         {% endfor %}
     </h3>
 
@@ -187,6 +187,7 @@
         {# ENDE KOPF DER SCHUELERPOSITIONEN #}
 
         {# BEGINN ANWESENHEITSAUFLISTUNG #}
+          <h4> - Abgerechnete Tage - </h4>
           <table class="table table-striped">
             <thead style="display: table-row-group">
                <tr>
@@ -194,7 +195,6 @@
                 <th>Tagart</th>
                 <th>Anwesenheit</th>
                 <th>Pflegesatz</th>
-                <th>abgerechnet</th>
               </tr>
             </thead>
             <tbody>
@@ -205,8 +205,6 @@
                   <td>{% if schuelerposition.abwesend %}<span class="glyphicon glyphicon-remove" aria-hidden="true">
                     {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
                   <td>{{ schuelerposition.pflegesatz }}</td>
-                  <td>{% if schuelerposition.abgerechnet %}<span class="glyphicon glyphicon-ok" aria-hidden="true">
-                    {% else %}<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>{% endif %}</td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -219,14 +217,12 @@
     {% endfor %}
 
 
-    <br><br><br><br><br><br><br>
+    <br><br><br><br>
     <hr>
-    <h3> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }} 
+    <h3> <center> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }} 
       FÜR DEN ZEITRAUM VOM {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
-      BIS {{ rechnungsozialamt.enddatum|date:"d.m.Y" }} </h3>
-
+      BIS {{ rechnungsozialamt.enddatum|date:"d.m.Y" }} </center></h3>
   </div>
-
 {% endblock %}
 
 
