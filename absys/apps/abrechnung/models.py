@@ -89,6 +89,7 @@ class RechnungSozialamt(TimeStampedModel):
             limit = 0
         for rechnung_pos in qs[:limit]:
             rechnung_pos.abgerechnet = True
+            rechnung_pos.rechnung_sozialamt = self
             rechnung_pos.save()
 
 
