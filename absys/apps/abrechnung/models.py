@@ -71,10 +71,6 @@ class RechnungSozialamt(TimeStampedModel):
     def nummer(self):
         return "S{:06d}".format(self.pk)
 
-    #@cached_property
-    #def rechnungsbetrag(self):
-    #    return self.rechnungen_schueler.aggregate(Sum('summe'))['summe__sum']
-
     def fehltage_abrechnen(self, schueler_in_einrichtung):
         """
         Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
