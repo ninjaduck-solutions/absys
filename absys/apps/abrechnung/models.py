@@ -1,4 +1,7 @@
-from django.db import models
+import datetime
+
+from django.db import models, router
+from django.db.models.deletion import Collector
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from model_utils import Choices
@@ -50,6 +53,30 @@ class RechnungSozialamt(TimeStampedModel):
             self.name_sozialamt = self.sozialamt.name
             self.anschrift_sozialamt = self.sozialamt.anschrift
         super().save(*args, **kwargs)
+
+    def delete(self, using=None, keep_parents=False):
+        """
+        Löscht diese :model:`Sozialamtsrechnung`-Instanz sowie alle nachfolgenden.
+
+        Gelöscht werden alle :model:`Sozialamtsrechnung`-Instanzen, die
+        zwischen dem `startdatum` dieser Rechnung und dem 31.12. im Jahr von
+        `startdatum` liegen - unabhängig vom zugehörigen Sozialamt.
+        """
+        using = using or router.db_for_write(self.__class__, instance=self)
+        assert self._get_pk_val() is not None, (
+            "%s object can't be deleted because its %s attribute is set to None." %
+            (self._meta.object_name, self._meta.pk.attname)
+        )
+        qs = RechnungSozialamt.objects.filter(
+            startdatum__gte=self.startdatum,
+            enddatum__lte=datetime.date(self.enddatum.year, 12, 31)
+        )
+
+        collector = Collector(using=using)
+        collector.collect(qs, keep_parents=keep_parents)
+        return collector.delete()
+
+    delete.alters_data = True
 
     def clean(self):
         if self.startdatum > self.enddatum:
