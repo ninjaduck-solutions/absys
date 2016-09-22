@@ -101,7 +101,6 @@ class RechnungsPositionSchueler(TimeStampedModel):
     - Sozialamtsrechnung (Fremdschlüssel)
     - Schüler (Fremdschlüssel)
     - Einrichtung (Fremdschlüssel)
-    - Schüler-Rechnung (Fremdschlüssel oder None)
     - Datum
     - abgerechnet
     - Name des Schülers (String)
@@ -110,8 +109,12 @@ class RechnungsPositionSchueler(TimeStampedModel):
     - Abwesenheit
     - Pflegesatz
 
-    Wenn der Wert von Rechnung ``None`` ist, wurde die ``RechnungsPositionSchueler``
-    noch nicht abgerechnet.
+    Rechnungsposition für einen Schüler verändern ihren Zustand abhängig von
+    der Anzahl der erlaubten Fehltage eines Schülers. Steigt die Anzahl der
+    erlaubten Fehltage, werden ggf.auch zurückliegende Rechnungsposition eines
+    Schülers abgerechnet. Dadurch ändert sich der Wert von ``abgerechnet`` und
+    stimmt nicht mehr mit dem zum Zeitpunkt der Erstellung der
+    Sozialamtsrechnung überein.
     """
 
     TAG_ART = Choices(
