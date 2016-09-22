@@ -158,7 +158,7 @@ class RechnungsPositionEinrichtungManager(models.Manager):
 
         Sollte keine Rechnung für dieses Jahr existieren, wird 0 zurückgegeben.
         """
-        return getattr(self.letzte_position(jahr, eintritt, sozialamt, einrichtung), 'fehltage_abrechnung', 0)
+        return getattr(self.letzte_position(jahr, eintritt, sozialamt, einrichtung), 'fehltage_gesamt', 0)
 
 
 class RechnungEinrichtungManager(models.Manager):
