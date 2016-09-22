@@ -69,7 +69,7 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
             datum__gte=services.get_betrachtungszeitraum(
                 enddatum.year, schueler_in_einrichtung.eintritt
             )
-        )
+        ).order_by('datum')
 
     def fehltage_abgerechnet(self, schueler_in_einrichtung, enddatum):
         """Gibt alle abgerechneten Rechnungs-Positionen zurück, die Fehltage sind.
