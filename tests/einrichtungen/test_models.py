@@ -138,6 +138,22 @@ class TestEinrichtung:
         with pytest.raises(einrichtung_hat_pflegesatz.DoesNotExist):
             einrichtung_hat_pflegesatz.einrichtung.get_pflegesatz(datum)
 
+    def test_get_betreuungstage(self, einrichtung, schliesstag_factory):
+        start = datetime.date(2016, 7, 11)
+        schliesstag_factory.create(
+            datum=start + datetime.timedelta(3),
+            einrichtungen=[einrichtung]
+        )
+        betreuungstage = einrichtung.get_betreuungstage(start, start + datetime.timedelta(6))
+        assert len(betreuungstage) == 4
+        assert betreuungstage[0] == start
+        assert betreuungstage[-1] == start + datetime.timedelta(4)
+
+    def test_get_betreuungstage_start_after_end(self, einrichtung):
+        start = datetime.date(2016, 7, 11)
+        betreuungstage = einrichtung.get_betreuungstage(start, start - datetime.timedelta(6))
+        assert len(betreuungstage) == 0
+
 
 @pytest.mark.django_db
 class TestSchliesstag:

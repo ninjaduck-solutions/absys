@@ -1,5 +1,3 @@
-import datetime
-
 from django.db import models
 
 
@@ -26,7 +24,6 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
 
         Alle Samstage, Sonntage und Schließ­tage werden entfernt.
         """
-        from .models import Schliesstag
         qs = self.filter(
             (
                 models.Q(eintritt__range=(startdatum, enddatum)) |
@@ -37,25 +34,16 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
             )
         ).order_by('eintritt')
         betreuungstage = {}
-        schliesstage = {}
         for schueler_in_einrichtung in qs:
-            einrichtung = schueler_in_einrichtung.einrichtung
-            if einrichtung not in schliesstage:
-                schliesstage[einrichtung] = tuple(
-                    Schliesstag.objects.filter(einrichtungen__in=[einrichtung]).values_list('datum', flat=True)
-                )
-            tage = []
-            tag = schueler_in_einrichtung.eintritt
+            start = schueler_in_einrichtung.eintritt
             if schueler_in_einrichtung.eintritt < startdatum:
-                tag = startdatum
-            letzter_tag = schueler_in_einrichtung.austritt
+                start = startdatum
+            ende = schueler_in_einrichtung.austritt
             if schueler_in_einrichtung.austritt > enddatum:
-                letzter_tag = enddatum
-            while tag <= letzter_tag:
-                if tag.isoweekday() not in (6, 7) and tag not in schliesstage[einrichtung]:
-                    tage.append(tag)
-                tag += datetime.timedelta(1)
-            betreuungstage[schueler_in_einrichtung] = tuple(tage)
+                ende = enddatum
+            betreuungstage[schueler_in_einrichtung] = tuple(
+                schueler_in_einrichtung.einrichtung.get_betreuungstage(start, ende)
+            )
         return betreuungstage
 
     def dubletten(self, schueler, eintritt, austritt):

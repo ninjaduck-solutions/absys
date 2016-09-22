@@ -21,9 +21,6 @@ class Sozialamt(TimeStampedModel):
 
     name = models.CharField(max_length=200)
     anschrift = models.TextField()
-    konto_iban = models.CharField(max_length=22)
-    konto_bic = models.CharField(max_length=12)
-    konto_institut = models.CharField(max_length=100)
 
     class Meta:
         verbose_name = "Sozialamt"
@@ -40,7 +37,6 @@ class Schueler(TimeStampedModel):
     geburtsdatum = models.DateField()
     bemerkungen = models.TextField(blank=True)
     aktenzeichen = models.CharField("Aktenzeichen", max_length=30)
-    pkz = models.CharField("PKZ", max_length=13, blank=True)
     gruppe = models.ForeignKey(Gruppe, related_name='schueler')
     sozialamt = models.ForeignKey(Sozialamt, related_name='schueler')
 
@@ -54,7 +50,7 @@ class Schueler(TimeStampedModel):
 
     @property
     def voller_name(self):
-        return "{s.vorname} {s.nachname}".format(s=self)
+        return "{s.nachname}, {s.vorname}".format(s=self)
 
     def get_einrichtung(self, datum):
         """

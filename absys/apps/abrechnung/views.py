@@ -52,6 +52,7 @@ class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
     template_name = 'abrechnung/pdf.html'
     cmd_options = {
         'footer-right': '[page]/[topage]',
+        'orientation': 'Landscape',
     }
 
     @property

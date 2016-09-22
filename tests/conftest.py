@@ -7,19 +7,25 @@ import pytest
 from faker import Faker
 from pytest_factoryboy import register
 
-from . import factories
+from .anwesenheitsliste.factories import AnwesenheitFactory
+from .buchungskennzeichen.factories import BuchungskennzeichenFactory
+from .einrichtungen.factories import (EinrichtungFactory, EinrichtungHatPflegesatzFactory,
+    FerienFactory, SchuelerAngemeldetInEinrichtungFactory, SchuelerInEinrichtungFactory,
+    StandortFactory)
+from .schueler.factories import GruppeFactory, SchuelerFactory, SozialamtFactory
 
 
-register(factories.StandortFactory)
-register(factories.GruppeFactory)
-register(factories.SozialamtFactory)
-register(factories.SchuelerFactory)
-register(factories.EinrichtungFactory)
-register(factories.EinrichtungHatPflegesatzFactory)
-register(factories.SchuelerInEinrichtungFactory)
-register(factories.SchuelerAngemeldetInEinrichtungFactory)
-register(factories.FerienFactory)
-register(factories.AnwesenheitFactory)
+register(AnwesenheitFactory)
+register(BuchungskennzeichenFactory)
+register(EinrichtungFactory)
+register(EinrichtungHatPflegesatzFactory)
+register(FerienFactory)
+register(GruppeFactory)
+register(SchuelerAngemeldetInEinrichtungFactory)
+register(SchuelerFactory)
+register(SchuelerInEinrichtungFactory)
+register(SozialamtFactory)
+register(StandortFactory)
 
 
 @pytest.fixture

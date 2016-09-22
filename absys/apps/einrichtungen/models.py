@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
@@ -6,16 +8,21 @@ from absys.apps.schueler.models import Sozialamt, Schueler
 
 from . import managers
 
+
 class Standort(TimeStampedModel):
 
     anschrift = models.TextField()
+    konto_iban = models.CharField("IBAN", max_length=22)
+    konto_bic = models.CharField("BIC", max_length=12)
+    konto_institut = models.CharField("Institut", max_length=100)
 
     class Meta:
-        verbose_name='Standort'
-        verbose_name_plural='Standorte'
+        verbose_name = 'Standort'
+        verbose_name_plural = 'Standorte'
 
     def __str__(self):
         return self.anschrift
+
 
 class Einrichtung(TimeStampedModel):
 
@@ -51,7 +58,7 @@ class Einrichtung(TimeStampedModel):
         """
         Gibt den Pflegesatz der Einrichtung für das Datum zurück.
 
-        Es exitieren zwei Pflegesätze: Für Schultage und für Ferien.
+        Es existieren zwei Pflegesätze: Für Schultage und für Ferien.
         """
         pflegesaetze = self.pflegesaetze.get(
             pflegesatz_startdatum__lte=datum,
@@ -62,6 +69,17 @@ class Einrichtung(TimeStampedModel):
         else:
             pflegesatz = pflegesaetze.pflegesatz
         return pflegesatz
+
+    def get_betreuungstage(self, start, ende):
+        """Gibt die Betreuungstage für den angegebenen Zeitraum zurück."""
+        betreuungstage = []
+        schliesstage = self.schliesstage.values_list('datum', flat=True)
+        tag = start
+        while tag <= ende:
+            if tag.isoweekday() not in (6, 7) and tag not in schliesstage:
+                betreuungstage.append(tag)
+            tag += datetime.timedelta(1)
+        return betreuungstage
 
 
 class SchuelerInEinrichtung(TimeStampedModel):
@@ -79,8 +97,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
             "</span>")
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
-    pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    pers_pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2, default=0)
+    pers_pflegesatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    pers_pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
     pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
     fehltage_erlaubt = models.PositiveIntegerField(default=45)
@@ -155,8 +173,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
 class EinrichtungHatPflegesatz(TimeStampedModel):
 
     einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
-    pflegesatz = models.DecimalField(max_digits=4, decimal_places=2)
-    pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2)
+    pflegesatz = models.DecimalField(max_digits=5, decimal_places=2)
+    pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2)
     pflegesatz_startdatum = models.DateField()
     pflegesatz_enddatum = models.DateField()
 
