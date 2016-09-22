@@ -215,9 +215,9 @@ class RechnungEinrichtung(TimeStampedModel):
         fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
             tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
         )
-        # TODO Berechnung der Summe nicht vom Zeitraum abhängig machen
-        # Maßgeblich muss die Verbindung zu RechnungsPositionEinrichtung oder RechnungSozialamt sein
-        summen = schueler.positionen_schueler.filter(datum__range=(tage[0], tage[-1]),).summen()
+        summen = schueler.positionen_schueler.filter(
+            rechnung_sozialamt=self.rechnung_sozialamt
+        ).summen()
         return self.positionen.create(
             schueler=schueler,
             name_schueler=schueler.voller_name,
@@ -303,12 +303,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
         """
         Gibt alle :model:`RechnungsPositionSchueler`-Instanzen zurück, die zu dieser Instanz gehören.
         """
-        # TODO RechnungsPositionSchueler nicht über den Zeitraum bestimmen
-        # Maßgeblich muss die Verbindung zu RechnungsPositionEinrichtung oder RechnungSozialamt sein
         return self.schueler.positionen_schueler.filter(
-            datum__range=(
-                self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
-                self.rechnung_einrichtung.rechnung_sozialamt.enddatum
-            ),
+            rechnung_sozialamt=self.rechnung_einrichtung.rechnung_sozialamt,
             einrichtung=self.rechnung_einrichtung.einrichtung
         )
