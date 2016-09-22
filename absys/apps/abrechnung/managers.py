@@ -25,7 +25,6 @@ class RechnungSozialamtManager(models.Manager):
         from .models import RechnungEinrichtung, RechnungsPositionSchueler
         rechnung_sozialamt = self.model(
             sozialamt=sozialamt,
-            sozialamt_anschrift=sozialamt.anschrift,
             startdatum=startdatum,
             enddatum=enddatum
         )
@@ -122,8 +121,6 @@ class RechnungsPositionSchuelerManager(models.Manager):
             einrichtung=schueler_in_einrichtung.einrichtung,
             datum=tag,
             abgerechnet=not abwesend,
-            name_schueler=schueler_in_einrichtung.schueler.voller_name,
-            name_einrichtung=schueler_in_einrichtung.einrichtung.name,
             abwesend=abwesend,
             pflegesatz=schueler_in_einrichtung.schueler.berechne_pflegesatz(tag)
         )
@@ -178,7 +175,6 @@ class RechnungEinrichtungManager(models.Manager):
             rechnung_sozialamt=rechnung_sozialamt,
             einrichtung=einrichtung,
             defaults={
-                'name_einrichtung': einrichtung.name,
                 'datum_faellig': timezone.now().date() + tage_faelligkeit,
             }
         )

@@ -12,8 +12,8 @@
     <br>
     <h3>
       <b>an</b><br>
-      {{ rechnungsozialamt.sozialamt }}<br>
-      {{ rechnungsozialamt.sozialamt_anschrift|linebreaks }}<br>
+      {{ rechnungsozialamt.name_sozialamt }}<br>
+      {{ rechnungsozialamt.anschrift_sozialamt|linebreaks }}<br>
       <br>
       <b>von</b><br>
       {{ rechnungsozialamt.rechnungen_einrichtungen.first.einrichtung.standort.anschrift|linebreaks }}
@@ -24,8 +24,8 @@
       -
       {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}<br><br><br>
       <b>Einrichtungen zur Abrechnung: </b>
-        {% for einrichtung in rechnungsozialamt.rechnungen_einrichtungen.all %}
-          {{ einrichtung.name_einrichtung }}{% if not forloop.last %},{% endif %} 
+        {% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
+          {{ einrichtungsrechnung.name_einrichtung }}{% if not forloop.last %},{% endif %}
         {% endfor %}
     </h3>
 
@@ -81,7 +81,7 @@
                 <b>gegenüber:</b>
                 <br>
                 {{ rechnungsozialamt.sozialamt }} <br>
-                {{ rechnungsozialamt.sozialamt_anschrift|linebreaksbr }}
+                {{ rechnungsozialamt.anschrift_sozialamt|linebreaksbr }}
               </p>
             </td>
             <td style="border: 0;">
@@ -120,7 +120,7 @@
           {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
             <tr>
               <td>{{ forloop.counter }}</td>
-              <td>{{ einrichtungsposition.name_schueler }}</td> 
+              <td>{{ einrichtungsposition.name_schueler }}</td>
               <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
               <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"d.m.Y" }}</td>
               <td>{{ einrichtungsposition.fehltage_max }}</td>
@@ -148,7 +148,7 @@
 
         {# BEGINN KOPF DER SCHUELERPOSITIONEN #}
           <h3> Schülerposition {{ forloop.counter }} </h3>
-          <h4> ({{ einrichtungsposition.name_schueler }} 
+          <h4> ({{ einrichtungsposition.name_schueler }}
             in {{ einrichtungsposition.rechnung_einrichtung.name_einrichtung }}
             vom {{ rechnungsozialamt.startdatum|date:"d.m.Y" }} bis
             {{ rechnungsozialamt.enddatum|date:"d.m.Y" }})

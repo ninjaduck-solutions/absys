@@ -68,7 +68,8 @@ class TestRechnungSozialamtManager:
             # RechnungSozialamt
             rechnung_sozialamt = models.RechnungSozialamt.objects.first()
             assert rechnung_sozialamt.sozialamt == sozialamt
-            assert rechnung_sozialamt.sozialamt_anschrift == sozialamt.anschrift
+            assert rechnung_sozialamt.name_sozialamt == sozialamt.name
+            assert rechnung_sozialamt.anschrift_sozialamt == sozialamt.anschrift
             assert rechnung_sozialamt.startdatum == start
             assert rechnung_sozialamt.enddatum == ende
             assert rechnung_sozialamt.enddatum > rechnung_sozialamt.startdatum

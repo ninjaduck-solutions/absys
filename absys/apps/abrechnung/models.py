@@ -21,9 +21,10 @@ class RechnungSozialamt(TimeStampedModel):
     - Enddatum
     """
 
-    sozialamt_anschrift = models.TextField()
     sozialamt = models.ForeignKey(Sozialamt, models.SET_NULL, null=True, verbose_name="Sozialamt",
         related_name='rechnungen')
+    name_sozialamt = models.CharField(max_length=200)
+    anschrift_sozialamt = models.TextField()
     startdatum = models.DateField("Startdatum")
     enddatum = models.DateField(
         "Enddatum",
@@ -43,6 +44,12 @@ class RechnungSozialamt(TimeStampedModel):
     def __str__(self):
         msg = "Sozialamtsrechnung {s.nummer} für {s.sozialamt} ({s.startdatum} - {s.enddatum})"
         return msg.format(s=self)
+
+    def save(self, *args, **kwargs):
+        if self.sozialamt:
+            self.name_sozialamt = self.sozialamt.name
+            self.anschrift_sozialamt = self.sozialamt.anschrift
+        super().save(*args, **kwargs)
 
     def clean(self):
         if self.startdatum > self.enddatum:
@@ -154,6 +161,13 @@ class RechnungsPositionSchueler(TimeStampedModel):
         )
         return msg.format(s=self)
 
+    def save(self, *args, **kwargs):
+        if self.schueler:
+            self.name_schueler = self.schueler.voller_name
+        if self.einrichtung:
+            self.name_einrichtung = self.einrichtung.name
+        super().save(*args, **kwargs)
+
 
 class RechnungEinrichtung(TimeStampedModel):
     """
@@ -200,6 +214,11 @@ class RechnungEinrichtung(TimeStampedModel):
             " ({s.rechnung_sozialamt.startdatum} - {s.rechnung_sozialamt.enddatum})"
         )
         return msg.format(s=self)
+
+    def save(self, *args, **kwargs):
+        if self.einrichtung:
+            self.name_einrichtung = self.einrichtung.name
+        super().save(*args, **kwargs)
 
     @property
     def nummer(self):
@@ -310,6 +329,11 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
             " - {s.rechnung_einrichtung.rechnung_sozialamt.enddatum})"
         )
         return msg.format(s=self)
+
+    def save(self, *args, **kwargs):
+        if self.schueler:
+            self.name_schueler = self.schueler.voller_name
+        super().save(*args, **kwargs)
 
     @cached_property
     def detailabrechnung(self):
