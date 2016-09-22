@@ -2,6 +2,8 @@ from django.utils import timezone
 
 from django.contrib import admin
 
+from django.db.models import Q
+
 from . import models
 
 from import_export.admin import ImportExportActionModelAdmin
@@ -11,11 +13,20 @@ class HeuteAngemeldetListFilter(admin.SimpleListFilter):
     title = 'Zeitraum'
     parameter_name = 'angemeldet'
 
+
     def lookups(self, request, model_admin):
+    #     fruehestes = queryset.objects.order_by('eintritt').first().eintritt.year
+    #     spaetestes = queryset.objects.order_by('austritt').last().austritt.year
+
+
         return (
             ('heute', 'heute'),
-            ('aktueller Monat', 'aktueller Monat - noch nicht fertig:'),
-            ('aktuelles Jahr', 'aktuelles Jahr - noch nicht fertig'),
+            ('aktueller Monat', 'aktueller Monat: noch nicht fertig'),
+            ('aktuelles Jahr', 'aktuelles Jahr'),
+            #(
+                #for jahre in range(fruehestes, spaetestes):
+                    #TODO: mit automatischem Filter weitermachen
+            #),
         )
 
     def queryset(self, request, queryset):
@@ -23,12 +34,14 @@ class HeuteAngemeldetListFilter(admin.SimpleListFilter):
             return queryset.war_angemeldet(timezone.now().date())
         if self.value() == 'aktueller Monat':
             return queryset.filter(
-                #TODO
-                )
+                Q(eintritt__year=timezone.now().year) &
+                Q(eintritt__month=timezone.now().month)
+            )
         if self.value() == 'aktuelles Jahr':
             return queryset.filter(
-                #TODO
-                )
+                Q(eintritt__year__lte=timezone.now().year) &
+                Q(austritt__year__gte=timezone.now().year)
+            )
 
 
 class SchuelerInEinrichtungAdmin(admin.ModelAdmin):
@@ -54,3 +67,4 @@ admin.site.register(models.SchuelerInEinrichtung, SchuelerInEinrichtungAdmin)
 admin.site.register(models.Einrichtung, EinrichtungAdmin)
 admin.site.register(models.Ferien)
 admin.site.register(models.Schliesstag)
+admin.site.register(models.Standort)

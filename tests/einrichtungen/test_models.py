@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 
@@ -73,6 +74,24 @@ class TestSchuelerInEinrichtung:
     def test_war_abwesend_keine_tage(self, schueler_in_einrichtung):
         assert schueler_in_einrichtung.war_abwesend(tuple()).count() == 0
 
+    def test_keine_doppelte_anmeldung(self, schueler, einrichtung_factory, schueler_in_einrichtung_factory):
+        """Testet, dass ein Schüler nicht zur gleichen Zeit in zwei Einrichtungen angemeldet sein kann."""
+        eintritt = datetime.date(2016, 6, 1)
+        austritt = datetime.date(2016, 6, 30)
+        schueler_in_einrichtung_factory(
+            eintritt=eintritt,
+            austritt=austritt,
+            schueler=schueler,
+        )
+        with pytest.raises(ValidationError) as exp:
+            schueler_in_einrichtung = schueler_in_einrichtung_factory.build(
+                eintritt=eintritt,
+                austritt=austritt,
+                schueler=schueler,
+            )
+            schueler_in_einrichtung.clean()
+        assert exp.value.message.startswith("Für diesen Zeitraum existiert schon eine Anmeldung für")
+
 
 @pytest.mark.django_db
 class TestEinrichtung:
@@ -118,6 +137,22 @@ class TestEinrichtung:
         datum = datetime.date(2016, 7, 15)
         with pytest.raises(einrichtung_hat_pflegesatz.DoesNotExist):
             einrichtung_hat_pflegesatz.einrichtung.get_pflegesatz(datum)
+
+    def test_get_betreuungstage(self, einrichtung, schliesstag_factory):
+        start = datetime.date(2016, 7, 11)
+        schliesstag_factory.create(
+            datum=start + datetime.timedelta(3),
+            einrichtungen=[einrichtung]
+        )
+        betreuungstage = einrichtung.get_betreuungstage(start, start + datetime.timedelta(6))
+        assert len(betreuungstage) == 4
+        assert betreuungstage[0] == start
+        assert betreuungstage[-1] == start + datetime.timedelta(4)
+
+    def test_get_betreuungstage_start_after_end(self, einrichtung):
+        start = datetime.date(2016, 7, 11)
+        betreuungstage = einrichtung.get_betreuungstage(start, start - datetime.timedelta(6))
+        assert len(betreuungstage) == 0
 
 
 @pytest.mark.django_db

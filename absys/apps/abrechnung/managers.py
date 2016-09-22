@@ -1,7 +1,11 @@
-from datetime import datetime
+from datetime import timedelta
 
+from django.conf import settings
 from django.db import models, transaction
 from django.utils import timezone
+
+from absys.apps.buchungskennzeichen.models import Buchungskennzeichen
+from . import services
 
 
 class RechnungSozialamtManager(models.Manager):
@@ -9,18 +13,18 @@ class RechnungSozialamtManager(models.Manager):
     @transaction.atomic
     def rechnungslauf(self, sozialamt, startdatum, enddatum):
         """
-        Erzeugt eine ``RechnungSchueler`` pro Schüler des Sozialamts im gewählten Zeitraum.
+        Erzeugt eine ``RechnungEinrichtung`` pro Einrichtung des Sozialamts im gewählten Zeitraum.
 
-        1. Erstellen oder Aktualisieren einer ``RechnungSchueler``-Instanz pro Schüler.
-        2. Abwesenheitstage pro Schüler im gewählten Zeitraum ermitteln.
-        3. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine ``RechnungsPositionSchueler`` erstellen und wenn nötig mit passender ``RechnungSchueler``-Instanz verknüpfen.
-        4. Noch nicht abgerechnete ``RechnungsPositionSchueler``-Instanzen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
-        5. ``RechnungSchueler``-Instanz pro Schüler aktualisieren (Summe und Fehltage).
+        1. Abwesenheitstage pro Schüler im gewählten Zeitraum ermitteln.
+        2. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine ``RechnungsPositionSchueler`` erstellen und mit passender ``RechnungSozialamt``-Instanz verknüpfen.
+        3. Noch nicht abgerechnete ``RechnungsPositionSchueler``-Instanzen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
+        4. Erstellen einer ``RechnungEinrichtung``-Instanz für Einrichtung.
+        5. ``RechnungEinrichtung``-Instanz mit Schüler abrechnen.
+        6. ``RechnungEinrichtung``-Instanz abschließen.
         """
-        from .models import RechnungSchueler, RechnungsPositionSchueler
+        from .models import RechnungEinrichtung, RechnungsPositionSchueler
         rechnung_sozialamt = self.model(
             sozialamt=sozialamt,
-            sozialamt_anschrift=sozialamt.anschrift,
             startdatum=startdatum,
             enddatum=enddatum
         )
@@ -28,61 +32,29 @@ class RechnungSozialamtManager(models.Manager):
         rechnung_sozialamt.save()
         for schueler_in_einrichtung, tage in sozialamt.anmeldungen.get_betreuungstage(startdatum, enddatum).items():
             tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
-            rechnung_schueler = RechnungSchueler.objects.erstelle_rechnung(
-                rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend
-            )
             tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
             for tag in tage:
                 RechnungsPositionSchueler.objects.erstelle_fuer_tag(
                     tag,
                     schueler_in_einrichtung,
-                    rechnung_schueler,
+                    rechnung_sozialamt,
                     tag in tage_abwesend_datetime
                 )
-            rechnung_schueler.fehltage_abrechnen(schueler_in_einrichtung)
-            rechnung_schueler.abschliessen(schueler_in_einrichtung)
+            rechnung_sozialamt.fehltage_abrechnen(schueler_in_einrichtung)
+            rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
+                rechnung_sozialamt, schueler_in_einrichtung.einrichtung
+            )
+            rechnung_einrichtung.abrechnen(
+                schueler_in_einrichtung.schueler,
+                schueler_in_einrichtung.eintritt,
+                tage,
+                tage_abwesend_datetime
+            )
+            rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt
 
 
-class RechnungSchuelerManager(models.Manager):
-
-    def erstelle_rechnung(self, rechnung_sozialamt, schueler_in_einrichtung, tage_abwesend):
-        """
-        Erstellt oder aktualisiert eine ``RechnungSchueler``-Instanz für einen Schüler.
-
-        Der Übertrag der Fehltage erfolgt immer von der letzten vorhergehenden
-        Rechnung des Schülers. Gibt es diese nicht, ist der Übertrag 0.
-        """
-        rechnung, created = self.update_or_create(
-            rechnung_sozialamt=rechnung_sozialamt,
-            schueler=schueler_in_einrichtung.schueler,
-            defaults={
-                'name_schueler': schueler_in_einrichtung.schueler.voller_name,
-            }
-        )
-        if created:
-            rechnung.fehltage = tage_abwesend.count()
-        else:
-            rechnung.fehltage = models.F('fehltage') + tage_abwesend.count()
-        rechnung.save()
-        rechnung.refresh_from_db()
-        return rechnung
-
-
 class RechnungsPositionSchuelerQuerySet(models.QuerySet):
-
-    @staticmethod
-    def get_betrachtungszeitraum(schueler_in_einrichtung, jahr):
-        """
-        Gibt den Beginn des Betrachtungszeitraums für das angegebene Jahr zurück.
-
-        Beginnn ist entweder am 1.1. des angegebenen Jahres oder am Eintrittsdatum,
-        wenn dieses im angegebenen Jahr liegt.
-        """
-        beginn = timezone.make_aware(datetime(jahr, 1, 1))
-        if schueler_in_einrichtung.eintritt.year == jahr:
-            beginn = schueler_in_einrichtung.eintritt
-        return beginn
 
     def nicht_abgerechnet(self, schueler_in_einrichtung, enddatum):
         """Gibt alle nicht abgerechneten Rechnungs-Positionen zurück.
@@ -93,8 +65,10 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
         return self.filter(
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
-            rechnung_schueler=None,
-            datum__gte=self.get_betrachtungszeitraum(schueler_in_einrichtung, enddatum.year)
+            abgerechnet=False,
+            datum__gte=services.get_betrachtungszeitraum(
+                enddatum.year, schueler_in_einrichtung.eintritt
+            )
         )
 
     def fehltage_abgerechnet(self, schueler_in_einrichtung, enddatum):
@@ -106,36 +80,109 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
         return self.filter(
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
+            abgerechnet=True,
             abwesend=True,
-            datum__gte=self.get_betrachtungszeitraum(schueler_in_einrichtung, enddatum.year)
-        ).exclude(rechnung_schueler=None)
+            datum__gte=services.get_betrachtungszeitraum(
+                enddatum.year, schueler_in_einrichtung.eintritt
+            )
+        )
+
+    def summen(self):
+        """Aggregiert die Summen für Fehltage, Zahltage und Aufwände."""
+        return self.aggregate(
+            fehltage=models.Count(
+                models.Case(
+                    models.When(abgerechnet=True, abwesend=True, then=1),
+                    output_field=models.IntegerField()
+                )
+            ),
+            zahltage=models.Count(
+                models.Case(
+                    models.When(abgerechnet=True, then=1),
+                    output_field=models.IntegerField()
+                )
+            ),
+            aufwaende=models.Sum('pflegesatz')
+        )
 
 
 class RechnungsPositionSchuelerManager(models.Manager):
 
-    def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung_schueler, abwesend=False):
+    def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung_sozialamt, abwesend=False):
         """
         Erstellt eine ``RechnungsPositionSchueler`` für einen Betreuungstag und einen Schüler.
 
-        Die ``RechnungsPositionSchueler`` wird mit der passenden ``RechnungSchueler``-Instanz
+        Die ``RechnungsPositionSchueler`` wird mit der passenden ``RechnungSozialamt``-Instanz
         verknüpft.
         """
         rechnung_pos = self.model(
-            sozialamt=schueler_in_einrichtung.schueler.sozialamt,
+            rechnung_sozialamt=rechnung_sozialamt,
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
             datum=tag,
-            name_einrichtung=schueler_in_einrichtung.einrichtung.name,
+            abgerechnet=not abwesend,
             abwesend=abwesend,
             pflegesatz=schueler_in_einrichtung.schueler.berechne_pflegesatz(tag)
         )
         if schueler_in_einrichtung.einrichtung.hat_ferien(tag):
             rechnung_pos.tag_art = self.model.TAG_ART.ferien
-        if abwesend:
-            # RechnungsPositionSchueler wird als nicht abgerechneter Fehltag markiert
-            rechnung_pos.fehltage_nicht_abgerechnet = rechnung_schueler
-        else:
-            # RechnungsPositionSchueler wird als abgerechnet markiert
-            rechnung_pos.rechnung_schueler = rechnung_schueler
-        rechnung_pos.clean()
         return rechnung_pos.save(force_insert=True)
+
+
+class RechnungsPositionEinrichtungQuerySet(models.QuerySet):
+
+    def letzte_position(self, jahr, eintritt, sozialamt, einrichtung):
+        """
+        Gibt die letzte Rechnungs-Position im angegebenen Jahr zurück.
+
+        Sozialamt und Einrichtung müssen die gleiche sein.
+        """
+        start = services.get_betrachtungszeitraum(jahr, eintritt)
+        return self.filter(
+            rechnung_einrichtung__einrichtung=einrichtung,
+            rechnung_einrichtung__rechnung_sozialamt__sozialamt=sozialamt,
+            rechnung_einrichtung__rechnung_sozialamt__enddatum__gte=start
+        ).order_by('-rechnung_einrichtung__rechnung_sozialamt__startdatum').first()
+
+
+class RechnungsPositionEinrichtungManager(models.Manager):
+
+    def fehltage_uebertrag(self, jahr, eintritt, sozialamt, einrichtung):
+        """
+        Gibt die Gesamtanzahl aller Fehltage der letzten Rechnungs-Positionen im angegebenen Jahr zurück.
+
+        Sozialamt und Einrichtung müssen die gleiche sein.
+
+        Sollte keine Rechnung für dieses Jahr existieren, wird 0 zurückgegeben.
+        """
+        return getattr(self.letzte_position(jahr, eintritt, sozialamt, einrichtung), 'fehltage_gesamt', 0)
+
+
+class RechnungEinrichtungManager(models.Manager):
+
+    def erstelle_rechnung(self, rechnung_sozialamt, einrichtung):
+        """
+        Erstellt eine Rechnung für eine :model:`RechnungEinrichtung`-Instanz.
+
+        Sollte für :model:`RechnungSozialamt` und :model:`Einrichtung` schon
+        eine Rechnung existieren wird diese zurückgegeben und keine neue
+        erstellt.
+        """
+        tage_faelligkeit = timedelta(
+            settings.ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
+        )
+        rechnung, created = self.get_or_create(
+            rechnung_sozialamt=rechnung_sozialamt,
+            einrichtung=einrichtung,
+            defaults={
+                'datum_faellig': timezone.now().date() + tage_faelligkeit,
+            }
+        )
+        if created:
+            rechnung.betreuungstage = len(einrichtung.get_betreuungstage(
+                rechnung_sozialamt.startdatum,
+                rechnung_sozialamt.enddatum
+            ))
+            rechnung.buchungskennzeichen = Buchungskennzeichen.objects.benutzen()
+            rechnung.save()
+        return rechnung

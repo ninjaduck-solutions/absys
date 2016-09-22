@@ -73,7 +73,7 @@ echo "$HOME/static_root" | sudo tee /var/envdir/absys/DJANGO_STATIC_ROOT
 # Liste der Hostnamen und Domains, die diese Website ausliefern soll. Hier die
 # IP Adresse und/oder den Domainnamen mit Kommata getrennt eintragen.
 # Bei fehlerhafter Konfiguration ist "Bad Request (400)" im Browser zu sehen.
-echo '127.0.0.1' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
+echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 
 # Liste von Administratoren, die über Fehler via E-Mail informiert werden.
 # echo "'Ada Lovelace',ada@example.com;'Bea Blue',bea@example.com" | sudo tee /var/envdir/absys/DJANGO_ADMINS
@@ -82,13 +82,16 @@ echo '127.0.0.1' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Anwesenheitsliste im Frontend zur Verfügung stehen.
 # echo '15' | sudo tee /var/envdir/absys/DJANGO_ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT
 
+# Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
+# echo '31' | sudo tee /var/envdir/absys/DJANGO_ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
+
 # Lockdown-Schutz aktivieren/deaktivieren
 # echo 'True' | sudo tee /var/envdir/absys/DJANGO_LOCKDOWN_ENABLED
 
 # Passwort für den Lockdown-Schutz
 # echo '1234' | sudo tee /var/envdir/absys/DJANGO_LOCKDOWN_PASSWORDS
 
-# Berichtigungen korrigieren
+# Berechtigungen korrigieren
 sudo chgrp -R www-data /var/envdir/absys && sudo chmod -R g=rX,o= /var/envdir/absys
 
 # Installation/Upgrade von pip, AbSys und den abhängigen Paketen

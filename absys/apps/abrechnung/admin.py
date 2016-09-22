@@ -2,21 +2,21 @@ from django.contrib import admin
 
 from . import models
 
-from import_export.admin import ImportExportActionModelAdmin
+
+class RechnungEinrichtungInline(admin.TabularInline):
+    model = models.RechnungEinrichtung
 
 
-class RechnungSchuelerInline(admin.TabularInline):
-    model = models.RechnungSchueler
+class RechnungSozialamtAdmin(admin.ModelAdmin):
 
-
-class RechnungSozialamtAdmin(ImportExportActionModelAdmin):
-
+    actions = None
     list_display = ('sozialamt', 'startdatum', 'enddatum')
     inlines = [
-        RechnungSchuelerInline,
+        RechnungEinrichtungInline,
     ]
 
 
-admin.site.register(models.RechnungSchueler)
+admin.site.register(models.RechnungEinrichtung)
+admin.site.register(models.RechnungsPositionEinrichtung)
 admin.site.register(models.RechnungsPositionSchueler)
 admin.site.register(models.RechnungSozialamt, RechnungSozialamtAdmin)

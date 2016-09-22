@@ -48,10 +48,12 @@ class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormVie
 
 class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
 
+    #TODO: prefetch_related() nutzen
     model = models.RechnungSozialamt
     template_name = 'abrechnung/pdf.html'
     cmd_options = {
         'footer-right': '[page]/[topage]',
+        'orientation': 'Landscape',
     }
 
     @property

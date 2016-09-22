@@ -1,9 +1,12 @@
 import datetime
+import random
 
 import factory
+from django.utils.timezone import now
 
 from absys.apps.abrechnung import models
-from tests.factories import EinrichtungFactory, SchuelerFactory, SozialamtFactory
+from ..einrichtungen.factories import EinrichtungFactory
+from ..schueler.factories import SchuelerFactory, SozialamtFactory
 
 
 class RechnungSozialamtFactory(factory.DjangoModelFactory):
@@ -21,22 +24,13 @@ class RechnungSozialamtFactory(factory.DjangoModelFactory):
         zeitraum = 30
 
 
-class RechnungSchuelerFactory(factory.DjangoModelFactory):
+class RechnungsPositionSchuelerFactory(factory.DjangoModelFactory):
 
     rechnung_sozialamt = factory.SubFactory(RechnungSozialamtFactory)
     schueler = factory.SubFactory(SchuelerFactory)
-
-    class Meta:
-        model = models.RechnungSchueler
-
-
-class RechnungsPositionSchuelerFactory(factory.DjangoModelFactory):
-
-    sozialamt = factory.SubFactory(SozialamtFactory)
-    schueler = factory.SubFactory(SchuelerFactory)
     einrichtung = factory.SubFactory(EinrichtungFactory)
-    rechnung_schueler = factory.SubFactory(RechnungSchuelerFactory)
     pflegesatz = factory.Faker('pydecimal', left_digits=2, right_digits=2, positive=True)
+    datum = factory.LazyAttribute(lambda obj: now().date() - datetime.timedelta(random.randint(10, 30)))
 
     class Meta:
         model = models.RechnungsPositionSchueler

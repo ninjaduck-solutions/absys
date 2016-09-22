@@ -1,120 +1,228 @@
 {% extends "base.html" %}
 
 {% block navigation %}
-  {% block toggle_login %}
-  {% endblock %}
 {% endblock %}
+
 
 {# DECKBLATT #}
 
 {% block content %}
-<div>
-<h1> Rechnung </h1>
-<br>
-<br>
-<br>
-<br>
-<p>
-  Sozialamt: <br>
-  {{ rechnungsozialamt.sozialamt }}<br>
-  {{ rechnungsozialamt.sozialamt_anschrift }}<br>
-  <br>
-  Bankverbindung<br>
-  {{ rechnungsozialamt.sozialamt.konto_iban }}<br>
-  {{ rechnungsozialamt.sozialamt.konto_institut }}<br>
-  <br>
-  Rechnungsnummer: {{ rechnungsozialamt.nummer }} <br>
-  Abrechnungszeitraum:
-  {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
-  -
-  {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
-</p>
-
-{# ÜBERSICHTSBLÄTTER #}
-
-<div style="page-break-before:always;">
-  <h4>Übersicht</h4>
-</div>
-
-<p>
-  <table class="table table-striped">
-    <thead style="display: table-row-group">
-       <tr>
-        <th>PKZ</th>
-        <th>AZ</th>
-        <th>Name</th>
-        <th>Gesamtbetrag</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for rechnung in rechnungsozialamt.rechnungen_schueler.all %}
-        <tr>
-          <td>{{ rechnung.schueler.pkz }}</td>
-          <td>{{ rechnung.schueler.aktenzeichen }}</td>
-          <td>{{ rechnung.name_schueler }}</td>
-          <td>{{ rechnung.summe }} €</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</p>
-
-<h4 style="text-align:right">Rechnungsbetrag: {{ rechnungsozialamt.rechnungsbetrag }} €</h4>
-
-{# DECKBLATT EINZELABRECHNUNGEN #}
-
-<div style="page-break-before:always;">
-  <h4>Einzelabrechnungen nach Schülern</h4>
-</div>
-
-{# EINZELABRECHNUNGEN #}
-
-<div style="page-break-before:always;"></div>
-
-{% for rechnung in rechnungsozialamt.rechnungen_schueler.all %}
-<div style="page-break-before:always;">
-  <p>
-      Schueler: {{ rechnung.name_schueler }}
+  <div>
+    <h1><b> Rechnung </b></h1>
+    <br>
+    <h3>
+      <b>an</b><br>
+      {{ rechnungsozialamt.name_sozialamt }}<br>
+      {{ rechnungsozialamt.anschrift_sozialamt|linebreaks }}<br>
       <br>
-      Summe aller Abrechnungstage: {{ rechnung.summe }}
+      <b>von</b><br>
+      {{ rechnungsozialamt.rechnungen_einrichtungen.first.einrichtung.standort.anschrift|linebreaks }}
       <br>
-      Fehltage im Abrechnungszeitraum: {{ rechnung.fehltage }}
-      <br>
-      Anzahl Fehltage nicht abgerechnet: {{ rechnung.fehltage_nicht_abgerechnet.count }}
-      <br>
-      Fehltage nicht abgerechnet: {% spaceless %}
-      {% for fehltag in rechnung.fehltage_nicht_abgerechnet.all %}
-        {{ fehltag.datum }}{% if not forloop.last %},{% endif %}
-      {% empty %}
-        Keine
-      {% endfor %}
-      {% endspaceless %}
-  </p>
+      <b>Rechnungsnummer:</b> {{ rechnungsozialamt.nummer }} <br>
+      <b>Abrechnungszeitraum:</b>
+      {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
+      -
+      {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}<br><br><br>
+      <b>Einrichtungen zur Abrechnung: </b>
+        {% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
+          {{ einrichtungsrechnung.name_einrichtung }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    </h3>
+
+
+    {# BEGINN EINRICHTUNGSRECHNUNGEN #}
+
+    {% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
+
+      <div style="page-break-before:always;"></div>
+
+      <h2> Einrichtung: {{ einrichtungsrechnung.name_einrichtung }} </h2>
+
+      <table class="table" style="border: 0;">
+        <tbody style="display: table-row-group">
+          <tr>
+            <td style="border: 0;">
+              <p>
+                <b>Anschrift:</b>
+                {{ einrichtungsrechnung.einrichtung.standort.anschrift|linebreaks }}
+              </p>
+            </td>
+            <td style="border: 0;">
+              <p>
+                <b>Zahlungsdaten:</b><br>
+                <p>
+                  BIC: {{ einrichtungsrechnung.einrichtung.standort.konto_bic }}<br>
+                  Institut: {{ einrichtungsrechnung.einrichtung.standort.konto_institut }}<br>
+                  IBAN: {{ einrichtungsrechnung.einrichtung.standort.konto_iban }}<br>
+                  Buchungsstelle: ??? <br>
+                  Buchungskennzeichen: {{ einrichtungsrechnung.buchungskennzeichen }}<br>
+                  Fälligkeitsdatum: {{ einrichtungsrechnung.datum_faellig|date:"d.m.Y" }}<br>
+                </p>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="border: 0;">
+              <p>
+                <b>Abrechnungszeitraum:</b>
+                {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
+                -
+                {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
+                <br>
+                <b>Schließtage:</b>
+                {# TODO umbauen auf Zeitraumauswahl fuer vorliegende Rechnung #}
+                {% for schliesstag in einrichtungsrechnung.schliesstage %}
+                  {{ schliesstag.datum|date:"d.m.Y" }}{% if not forloop.last %},{% endif %}
+                {% empty %}
+                  keine Schließtage definiert
+                {% endfor %}
+                <br>
+                <b>Betreuungstage:</b> {{ einrichtungsrechnung.betreuungstage }} <br><br>
+                <b>gegenüber:</b>
+                <br>
+                {{ rechnungsozialamt.sozialamt }} <br>
+                {{ rechnungsozialamt.anschrift_sozialamt|linebreaksbr }}
+              </p>
+            </td>
+            <td style="border: 0;">
+              <p>
+                <b>Aufwendungen Gesamt: {{ einrichtungsrechnung.summe }} € </b><br><br>
+                Datum: <br><br><br>
+                Unterschrift: <br><br><br>
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr>
+
+      {# BEGINN EINRICHTUNGSPOSITIONEN UEBERSICHTSLISTE PRO EINRICHTUNG #}
 
       <table class="table table-striped">
         <thead style="display: table-row-group">
            <tr>
-            <th>Datum</th>
-            <th>Tagart</th>
-            <th>Anwesenheit</th>
-            <th>Pflegesatz</th>
-            <th>Einrichtung</th>
+            <th>Pos.</th>
+            <th>Name</th>
+            <th>Aktenzeichen</th>
+            <th>Geburtsdatum</th>
+            <th>Maximale Fehltage</th>
+            <th>Anzahl Tage anwesend</th>
+            <th>Fehltage im Abrechnungs-zeitraum</th>
+            <th>Übertrag Fehltage</th>
+            <th>Fehltage Gesamt</th>
+            <th>Fehltage zur Anrechnung</th>
+            <th>Zahltage dieser Rechnung</th>
+            <th>Gesamtbetrag in Euro</th>
           </tr>
         </thead>
         <tbody>
-          {% for position in rechnung.positionen.all %}
+          {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
             <tr>
-              <td>{{ position.datum|date:"d.m.Y" }}</td>
-              <td>{{ position.tag_art }}</td>
-              <td>{% if position.abwesend %}<span class="glyphicon glyphicon-remove" aria-hidden="true">
-                {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
-              <td>{{ position.pflegesatz }}</td>
-              <td>{{ position.name_einrichtung }}</td>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ einrichtungsposition.name_schueler }}</td>
+              <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+              <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"d.m.Y" }}</td>
+              <td>{{ einrichtungsposition.fehltage_max }}</td>
+              <td>{{ einrichtungsposition.anwesend }}</td>
+              <td>{{ einrichtungsposition.fehltage }}</td>
+              <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
+              <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
+              <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
+              <td>{{ einrichtungsposition.zahltage }}</td>
+              <td>{{ einrichtungsposition.summe }}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
-</div>
-{% endfor %}
 
+      {# ENDE EINRICHTUNGSPOSITIONEN UEBERSICHTSLISTE PRO EINRICHTUNG #}
+
+      {# BEGINN SCHUELERPOSITIONEN #}
+
+      <div style="page-break-before:always;"></div>
+
+        {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
+
+          <div style="page-break-before:always;"></div>
+
+        {# BEGINN KOPF DER SCHUELERPOSITIONEN #}
+          <h3> Schülerposition {{ forloop.counter }} </h3>
+          <h4> ({{ einrichtungsposition.name_schueler }}
+            in {{ einrichtungsposition.rechnung_einrichtung.name_einrichtung }}
+            vom {{ rechnungsozialamt.startdatum|date:"d.m.Y" }} bis
+            {{ rechnungsozialamt.enddatum|date:"d.m.Y" }})
+          </h4>
+
+          <table class="table table-striped">
+            <thead style="display: table-row-group">
+              <tr>
+                <th>Aktenzeichen</th>
+                <th>Geburtsdatum</th>
+                <th>Maximale Fehltage</th>
+                <th>Anzahl Tage anwesend</th>
+                <th>Fehltage im Abrechnungs-zeitraum</th>
+                <th>Übertrag abgerechnete Fehltage</th>
+                <th>Fehltage Gesamt</th>
+                <th>Fehltage zur Anrechnung</th>
+                <th>Zahltage dieser Rechnung</th>
+                <th>Gesamtbetrag in Euro</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+                <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"d.m.Y" }}</td>
+                <td>{{ einrichtungsposition.fehltage_max }}</td>
+                <td>{{ einrichtungsposition.anwesend }}</td>
+                <td>{{ einrichtungsposition.fehltage }}</td>
+                <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
+                <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
+                <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
+                <td>{{ einrichtungsposition.zahltage }}</td>
+                <td>{{ einrichtungsposition.summe }}</td>
+              </tr>
+            </tbody>
+          </table>
+        {# ENDE KOPF DER SCHUELERPOSITIONEN #}
+
+        {# BEGINN ANWESENHEITSAUFLISTUNG #}
+          <h4> - Abgerechnete Tage - </h4>
+          <table class="table table-striped">
+            <thead style="display: table-row-group">
+               <tr>
+                <th>Datum</th>
+                <th>Tagart</th>
+                <th>Anwesenheit</th>
+                <th>Pflegesatz</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for schuelerposition in einrichtungsposition.detailabrechnung.all %} {# ist das Queryset detailabrechnung falsch? #}
+                <tr>
+                  <td>{{ schuelerposition.datum|date:"d.m.Y" }} </td>
+                  <td>{{ schuelerposition.tag_art }}</td>
+                  <td>{% if schuelerposition.abwesend %}<span class="glyphicon glyphicon-remove" aria-hidden="true">
+                    {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
+                  <td>{{ schuelerposition.pflegesatz }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endfor %}
+
+    {# ENDE DER ANWESENHEITSAUFLISTUNG #}
+
+    {#ENDE EINRICHTUNGSRECHNUNG #}
+    {% endfor %}
+
+
+    <br><br><br><br>
+    <hr>
+    <h3> <center> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }} 
+      FÜR DEN ZEITRAUM VOM {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
+      BIS {{ rechnungsozialamt.enddatum|date:"d.m.Y" }} </center></h3>
+  </div>
 {% endblock %}
+
+

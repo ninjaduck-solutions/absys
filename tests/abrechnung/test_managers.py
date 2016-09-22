@@ -1,9 +1,9 @@
 import datetime
 
 import pytest
+from django.utils import timezone
 
 from absys.apps.abrechnung import models
-from absys.apps.abrechnung import managers
 
 
 @pytest.mark.django_db
@@ -49,34 +49,62 @@ class TestRechnungSozialamtManager:
         ),
     ])
     def test_rechnungslauf(self, sozialamt, schueler_in_einrichtung, einrichtung_hat_pflegesatz,
-            anwesenheit_factory, anzahl):
+            anwesenheit_factory, buchungskennzeichen, anzahl):
         start = datetime.date(2016, 6, 12)
         ende = datetime.date(2016, 6, 17)
-        anwesenheit_factory.create(
+        anwesenheit_factory(
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
             datum=ende,
             abwesend=True
         )
         assert models.RechnungSozialamt.objects.count() == 0
-        assert models.RechnungSchueler.objects.count() == 0
+        assert models.RechnungEinrichtung.objects.count() == 0
         models.RechnungSozialamt.objects.rechnungslauf(sozialamt, start, ende)
         assert models.RechnungSozialamt.objects.count() == 1
-        assert models.RechnungSchueler.objects.count() == anzahl
-        # TODO Nachfolgende Assertions in Tests für RechnungSozialamt und RechnungSchueler Models verschieben
+        assert models.RechnungEinrichtung.objects.count() == anzahl
+        # TODO Nachfolgende Assertions in Tests der entsprechenden Models verschieben
         if anzahl:
+            # RechnungSozialamt
             rechnung_sozialamt = models.RechnungSozialamt.objects.first()
             assert rechnung_sozialamt.sozialamt == sozialamt
-            assert rechnung_sozialamt.sozialamt_anschrift == sozialamt.anschrift
+            assert rechnung_sozialamt.name_sozialamt == sozialamt.name
+            assert rechnung_sozialamt.anschrift_sozialamt == sozialamt.anschrift
             assert rechnung_sozialamt.startdatum == start
             assert rechnung_sozialamt.enddatum == ende
             assert rechnung_sozialamt.enddatum > rechnung_sozialamt.startdatum
-            rechnung = models.RechnungSchueler.objects.first()
+            assert rechnung_sozialamt.positionen_schueler.count() == 5
+            pos_schueler = rechnung_sozialamt.positionen_schueler.first()
+            # RechnungsPositionSchueler
+            assert pos_schueler.rechnung_sozialamt == rechnung_sozialamt
+            assert pos_schueler.schueler == schueler_in_einrichtung.schueler
+            assert pos_schueler.einrichtung == schueler_in_einrichtung.einrichtung
+            assert pos_schueler.datum == start + datetime.timedelta(1)
+            assert pos_schueler.abgerechnet
+            assert pos_schueler.name_schueler == schueler_in_einrichtung.schueler.voller_name
+            assert pos_schueler.name_einrichtung == schueler_in_einrichtung.einrichtung.name
+            assert pos_schueler.abwesend is False
+            assert pos_schueler.pflegesatz > 0
+            assert rechnung_sozialamt.positionen_schueler.last().datum == ende
+            # RechnungEinrichtung
+            rechnung = models.RechnungEinrichtung.objects.first()
             assert rechnung.rechnung_sozialamt == rechnung_sozialamt
-            assert rechnung.schueler == schueler_in_einrichtung.schueler
-            assert rechnung.name_schueler == schueler_in_einrichtung.schueler.voller_name
+            assert rechnung.einrichtung == schueler_in_einrichtung.einrichtung
+            assert rechnung.name_einrichtung == schueler_in_einrichtung.einrichtung.name
+            assert len(rechnung.buchungskennzeichen) > 0
+            assert rechnung.datum_faellig > timezone.now().date()
+            assert rechnung.betreuungstage == 5
             assert rechnung.summe > 0
-            assert rechnung.fehltage == 1
-            assert rechnung.fehltage_nicht_abgerechnet.count() == 0
-            assert type(rechnung.fehltage_nicht_abgerechnet.all()) is managers.RechnungsPositionSchuelerQuerySet
-            assert rechnung.positionen.count() == 5
+            assert rechnung.positionen.count() == 1
+            # RechnungsPositionEinrichtung
+            pos_einrichtung = rechnung.positionen.first()
+            assert pos_einrichtung.fehltage_max == schueler_in_einrichtung.fehltage_erlaubt > 0
+            assert pos_einrichtung.anwesend == 4
+            assert pos_einrichtung.fehltage == 1
+            assert pos_einrichtung.fehltage_uebertrag == 0
+            assert pos_einrichtung.fehltage_gesamt == (
+                pos_einrichtung.fehltage + pos_einrichtung.fehltage_uebertrag
+            )
+            assert pos_einrichtung.fehltage_abrechnung == 1
+            assert pos_einrichtung.zahltage == 5
+            assert pos_einrichtung.detailabrechnung.count() == 5

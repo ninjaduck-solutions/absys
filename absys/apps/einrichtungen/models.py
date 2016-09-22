@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from model_utils.models import TimeStampedModel
@@ -7,16 +9,32 @@ from absys.apps.schueler.models import Sozialamt, Schueler
 from . import managers
 
 
+class Standort(TimeStampedModel):
+
+    anschrift = models.TextField()
+    konto_iban = models.CharField("IBAN", max_length=22)
+    konto_bic = models.CharField("BIC", max_length=12)
+    konto_institut = models.CharField("Institut", max_length=100)
+
+    class Meta:
+        verbose_name = 'Standort'
+        verbose_name_plural = 'Standorte'
+
+    def __str__(self):
+        return self.anschrift
+
+
 class Einrichtung(TimeStampedModel):
 
     name = models.CharField("Name", max_length=30, unique=True)
-    kuerzel = models.CharField("Kürzel", max_length=1, unique=True)
+    kuerzel = models.CharField("Kürzel", max_length=3, unique=True)
     schueler = models.ManyToManyField(
         Schueler,
         verbose_name='Schüler',
         through='SchuelerInEinrichtung',
         related_name='einrichtungen'
     )
+    standort = models.ForeignKey(Standort, related_name='einrichtungen')
 
     class Meta:
         ordering = ['name']
@@ -40,7 +58,7 @@ class Einrichtung(TimeStampedModel):
         """
         Gibt den Pflegesatz der Einrichtung für das Datum zurück.
 
-        Es exitieren zwei Pflegesätze: Für Schultage und für Ferien.
+        Es existieren zwei Pflegesätze: Für Schultage und für Ferien.
         """
         pflegesaetze = self.pflegesaetze.get(
             pflegesatz_startdatum__lte=datum,
@@ -51,6 +69,17 @@ class Einrichtung(TimeStampedModel):
         else:
             pflegesatz = pflegesaetze.pflegesatz
         return pflegesatz
+
+    def get_betreuungstage(self, start, ende):
+        """Gibt die Betreuungstage für den angegebenen Zeitraum zurück."""
+        betreuungstage = []
+        schliesstage = self.schliesstage.values_list('datum', flat=True)
+        tag = start
+        while tag <= ende:
+            if tag.isoweekday() not in (6, 7) and tag not in schliesstage:
+                betreuungstage.append(tag)
+            tag += datetime.timedelta(1)
+        return betreuungstage
 
 
 class SchuelerInEinrichtung(TimeStampedModel):
@@ -68,8 +97,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
             "</span>")
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
-    pers_pflegesatz = models.DecimalField(max_digits=4, decimal_places=2, default=0)
-    pers_pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2, default=0)
+    pers_pflegesatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    pers_pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
     pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
     fehltage_erlaubt = models.PositiveIntegerField(default=45)
@@ -117,11 +146,19 @@ class SchuelerInEinrichtung(TimeStampedModel):
         return self.get_pers_pflegesatz(datum) or self.einrichtung.get_pflegesatz(datum)
 
     def clean(self):
-        # TODO Zeiträume dürfen sich nicht überlappen
-        # Gilt für die Kombination schueler, einrichtung, sozialamt, eintritt, austritt
-        # Falls sinnnvoll muss auf django.contrib.postgres.fields.DateRangeField umgestellt werden
-        if self.eintritt and self.austritt and self.eintritt > self.austritt:
-            raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
+        if self.eintritt and self.austritt:
+            if self.eintritt > self.austritt:
+                raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
+            if not self.pk and self.schueler:
+                dubletten = SchuelerInEinrichtung.objects.dubletten(
+                    self.schueler, self.eintritt, self.austritt
+                ).count()
+                if dubletten > 0:
+                    msg = (
+                        "Für diesen Zeitraum existiert schon eine Anmeldung für {s.schueler}"
+                        " für eine Einrichtung."
+                    )
+                    raise ValidationError(msg.format(s=self))
 
     def war_abwesend(self, tage):
         """Abwesenheitstage für Schüler in Einrichtung im gewählten Zeitraum ermitteln."""
@@ -136,8 +173,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
 class EinrichtungHatPflegesatz(TimeStampedModel):
 
     einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
-    pflegesatz = models.DecimalField(max_digits=4, decimal_places=2)
-    pflegesatz_ferien = models.DecimalField(max_digits=4, decimal_places=2)
+    pflegesatz = models.DecimalField(max_digits=5, decimal_places=2)
+    pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2)
     pflegesatz_startdatum = models.DateField()
     pflegesatz_enddatum = models.DateField()
 
