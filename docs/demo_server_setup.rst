@@ -9,7 +9,7 @@ Zum Setup eines Demo Servers wie folgt vorgehen:
 
 ::
 
-    $ scp absys-*.whl root@absys-demo:/root
+    $ scp dist/absys-*.whl root@absys-demo:/root
     $ ssh root@absys-demo
     root:~$ locale-gen en_US.UTF-8
     root:~$ wget -O - https://repo.saltstack.com/apt/ubuntu/16.04/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add -
@@ -36,7 +36,7 @@ Zum Upgrade eines Demo Servers wie folgt vorgehen:
 
 ::
 
-    $ scp absys-*.whl root@absys-demo:/root
+    $ scp dist/absys-*.whl root@absys-demo:/root
     $ ssh root@absys-demo
     root:~$ cp --verbose absys-*.whl /home/vagrant
     root:~$ su -l vagrant
