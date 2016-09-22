@@ -81,11 +81,12 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
         return self.filter(
             schueler=schueler_in_einrichtung.schueler,
             einrichtung=schueler_in_einrichtung.einrichtung,
+            abgerechnet=True,
             abwesend=True,
             datum__gte=services.get_betrachtungszeitraum(
                 enddatum.year, schueler_in_einrichtung.eintritt
             )
-        ).exclude(abgerechnet=False)
+        )
 
     def summen(self):
         """Aggregiert die Summen für Fehltage, Zahltage und Aufwände."""
