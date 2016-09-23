@@ -226,5 +226,9 @@ class Common(Configuration):
     # Anwesenheitsliste im Frontend zur Verfügung stehen.
     ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT = values.IntegerValue(15)
 
+    # Möglichkeit zur Deaktivierung der Prüfung des Datums in der
+    # Anwesenheitsliste im Frontend.
+    ABSYS_ANWESENHEIT_DATUMSPRUEFUNG = values.BooleanValue(True)
+
     # Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
     ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG = values.IntegerValue(31)
