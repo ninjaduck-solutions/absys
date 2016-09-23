@@ -157,7 +157,6 @@ test-all:
 
 fixtures:
 	envdir envs/$(ENV) python manage.py loaddata sites.json
-	envdir envs/$(ENV) python manage.py loadtestdata schueler.Stufe:2
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Gruppe:2
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Sozialamt:2
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Schueler:10
