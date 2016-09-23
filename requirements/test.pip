@@ -3,6 +3,7 @@
 
 -r ./forks.pip
 
+arrow==0.8.0
 coverage==4.0.3
 django-coverage-plugin==1.1
 fauxfactory==2.0.8

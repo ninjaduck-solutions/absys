@@ -75,8 +75,9 @@ class TestRechnungSozialamt:
 @pytest.mark.django_db
 class TestRechnungsPositionEinrichtung:
 
-    def test_detailabrechnung(self, schueler, einrichtung_hat_pflegesatz_factory,
-            schueler_in_einrichtung_factory):
+    def test_detailabrechnung(self, schueler, rechnung_sozialamt_factory,
+            einrichtung_hat_pflegesatz_factory, schueler_in_einrichtung_factory):
+        rechnung_sozialamt_factory(enddatum=datetime.date(2016, 5, 31))
         start = datetime.date(2016, 6, 1)
         ende = datetime.date(2016, 6, 30)
         schueler_in_einrichtung_1 = schueler_in_einrichtung_factory(
@@ -98,7 +99,7 @@ class TestRechnungsPositionEinrichtung:
             pflegesatz_startdatum=schueler_in_einrichtung_2.eintritt
         )
         assert schueler_in_einrichtung_1.einrichtung != schueler_in_einrichtung_2.einrichtung
-        rechnung_sozialamt = models.RechnungSozialamt.objects.rechnungslauf(schueler.sozialamt, start, ende)
+        rechnung_sozialamt = models.RechnungSozialamt.objects.rechnungslauf(schueler.sozialamt, ende)
         assert rechnung_sozialamt.rechnungen_einrichtungen.count() == 2
         assert schueler.positionen_schueler.count() == 22
         for rechnung_einrichtung in rechnung_sozialamt.rechnungen_einrichtungen.all():
