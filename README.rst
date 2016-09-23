@@ -261,5 +261,11 @@ Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit mach
     (pyvenv) vagrant@absys-dev:/vagrant$ git add setup
     (pyvenv) vagrant@absys-dev:/vagrant$ git commit
 
+.. note::
+
+    Da ``git`` nur auf ``absys-dev`` installiert ist, muss dort der Commit
+    gemacht werden. Da beide Vagrant Boxen das gleiche Verzeichnis als
+    Netzlaufwerk haben, ist das ohne Probleme möglich.
+
 Danch kann der Inhalt des Verzeichnisses ``setup`` an den Dienstleister
 übergeben werden.
