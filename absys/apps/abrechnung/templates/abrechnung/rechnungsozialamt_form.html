@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Rechnung {{ rechnungsozialamt.nummer }} bearbeiten
+{% endblock title %}
+
+{% block content %}
+  <h3>
+    Rechnung {{ rechnungsozialamt.nummer }} bearbeiten<br>
+    <small>{{ rechnungsozialamt.startdatum }} - {{ rechnungsozialamt.enddatum }}</small>
+  </h3>
+  {% crispy form %}
+  <h4>Einrichtungsrechnungen</h4>
+  {% for inline_form in inlines %}
+    {% crispy inline_form %}
+  {% endfor %}
+{% endblock content %}

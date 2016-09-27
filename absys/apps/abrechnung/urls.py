@@ -8,9 +8,14 @@ urlpatterns = [
         views.RechnungSozialamtFormView.as_view(),
         name='abrechnung_rechnungsozialamt_form'
     ),
-    url(r'^(?P<pk>[\d]+)/pdf',
+    url(
+        r'^(?P<pk>[\d]+)/pdf/',
         views.AbrechnungPDFView.as_view(),
         name='abrechnung_rechnungsozialamt_pdf'
     ),
-
+    url(
+        r'^(?P<pk>[\d]+)/bearbeiten/',
+        views.RechnungSozialamtUpdateView.as_view(),
+        name='abrechnung_rechnungsozialamt_update'
+    ),
 ]

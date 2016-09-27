@@ -4,8 +4,8 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView
 from django.views.generic.list import MultipleObjectMixin
-
 from django.views.generic.detail import BaseDetailView
+from extra_views import InlineFormSet, UpdateWithInlinesView
 
 from wkhtmltopdf.views import PDFTemplateView
 
@@ -63,3 +63,18 @@ class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
             self.object.sozialamt,
             self.object.nummer,
         )
+
+
+class RechnungEinrichtungInline(InlineFormSet):
+
+    model = models.RechnungEinrichtung
+    fields = ('name_einrichtung', 'buchungskennzeichen', 'datum_faellig')
+    extra = 0
+    can_delete = False
+
+
+class RechnungSozialamtUpdateView(UpdateWithInlinesView):
+
+    model = models.RechnungSozialamt
+    inlines = [RechnungEinrichtungInline]
+    fields = ('name_sozialamt', 'anschrift_sozialamt')
