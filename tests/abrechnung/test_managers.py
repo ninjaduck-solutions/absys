@@ -116,6 +116,7 @@ class TestRechnungSozialamtManager:
         """
         Testet, dass das Startdatum der 1.1. im Jahr des Enddatums ist.
         """
+        # TODO arrow Code in Fixture auslagern und Test parametrisieren
         start = datetime.datetime(2015, 1, 1, 0, 0, 0)
         end = datetime.datetime(2016, 12, 31, 0, 0, 0)
         for date in arrow.Arrow.range('day', start, end):
@@ -132,31 +133,23 @@ class TestRechnungSozialamtManager:
         Obwohl schon eine Rechnung in einem späteren Jahr existiert, liegt das
         Startdatum im Jahr des Enddatums.
         """
-        start = datetime.datetime(2015, 1, 1, 0, 0, 0)
-        end = datetime.datetime(2016, 12, 31, 0, 0, 0)
-        for date in arrow.Arrow.range('day', start, end):
-            print(date)
-            with freeze_time(date.format('YYYY-MM-DD')):
-                if timezone.now().date() == datetime.date(2016, 1, 2):
-                    continue
-                rechnung = rechnung_sozialamt_factory(sozialamt=sozialamt, enddatum=timezone.now().date())
-                enddatum = rechnung.enddatum - datetime.timedelta(366)
-                startdatum = models.RechnungSozialamt.objects.get_startdatum(sozialamt, enddatum)
-                assert startdatum < rechnung.startdatum
-                assert startdatum.year == enddatum.year
-                assert startdatum.month == 1
-                assert startdatum.day == 1
+        rechnung = rechnung_sozialamt_factory(sozialamt=sozialamt, enddatum=datetime.date(2017, 7, 31))
+        enddatum = datetime.date(2016, 6, 30)
+        startdatum = models.RechnungSozialamt.objects.get_startdatum(sozialamt, enddatum)
+        assert startdatum < rechnung.startdatum
+        assert startdatum.year == enddatum.year
+        assert startdatum.month == 1
+        assert startdatum.day == 1
 
-    @freeze_time('2016-03-01')
     def test_get_startdatum_rechnung_davor_gleiches_jahr(self, sozialamt, rechnung_sozialamt_factory):
         """
         Testet, dass das Startdatum einen Tag nach dem Enddatum der vorherigen Rechnung liegt.
 
         Die vorherige Rechnung liegt im gleichen Jahr.
         """
-        enddatum = timezone.now().date() - datetime.timedelta(1)
+        enddatum = datetime.date(2016, 3, 31)
         rechnung = rechnung_sozialamt_factory(sozialamt=sozialamt, enddatum=enddatum)
-        enddatum = timezone.now().date() + datetime.timedelta(30)
+        enddatum = datetime.date(2016, 4, 30)
         startdatum = models.RechnungSozialamt.objects.get_startdatum(sozialamt, enddatum)
         assert startdatum == rechnung.enddatum + datetime.timedelta(1)
 
@@ -167,13 +160,11 @@ class TestRechnungSozialamtManager:
         Es existiert eine vorherige Rechnung im vorherigen Jahr, diese wird
         aber nicht in Betracht gezogen.
         """
-        with freeze_time('2015-10-31'):
-            enddatum = timezone.now().date()
-            rechnung = rechnung_sozialamt_factory(sozialamt=sozialamt, enddatum=enddatum)
-        with freeze_time('2016-05-31'):
-            enddatum = timezone.now().date()
-            startdatum = models.RechnungSozialamt.objects.get_startdatum(sozialamt, enddatum)
+        enddatum = datetime.date(2015, 10, 31)
+        rechnung = rechnung_sozialamt_factory(sozialamt=sozialamt, enddatum=enddatum)
+        enddatum = datetime.date(2016, 5, 31)
+        startdatum = models.RechnungSozialamt.objects.get_startdatum(sozialamt, enddatum)
         assert startdatum > rechnung.enddatum
-        assert startdatum.year == 2016
+        assert startdatum.year == enddatum.year
         assert startdatum.month == 1
         assert startdatum.day == 1
