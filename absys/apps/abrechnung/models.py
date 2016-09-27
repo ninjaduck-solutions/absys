@@ -379,11 +379,8 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
         Gibt die Anzahl der in dieser EinrichtungsPosition abgerechneten Fehltage zurück, 
         die nicht in den Zeitraum der Rechnung fallen.
         """
-        return self.schueler.positionen_schueler.filter(
-            rechnung_sozialamt=self.rechnung_einrichtung.rechnung_sozialamt,
-            einrichtung=self.rechnung_einrichtung.einrichtung
-        ).exclude(
+        return self.detailabrechnung.exclude(
             datum__range=(
-                self.rechnung_einrichtung.rechnung_sozialamt.startdatum, 
-                self.rechnung_einrichtung.rechnung_sozialamt.enddatum),
+                self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
+                self.rechnung_einrichtung.rechnung_sozialamt.enddatum)
         ).count()
