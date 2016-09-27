@@ -14,9 +14,20 @@ class RechnungSozialamtManager(models.Manager):
         """
         Gibt das Startdatum der Rechnung für ein Sozialamt zurück.
 
-        Existiert schon eine Rechnung für das Sozialamt, ist das Startdatum der
+        Existiert schon eine Rechnung für das Sozialamt, deren Enddatum im
+        gleichen Jahr liegt wie das angegebene Enddatum, ist das Startdatum der
         Tag nach dem Enddatum der letzten Rechnung. Ansonsten ist es der 1.
         Januar des Jahres, das im Enddatum angegeben ist.
+
+        ========== =========================== ==========
+        Enddatum   Enddatum Rechnung-Sozialamt Startdatum
+        ========== =========================== ==========
+        31.05.2016 30.04.2016                  01.05.2016
+        31.05.2016 30.04.2017                  01.01.2016
+        31.05.2016 30.04.2015                  01.01.2016
+        31.01.2016 31.12.2015                  01.01.2016
+        ========== =========================== ==========
+
         """
         try:
             enddatum = getattr(
