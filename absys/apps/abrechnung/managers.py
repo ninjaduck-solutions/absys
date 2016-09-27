@@ -1,4 +1,4 @@
-from datetime import timedelta
+import datetime
 
 from django.conf import settings
 from django.db import models, transaction
@@ -10,8 +10,40 @@ from . import services
 
 class RechnungSozialamtManager(models.Manager):
 
+    def get_startdatum(self, sozialamt, enddatum):
+        """
+        Gibt das Startdatum der Rechnung für ein Sozialamt zurück.
+
+        Existiert schon eine Rechnung für das Sozialamt, deren Enddatum im
+        gleichen Jahr liegt wie das angegebene Enddatum, ist das Startdatum der
+        Tag nach dem Enddatum der letzten Rechnung. Ansonsten ist es der 1.
+        Januar des Jahres, das im Enddatum angegeben ist.
+
+        ========== =========================== ==========
+        Enddatum   Enddatum Rechnung-Sozialamt Startdatum
+        ========== =========================== ==========
+        31.05.2016 30.04.2016                  01.05.2016
+        31.05.2016 30.04.2017                  01.01.2016
+        31.05.2016 30.04.2015                  01.01.2016
+        31.01.2016 31.12.2015                  01.01.2016
+        ========== =========================== ==========
+
+        """
+        try:
+            enddatum = getattr(
+                self.filter(
+                    sozialamt=sozialamt,
+                    enddatum__year=enddatum.year
+                ).order_by('-enddatum').first(), 'enddatum'
+            )
+        except AttributeError:
+            startdatum = datetime.date(enddatum.year, 1, 1)
+        else:
+            startdatum = enddatum + datetime.timedelta(1)
+        return startdatum
+
     @transaction.atomic
-    def rechnungslauf(self, sozialamt, startdatum, enddatum):
+    def rechnungslauf(self, sozialamt, enddatum):
         """
         Erzeugt eine ``RechnungEinrichtung`` pro Einrichtung des Sozialamts im gewählten Zeitraum.
 
@@ -23,6 +55,7 @@ class RechnungSozialamtManager(models.Manager):
         6. ``RechnungEinrichtung``-Instanz abschließen.
         """
         from .models import RechnungEinrichtung, RechnungsPositionSchueler
+        startdatum = self.get_startdatum(sozialamt, enddatum)
         rechnung_sozialamt = self.model(
             sozialamt=sozialamt,
             startdatum=startdatum,
@@ -168,7 +201,7 @@ class RechnungEinrichtungManager(models.Manager):
         eine Rechnung existieren wird diese zurückgegeben und keine neue
         erstellt.
         """
-        tage_faelligkeit = timedelta(
+        tage_faelligkeit = datetime.timedelta(
             settings.ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
         )
         rechnung, created = self.get_or_create(

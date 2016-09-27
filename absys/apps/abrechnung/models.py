@@ -298,6 +298,7 @@ class RechnungEinrichtung(TimeStampedModel):
                 self.rechnung_sozialamt.enddatum)
         )
 
+
 class RechnungsPositionEinrichtung(TimeStampedModel):
     """
     Daten einer Rechnungsposition für einen Schüler in einer Einrichtung in einem bestimmten Zeitraum.
@@ -371,3 +372,15 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
             rechnung_sozialamt=self.rechnung_einrichtung.rechnung_sozialamt,
             einrichtung=self.rechnung_einrichtung.einrichtung
         )
+
+    @cached_property
+    def fehltage_anderer_zeitraum(self):
+        """
+        Gibt die Anzahl der in dieser EinrichtungsPosition abgerechneten Fehltage zurück, 
+        die nicht in den Zeitraum der Rechnung fallen.
+        """
+        return self.detailabrechnung.exclude(
+            datum__range=(
+                self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
+                self.rechnung_einrichtung.rechnung_sozialamt.enddatum)
+        ).count()

@@ -24,7 +24,6 @@ class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormVie
             try:
                 rechnung = models.RechnungSozialamt.objects.rechnungslauf(
                     sozialamt,
-                    form.cleaned_data['startdatum'],
                     form.cleaned_data['enddatum']
                 )
             except ValidationError as e:
