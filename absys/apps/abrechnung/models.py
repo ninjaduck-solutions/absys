@@ -97,6 +97,8 @@ class RechnungSozialamt(TimeStampedModel):
             models.Q(startdatum__lte=self.startdatum, enddatum__gte=self.enddatum),
             sozialamt=self.sozialamt
         )
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
         if qs.count():
             raise ValidationError(
                 {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."}
@@ -376,7 +378,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     @cached_property
     def fehltage_anderer_zeitraum(self):
         """
-        Gibt die Anzahl der in dieser EinrichtungsPosition abgerechneten Fehltage zurück, 
+        Gibt die Anzahl der in dieser EinrichtungsPosition abgerechneten Fehltage zurück,
         die nicht in den Zeitraum der Rechnung fallen.
         """
         return self.detailabrechnung.exclude(
