@@ -2,7 +2,7 @@ from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import FormView
+from django.views.generic import FormView, DetailView
 from django.views.generic.list import MultipleObjectMixin
 
 from django.views.generic.detail import BaseDetailView
@@ -63,3 +63,21 @@ class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
             self.object.sozialamt,
             self.object.nummer,
         )
+
+
+class SaxmbsView(DetailView):
+
+    content_type = 'text/plain'
+    model = models.RechnungSozialamt
+    template_name = 'abrechnung/saxmbs.dat'
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(self.filename)
+        return response
+
+    @property
+    def filename(self):
+        return '{}.DAT'.format(
+            self.object.nummer)
+

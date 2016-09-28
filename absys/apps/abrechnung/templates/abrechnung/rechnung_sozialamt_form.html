@@ -13,7 +13,8 @@
         <th>Startdatum</th>
         <th>Enddatum</th>
         <th>Sozialamt</th>
-        <th>Nr.</th>
+        <th>PDF</th>
+        <th>SaxMBS</th>
       </tr>
     </thead>
     <tbody>
@@ -24,6 +25,9 @@
           <td>{{ rechnung.sozialamt }}</td>
           <td>
             <a href="{% url 'abrechnung_rechnungsozialamt_pdf' pk=rechnung.id %}">{{ rechnung.nummer }}</a>
+          </td>
+          <td>
+            <a href="{% url 'abrechnung_saxmbs_dat' pk=rechnung.id %}">{{ rechnung.nummer }}</a>
           </td>
         </tr>
       {% endfor %}
