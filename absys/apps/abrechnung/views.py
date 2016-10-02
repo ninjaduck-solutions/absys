@@ -1,18 +1,15 @@
-import re
-
 from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import FormView, DetailView
 from django.views.generic.list import MultipleObjectMixin
-from django.template.response import TemplateResponse
 
 from django.views.generic.detail import BaseDetailView
 
 from wkhtmltopdf.views import PDFTemplateView
 
-from . import forms, models
+from . import forms, models, services
 
 
 class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormView):
@@ -77,18 +74,8 @@ class SaxmbsView(DetailView):
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
         response['Content-Disposition'] = 'attachment; filename="{0}"'.format(self.filename)
-        #response.add_post_render_callback(self.setze_crlf)
+        response.add_post_render_callback(services.setze_crlf)
         return response
-
-    # def setze_crlf(self, response):
-    #     response = str(response)
-    #     response = re.sub(
-    #         r'[a-z]$', 
-    #         r'[A-Z]$', 
-    #         response, 
-    #         count=0
-    #     )
-    #     return response
 
     @property
     def filename(self):
