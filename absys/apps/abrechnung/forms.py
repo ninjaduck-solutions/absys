@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, HTML, Field, Layout, Submit
+from crispy_forms.layout import Div, Field, HTML, Layout, Submit
 from crispy_forms.bootstrap import FormActions
 from django import forms
 
@@ -47,4 +47,44 @@ class RechnungSozialamtForm(forms.Form):
             FormActions(
                 Submit('submit', "Rechnungen erstellen", css_class="btn btn-success")
             )
+        )
+
+
+class RechnungSozialamtUpdateFormHelper(FormHelper):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form_tag = False
+        self.layout = Layout(
+            Div(
+                Div(
+                    Field('name_sozialamt'),
+                    css_class='col-md-6'
+                ),
+                Div(
+                    Field('anschrift_sozialamt', rows=5),
+                    css_class='col-md-6'
+                ),
+                css_class="row"
+            ),
+        )
+
+
+class RechnungEinrichtungUpdateFormHelper(FormHelper):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form_tag = False
+        self.layout = Layout(
+            Div(
+                Div(
+                    Field('buchungskennzeichen'),
+                    css_class='col-md-6'
+                ),
+                Div(
+                    Field('datum_faellig'),
+                    css_class='col-md-6'
+                ),
+                css_class="row"
+            ),
         )

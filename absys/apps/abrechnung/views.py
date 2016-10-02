@@ -2,10 +2,10 @@ from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import FormView, DetailView
-from django.views.generic.list import MultipleObjectMixin
-
+from django.views.generic import DeleteView, DetailView, FormView
 from django.views.generic.detail import BaseDetailView
+from django.views.generic.list import MultipleObjectMixin
+from extra_views import InlineFormSet, UpdateWithInlinesView
 
 from wkhtmltopdf.views import PDFTemplateView
 
@@ -63,6 +63,36 @@ class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
             self.object.sozialamt,
             self.object.nummer,
         )
+
+
+class RechnungEinrichtungInline(InlineFormSet):
+
+    model = models.RechnungEinrichtung
+    fields = ('id', 'buchungskennzeichen', 'datum_faellig')
+    can_delete = False
+    extra = 0
+
+
+class RechnungSozialamtUpdateView(UpdateWithInlinesView):
+
+    model = models.RechnungSozialamt
+    fields = ('name_sozialamt', 'anschrift_sozialamt')
+    inlines = [RechnungEinrichtungInline]
+    success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
+
+    @property
+    def helper_sozialamt(self):
+        return forms.RechnungSozialamtUpdateFormHelper()
+
+    @property
+    def helper_einrichtung(self):
+        return forms.RechnungEinrichtungUpdateFormHelper()
+
+
+class RechnungSozialamtDeleteView(DeleteView):
+
+    model = models.RechnungSozialamt
+    success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
 
 
 class SaxmbsView(DetailView):
