@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Rechnung {{ rechnungsozialamt.nummer }} löschen
+{% endblock title %}
+
+{% block content %}
+  <h3>
+    Rechnung {{ rechnungsozialamt.nummer }} löschen<br>
+    <small>{{ rechnungsozialamt.startdatum }} - {{ rechnungsozialamt.enddatum }}</small>
+  </h3>
+  <form action="" method="post">
+    {% csrf_token %}
+    <p>Sind Sie sicher, dass Sie die folgenden Rechnungen löschen möchten?</p>
+    <ul>
+      <li>Rechnung {{ rechnungsozialamt.nummer }}</li>
+      <ul>
+        {% for rechnung_einrichtung in rechnungsozialamt.rechnungen_einrichtungen.all %}
+          <li>Einrichtungs-Rechnung {{ rechnung_einrichtung.nummer }} für Einrichtung {{ rechnung_einrichtung.name_einrichtung }}</li>
+        {% endfor %}
+      </ul>
+    </ul>
+    <div class="form-actions">
+        <input type="submit" name="delete" value="Löschen" class="btn btn-danger" id="submit-delete">
+        <a class="btn btn-default" href="{% url 'abrechnung_rechnungsozialamt_form' %}">Abbrechen</a>
+    </div>
+  </form>
+{% endblock content %}

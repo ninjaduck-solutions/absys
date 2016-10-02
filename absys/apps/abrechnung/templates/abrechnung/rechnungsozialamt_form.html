@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Rechnung {{ rechnungsozialamt.nummer }} bearbeiten
+{% endblock title %}
+
+{% block content %}
+  <h3>
+    Rechnung {{ rechnungsozialamt.nummer }} bearbeiten<br>
+    <small>{{ rechnungsozialamt.startdatum }} - {{ rechnungsozialamt.enddatum }}</small>
+  </h3>
+  <form action="{% url 'abrechnung_rechnungsozialamt_update' pk=rechnungsozialamt.pk %}" method="post">
+    {% crispy form view.helper_sozialamt %}
+    {{ inlines.0.management_form }}
+    {% for inline in inlines.0 %}
+      <h4>Einrichtungs-Rechnung {{ inline.instance.nummer }} für Einrichtung {{ inline.instance.name_einrichtung }}</h4>
+      {% crispy inline view.helper_einrichtung %}
+    {% endfor %}
+    <div class="form-actions">
+        <input type="submit" name="submit" value="Speichern" class="btn btn-success" id="submit-save">
+        <a class="btn btn-default" href="{% url 'abrechnung_rechnungsozialamt_form' %}">Abbrechen</a>
+    </div>
+  </form>
+{% endblock content %}
