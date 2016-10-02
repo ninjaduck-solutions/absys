@@ -18,4 +18,9 @@ urlpatterns = [
         views.RechnungSozialamtUpdateView.as_view(),
         name='abrechnung_rechnungsozialamt_update'
     ),
+    url(
+        r'^(?P<pk>[\d]+)/loeschen/',
+        views.RechnungSozialamtDeleteView.as_view(),
+        name='abrechnung_rechnungsozialamt_delete'
+    ),
 ]
