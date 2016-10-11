@@ -144,7 +144,7 @@ test:
 	@echo "Use \"PYTEST_ADDOPTS='--cache-clear'\" to clean up the test cache"
 	@echo "Use \"PYTEST_ADDOPTS='--create-db'\" to force recreation of the test database"
 	@echo
-	envdir envs/$(ENV) python -m pytest --reuse-db --last-failed tests/
+	envdir envs/$(ENV) python -m pytest -m "not slowtest" --reuse-db --last-failed tests/
 
 test-fresh:
 	envdir envs/$(ENV) python -m pytest --create-db --cache-clear tests/
@@ -157,7 +157,6 @@ test-all:
 
 fixtures:
 	envdir envs/$(ENV) python manage.py loaddata sites.json
-	envdir envs/$(ENV) python manage.py loadtestdata schueler.Stufe:2
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Gruppe:2
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Sozialamt:2
 	envdir envs/$(ENV) python manage.py loadtestdata schueler.Schueler:10

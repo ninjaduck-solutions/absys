@@ -164,7 +164,8 @@
                 <th>Fehltage im Abrechnungs-zeitraum</th>
                 <th>Übertrag abgerechnete Fehltage</th>
                 <th>Fehltage Gesamt</th>
-                <th>Fehltage zur Anrechnung</th>
+                <th>Fehltage zur Abrechnung</th>
+                <th>davon Fehltage nachträglich zur Abrechnung</th>
                 <th>Zahltage dieser Rechnung</th>
                 <th>Gesamtbetrag in Euro</th>
               </tr>
@@ -179,6 +180,7 @@
                 <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
                 <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
                 <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
+                <td>{{ einrichtungsposition.fehltage_anderer_zeitraum }}</td>
                 <td>{{ einrichtungsposition.zahltage }}</td>
                 <td>{{ einrichtungsposition.summe }}</td>
               </tr>
@@ -198,7 +200,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for schuelerposition in einrichtungsposition.detailabrechnung.all %} {# ist das Queryset detailabrechnung falsch? #}
+              {% for schuelerposition in einrichtungsposition.detailabrechnung.all %}
                 <tr>
                   <td>{{ schuelerposition.datum|date:"d.m.Y" }} </td>
                   <td>{{ schuelerposition.tag_art }}</td>

@@ -17,7 +17,7 @@ extras_require = {
 }
 
 requires = [
-    'Django==1.10',
+    'Django==1.10.2',
     'dj-database-url==0.4.1',
     'django-autofixture==0.12.1',
     'django-braces==1.9.0',
@@ -47,7 +47,7 @@ if os.path.dirname(os.path.abspath(__file__)) == '/vagrant':
 
 setup(
     name='absys',
-    version='0.3.1',
+    version='0.4.0',
     description='Abrechnungssystem der SLSH und LZH.',
     long_description=read(BASE_DIR, 'README.rst'),
     author='IMTB',

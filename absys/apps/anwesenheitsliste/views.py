@@ -133,11 +133,12 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     @classmethod
     def ist_datum_erlaubt(cls, datum):
-        #TODO: FUER TESTS DEAKTIVIERT, VOR LIVEBETRIEB ANSCHALTEN // TESTS HABE ICH DURCHGEFUHERT!
-        #return (
-        #    cls.ist_aktueller_monat(datum) and cls.ist_nicht_in_zukunft(datum)
-        #) or cls.ist_vormonat_erlaubt(datum)
-        return True
+        if not settings.ABSYS_ANWESENHEIT_DATUMSPRUEFUNG:
+            return True
+        return (
+            cls.ist_aktueller_monat(datum) and cls.ist_nicht_in_zukunft(datum)
+        ) or cls.ist_vormonat_erlaubt(datum)
+
 
 class AnwesenheitslisteHeuteRedirectView(RedirectView):
 

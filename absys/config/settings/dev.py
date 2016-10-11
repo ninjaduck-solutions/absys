@@ -29,7 +29,7 @@ class Development(databases.Databases, common.Common):
         address on a Vagrant box, because this is the IP address the request
         will originate from.
         """
-        if 'vagrant' in socket.gethostname():
+        if socket.gethostname().endswith('-dev'):
             addr = [line.split()[1] for line in subprocess.check_output(['netstat', '-rn']).splitlines() if line.startswith(b'0.0.0.0')][0].decode()  # noqa
         else:
             addr = '127.0.0.1'

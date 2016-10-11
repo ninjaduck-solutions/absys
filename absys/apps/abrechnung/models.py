@@ -50,8 +50,10 @@ class RechnungSozialamt(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.sozialamt:
-            self.name_sozialamt = self.sozialamt.name
-            self.anschrift_sozialamt = self.sozialamt.anschrift
+            if not self.name_sozialamt:
+                self.name_sozialamt = self.sozialamt.name
+            if not self.anschrift_sozialamt:
+                self.anschrift_sozialamt = self.sozialamt.anschrift
         super().save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False):
@@ -97,6 +99,8 @@ class RechnungSozialamt(TimeStampedModel):
             models.Q(startdatum__lte=self.startdatum, enddatum__gte=self.enddatum),
             sozialamt=self.sozialamt
         )
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
         if qs.count():
             raise ValidationError(
                 {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."}
@@ -189,9 +193,9 @@ class RechnungsPositionSchueler(TimeStampedModel):
         return msg.format(s=self)
 
     def save(self, *args, **kwargs):
-        if self.schueler:
+        if self.schueler and not self.name_schueler:
             self.name_schueler = self.schueler.voller_name
-        if self.einrichtung:
+        if self.einrichtung and not self.name_einrichtung:
             self.name_einrichtung = self.einrichtung.name
         super().save(*args, **kwargs)
 
@@ -243,7 +247,7 @@ class RechnungEinrichtung(TimeStampedModel):
         return msg.format(s=self)
 
     def save(self, *args, **kwargs):
-        if self.einrichtung:
+        if self.einrichtung and not self.name_einrichtung:
             self.name_einrichtung = self.einrichtung.name
         super().save(*args, **kwargs)
 
@@ -297,6 +301,7 @@ class RechnungEinrichtung(TimeStampedModel):
             datum__range=(self.rechnung_sozialamt.startdatum,
                 self.rechnung_sozialamt.enddatum)
         )
+
 
 class RechnungsPositionEinrichtung(TimeStampedModel):
     """
@@ -358,7 +363,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
         return msg.format(s=self)
 
     def save(self, *args, **kwargs):
-        if self.schueler:
+        if self.schueler and not self.name_schueler:
             self.name_schueler = self.schueler.voller_name
         super().save(*args, **kwargs)
 
@@ -371,3 +376,15 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
             rechnung_sozialamt=self.rechnung_einrichtung.rechnung_sozialamt,
             einrichtung=self.rechnung_einrichtung.einrichtung
         )
+
+    @cached_property
+    def fehltage_anderer_zeitraum(self):
+        """
+        Gibt die Anzahl der in dieser EinrichtungsPosition abgerechneten Fehltage zurück,
+        die nicht in den Zeitraum der Rechnung fallen.
+        """
+        return self.detailabrechnung.exclude(
+            datum__range=(
+                self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
+                self.rechnung_einrichtung.rechnung_sozialamt.enddatum)
+        ).count()
