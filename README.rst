@@ -267,5 +267,10 @@ Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit mach
     gemacht werden. Da beide Vagrant Boxen das gleiche Verzeichnis als
     Netzlaufwerk haben, ist das ohne Probleme möglich.
 
-Danch kann der Inhalt des Verzeichnisses ``setup`` an den Dienstleister
-übergeben werden.
+Danach kann der Inhalt des Verzeichnisses ``setup`` an den Dienstleister
+übergeben werden. Dies kann zum Beispiel als tar Archiv geschehen, dass wie
+folgt erstellt wird:
+
+::
+
+    (pyvenv) vagrant@absys-dev:/vagrant$ tar czvf setup.tar.gz -C setup `ls -1 setup`
