@@ -35,6 +35,7 @@ class Einrichtung(TimeStampedModel):
         related_name='einrichtungen'
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
+    titel = models.CharField("Titel", max_length=5)
 
     class Meta:
         ordering = ['name']
