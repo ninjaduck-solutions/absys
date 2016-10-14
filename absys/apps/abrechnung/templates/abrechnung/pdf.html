@@ -56,9 +56,6 @@
                   BIC: {{ einrichtungsrechnung.einrichtung.standort.konto_bic }}<br>
                   Institut: {{ einrichtungsrechnung.einrichtung.standort.konto_institut }}<br>
                   IBAN: {{ einrichtungsrechnung.einrichtung.standort.konto_iban }}<br>
-                  Buchungsstelle: ??? <br>
-                  Buchungskennzeichen: {{ einrichtungsrechnung.buchungskennzeichen }}<br>
-                  Fälligkeitsdatum: {{ einrichtungsrechnung.datum_faellig|date:"d.m.Y" }}<br>
                 </p>
               </p>
             </td>
@@ -76,7 +73,7 @@
                 {% for schliesstag in einrichtungsrechnung.schliesstage %}
                   {{ schliesstag.datum|date:"d.m.Y" }}{% if not forloop.last %},{% endif %}
                 {% empty %}
-                  keine Schließtage definiert
+                  keine Schließtage in diesem Zeitraum definiert
                 {% endfor %}
                 <br>
                 <b>Betreuungstage:</b> {{ einrichtungsrechnung.betreuungstage }} <br><br>
@@ -88,9 +85,14 @@
             </td>
             <td style="border: 0;">
               <p>
-                <b>Aufwendungen Gesamt: {{ einrichtungsrechnung.summe }} € </b><br><br>
-                Datum: <br><br><br>
-                Unterschrift: <br><br><br>
+                  Fälligkeitsdatum: {{ einrichtungsrechnung.datum_faellig|date:"d.m.Y" }}<br>
+                  <br>
+                  Buchungskennzeichen: {{ einrichtungsrechnung.buchungskennzeichen }}<br>
+                  <br>
+                  <b> Das Buchungskennzeichen bitte unbedingt<br> 
+                  bei der Überweisung angeben!</b><br>
+                  <br>
+                <h4><b>Aufwendungen Gesamt: {{ einrichtungsrechnung.summe }} € </b></h4><br><br>
               </p>
             </td>
           </tr>
@@ -206,7 +208,7 @@
                 <tr>
                   <td>{{ schuelerposition.datum|date:"d.m.Y" }} </td>
                   <td>{{ schuelerposition.tag_art }}</td>
-                  <td>{% if schuelerposition.abwesend %}<span class="glyphicon glyphicon-remove" aria-hidden="true">
+                  <td>{% if schuelerposition.abwesend %}Fehltag
                     {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
                   <td>{{ schuelerposition.pflegesatz }}</td>
                 </tr>
