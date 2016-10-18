@@ -253,6 +253,14 @@ Befehl ausführen:
 
     vagrant@absys-deployment:~$ /vagrant/bin/extract.sh
 
+.. note::
+
+    Das Skript ``extract.sh`` erstellt aus den Dateien im Verzeichnis ``setup``
+    automatisch ein tar Archiv ``setup.tar.gz`` und legt dieses im
+    Stammverzeichnis des Projekts ab. Diese Datei kann an den Dienstleister
+    übergeben werden. Sie soll nicht Teil des Git Repositories werden und wird
+    daher bei Commits ignoriert.
+
 Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit machen:
 
 ::
@@ -266,11 +274,3 @@ Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit mach
     Da ``git`` nur auf ``absys-dev`` installiert ist, muss dort der Commit
     gemacht werden. Da beide Vagrant Boxen das gleiche Verzeichnis als
     Netzlaufwerk haben, ist das ohne Probleme möglich.
-
-Danach kann der Inhalt des Verzeichnisses ``setup`` an den Dienstleister
-übergeben werden. Dies kann zum Beispiel als tar Archiv geschehen, dass wie
-folgt erstellt wird:
-
-::
-
-    (pyvenv) vagrant@absys-dev:/vagrant$ tar czvf setup.tar.gz -C setup `ls -1 setup`
