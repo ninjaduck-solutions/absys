@@ -23,6 +23,6 @@ Servern nötig:
    Variable ``PACKAGE_PATH`` definierten Pfad kopieren. Falls nötig den in
    ``PACKAGE_PATH`` definierten Pfad ändern.
 6. Das vorher erstellte Python Virtual Environment aktivieren.
-7. Konfiguration in ``install.sh`` anpassen, dann Skript starten mit
-   aktiviertem Python Virtual Environment starten.
+7. Konfiguration in ``install.sh`` anpassen, dann Skript mit aktiviertem Python
+   Virtual Environment starten.
 8. Fertig! :-)
