@@ -14,20 +14,31 @@ from absys.apps.einrichtungen.models import Einrichtung
 
 class AnwesenheitenResource(resources.ModelResource):
 
-    #einrichtung = fields.Field(column_name='einrichtung', attribute='einrichtung', widget=ForeignKeyWidget(Einrichtung, 'pk'))
-    #schueler = fields.Field(column_name='schueler', attribute='schueler', widget=ForeignKeyWidget(Schueler, 'pk'))
+#Warum benötigen wir bei der Anwesenheitserfassung die Einrichtung? SchuelerInEinrichtung-Sets können sich nicht mehr zeitlich pro Schüler überlappen
 
     class Meta:
 
         model = models.Anwesenheit
 
-        # fields = (
-        #     'id',
-        #     'datum',
-        #     'schueler',
-        #     'einrichtung',
-        #     'abwesend',
-        #     )
+        import_id_fields = (
+            'schueler__nachname',
+            'schueler__geburtsdatum',
+            'datum',
+            )
+
+        fields = (
+            'datum',
+            'schueler__nachname',
+            'schueler__geburtsdatum',
+            'abwesend',
+            )
+
+        export_order = (
+            'datum',
+            'schueler__nachname',
+            'schueler__geburtsdatum',
+            'abwesend',
+            )
 
 class AnwesenheitAdmin(ImportExportActionModelAdmin, admin.ModelAdmin):
 
