@@ -89,6 +89,9 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
 # echo '31' | sudo tee /var/envdir/absys/DJANGO_ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
 
+# Feste Adresse der Schule
+# echo 'Musterschule\nMusterstr. 42\n23232 Musterstadt' | sudo tee /var/envdir/absys/DJANGO_ABSYS_ADRESSE_SCHULE
+
 # Lockdown-Schutz aktivieren/deaktivieren
 # echo 'True' | sudo tee /var/envdir/absys/DJANGO_LOCKDOWN_ENABLED
 

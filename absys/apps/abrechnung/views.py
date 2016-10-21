@@ -1,4 +1,5 @@
 from braces.views import LoginRequiredMixin
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
@@ -53,6 +54,10 @@ class AbrechnungPDFView(LoginRequiredMixin, BaseDetailView, PDFTemplateView):
     cmd_options = {
         'orientation': 'Landscape',
     }
+
+    @property
+    def adresse_schule(self):
+        return settings.ABSYS_ADRESSE_SCHULE
 
     @property
     def filename(self):

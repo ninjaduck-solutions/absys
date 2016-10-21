@@ -16,9 +16,7 @@
       {{ rechnungsozialamt.anschrift_sozialamt|linebreaks }}<br>
       <br>
       <b>von</b><br>
-        HIER DIE FESTE<br>
-        ADRESSE DER SCHULE<br>
-        EINTRAGEN
+        {{ view.adresse_schule|linebreaks }}
       <br>
       <b>Rechnungsnummer:</b> {{ rechnungsozialamt.nummer }} <br>
       <b>Abrechnungszeitraum:</b>
@@ -89,7 +87,7 @@
                   <br>
                   Buchungskennzeichen: {{ einrichtungsrechnung.buchungskennzeichen }}<br>
                   <br>
-                  <b> Das Buchungskennzeichen bitte unbedingt<br> 
+                  <b> Das Buchungskennzeichen bitte unbedingt<br>
                   bei der Überweisung angeben!</b><br>
                   <br>
                 <h4><b>Aufwendungen Gesamt: {{ einrichtungsrechnung.summe }} € </b></h4><br><br>
@@ -225,7 +223,7 @@
 
     <br><br><br><br>
     <hr>
-    <h3> <center> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }} 
+    <h3> <center> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }}
       FÜR DEN ZEITRAUM VOM {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
       BIS {{ rechnungsozialamt.enddatum|date:"d.m.Y" }} </center></h3>
   </div>

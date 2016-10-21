@@ -234,3 +234,6 @@ class Common(Configuration):
 
     # Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
     ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG = values.IntegerValue(31)
+
+    # Feste Adresse der Schule
+    ABSYS_ADRESSE_SCHULE = values.Value('Musterschule\nMusterstr. 42\n23232 Musterstadt')
