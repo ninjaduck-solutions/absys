@@ -51,7 +51,6 @@ class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
     model = models.RechnungSozialamt
     template_name = 'abrechnung/pdf.html'
     cmd_options = {
-        'footer-right': '[page]/[topage]',
         'orientation': 'Landscape',
     }
 
