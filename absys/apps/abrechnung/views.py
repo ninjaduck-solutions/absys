@@ -45,7 +45,7 @@ class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormVie
         return super().post(request, *args, **kwargs)
 
 
-class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
+class AbrechnungPDFView(LoginRequiredMixin, BaseDetailView, PDFTemplateView):
 
     #TODO: prefetch_related() nutzen
     model = models.RechnungSozialamt
@@ -72,7 +72,7 @@ class RechnungEinrichtungInline(InlineFormSet):
     extra = 0
 
 
-class RechnungSozialamtUpdateView(UpdateWithInlinesView):
+class RechnungSozialamtUpdateView(LoginRequiredMixin, UpdateWithInlinesView):
 
     model = models.RechnungSozialamt
     fields = ('name_sozialamt', 'anschrift_sozialamt')
@@ -88,7 +88,7 @@ class RechnungSozialamtUpdateView(UpdateWithInlinesView):
         return forms.RechnungEinrichtungUpdateFormHelper()
 
 
-class RechnungSozialamtDeleteView(DeleteView):
+class RechnungSozialamtDeleteView(LoginRequiredMixin, DeleteView):
 
     model = models.RechnungSozialamt
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
