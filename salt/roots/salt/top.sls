@@ -14,6 +14,6 @@ base:
     - tree
     - nano
     - vim
-    - npm
+    - nodejs
   '*-deployment':
     - apache

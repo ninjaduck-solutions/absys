@@ -1,10 +1,10 @@
 git:
-  pkg:
-    - installed
+  pkg.installed:
+    - version: 1:2.7.4-0ubuntu1
 
 git-flow:
-  pkg:
-    - installed
+  pkg.installed:
+    - version: 1.9.1-1
 
 git-flow-init:
   cmd.run:
@@ -14,8 +14,8 @@ git-flow-init:
       - pkg: git-flow
 
 tig:
-  pkg:
-    - installed
+  pkg.installed:
+    - version: 2.0.2-2build1
 
 git-push-default:
   git.config_set:

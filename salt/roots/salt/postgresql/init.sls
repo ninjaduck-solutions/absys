@@ -1,6 +1,6 @@
 postgresql:
-  pkg:
-    - installed
+  pkg.installed:
+    - version: 9.5+173
   service.running:
     - enable: True
     - watch:
