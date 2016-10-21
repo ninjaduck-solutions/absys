@@ -1,6 +1,6 @@
 apache2:
-  pkg:
-    - installed
+  pkg.installed:
+    - version: 2.4.18-2ubuntu3.1
   service.running:
     - enable: True
     - watch:
@@ -15,6 +15,7 @@ enable-headers-module:
 
 libapache2-mod-wsgi-py3:
   pkg.installed:
+    - version: 4.3.0-1.1build1
     - require:
       - pkg: apache2
 

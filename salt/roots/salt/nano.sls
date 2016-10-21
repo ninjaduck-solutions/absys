@@ -1,3 +1,3 @@
 nano:
-  pkg:
-    - installed
+  pkg.installed:
+    - version: 2.5.3-2
