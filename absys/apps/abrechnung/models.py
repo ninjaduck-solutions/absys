@@ -134,12 +134,21 @@ class RechnungSozialamt(TimeStampedModel):
     @cached_property
     def mittelwert_einrichtungssummen(self):
         """
-        Ermittelt den Mittelwert aus den Summen aller zugehörigen Einrichtungsrechnungen. 
-        Die beiden Nachkommastellen werden auf "00" ABgerundet.
-        Anschließend wird die Funktion aufgerufen, die aus einem Decimal ein 
-        Integer mit den beiden Nullen am Ende macht.
+        Ermittelt den Mittelwert aus den Summen aller zugehörigen Einrichtungsrechnungen.
+
+        Anschließend werden die beiden Nachkommastellen werden auf "00" abgerundet.
         """
-        return 1234
+        return int(self.rechnungen_einrichtungen.aggregate(models.Avg('summe'))['summe__avg'])
+
+    @cached_property
+    def mittelwert_titel(self):
+        import decimal
+        return decimal.Decimal('2.42')
+
+    @cached_property
+    def mittelwert_kapitel(self):
+        import decimal
+        return decimal.Decimal('3.42')
 
 
 class RechnungsPositionSchueler(TimeStampedModel):
@@ -311,17 +320,6 @@ class RechnungEinrichtung(TimeStampedModel):
             datum__range=(self.rechnung_sozialamt.startdatum,
                 self.rechnung_sozialamt.enddatum)
         )
-
-    @cached_property
-    def decimal_ohne_punkte(self):
-        """
-        Gibt die Summe ohne Punkte zurueck
-        """
-        summe = self.summe
-        summe = str(summe)
-        summe = summe.replace(".","")
-        summe = int(summe)
-        return summe
 
 
 class RechnungsPositionEinrichtung(TimeStampedModel):

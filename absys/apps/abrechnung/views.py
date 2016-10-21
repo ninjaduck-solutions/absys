@@ -2,14 +2,14 @@ from braces.views import LoginRequiredMixin
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
-from django.views.generic import DeleteView, DetailView, FormView
+from django.views.generic import DeleteView, FormView
 from django.views.generic.detail import BaseDetailView
 from django.views.generic.list import MultipleObjectMixin
 from extra_views import InlineFormSet, UpdateWithInlinesView
 
 from wkhtmltopdf.views import PDFTemplateView
 
-from . import forms, models, services
+from . import forms, models, responses
 
 
 class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormView):
@@ -94,19 +94,9 @@ class RechnungSozialamtDeleteView(DeleteView):
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
 
 
-class SaxmbsView(DetailView):
+class SaxmbsView(LoginRequiredMixin, BaseDetailView):
 
-    content_type = 'text/plain'
     model = models.RechnungSozialamt
-    template_name = 'abrechnung/saxmbs.dat'
 
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(self.filename)
-        response.add_post_render_callback(services.setze_crlf)
-        return response
-
-    @property
-    def filename(self):
-        return '{}.DAT'.format(
-            self.object.nummer)
+    def render_to_response(self, context):
+        return responses.SaxMBSResponse(self.object)

@@ -1,5 +1,4 @@
 import datetime
-import re
 
 from django.utils import timezone
 
@@ -15,9 +14,3 @@ def get_betrachtungszeitraum(jahr, eintritt):
     if eintritt.year == jahr:
         beginn = eintritt
     return beginn
-
-
-def setze_crlf(response):
-    """Ersetzt alle LF im ``response`` mit LFCR."""
-    response.content = re.sub(r'\n', r'\n\r', response.rendered_content)
-    return response
