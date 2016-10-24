@@ -57,7 +57,6 @@ class TestRechnungSozialamtManager:
         ende = datetime.date(2016, 6, 17)
         anwesenheit_factory(
             schueler=schueler_in_einrichtung.schueler,
-            einrichtung=schueler_in_einrichtung.einrichtung,
             datum=ende,
             abwesend=True
         )

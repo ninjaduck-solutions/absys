@@ -135,6 +135,17 @@ Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen we
 
 .. note::
 
+    Sollen Zeilenenden auf Windowssystemen (CRLF) immer durch LF (Unix) ersetzt werden, lege eine Datei Namens ``.gitattributes``
+    im Root-Verzeichnis des Projektes an und füge folgende Zeile in die Datei ein:
+
+    ::
+
+        *    text
+
+
+
+.. note::
+
     Um alle Befehle zu sehen, die mit ``make`` ausgeführt werden können,
     einfach ``make`` ohne weitere Argumente aufrufen:
 
@@ -253,6 +264,14 @@ Befehl ausführen:
 
     vagrant@absys-deployment:~$ /vagrant/bin/extract.sh
 
+.. note::
+
+    Das Skript ``extract.sh`` erstellt aus den Dateien im Verzeichnis ``setup``
+    automatisch ein tar Archiv ``setup.tar.gz`` und legt dieses im
+    Stammverzeichnis des Projekts ab. Diese Datei kann an den Dienstleister
+    übergeben werden. Sie soll nicht Teil des Git Repositories werden und wird
+    daher bei Commits ignoriert.
+
 Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit machen:
 
 ::
@@ -266,6 +285,3 @@ Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit mach
     Da ``git`` nur auf ``absys-dev`` installiert ist, muss dort der Commit
     gemacht werden. Da beide Vagrant Boxen das gleiche Verzeichnis als
     Netzlaufwerk haben, ist das ohne Probleme möglich.
-
-Danch kann der Inhalt des Verzeichnisses ``setup`` an den Dienstleister
-übergeben werden.

@@ -1,4 +1,5 @@
 from braces.views import LoginRequiredMixin
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
@@ -9,7 +10,7 @@ from extra_views import InlineFormSet, UpdateWithInlinesView
 
 from wkhtmltopdf.views import PDFTemplateView
 
-from . import forms, models
+from . import forms, models, responses
 
 
 class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormView):
@@ -45,15 +46,18 @@ class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormVie
         return super().post(request, *args, **kwargs)
 
 
-class AbrechnungPDFView(BaseDetailView, PDFTemplateView):
+class AbrechnungPDFView(LoginRequiredMixin, BaseDetailView, PDFTemplateView):
 
     #TODO: prefetch_related() nutzen
     model = models.RechnungSozialamt
     template_name = 'abrechnung/pdf.html'
     cmd_options = {
-        'footer-right': '[page]/[topage]',
         'orientation': 'Landscape',
     }
+
+    @property
+    def adresse_schule(self):
+        return settings.ABSYS_ADRESSE_SCHULE
 
     @property
     def filename(self):
@@ -73,7 +77,7 @@ class RechnungEinrichtungInline(InlineFormSet):
     extra = 0
 
 
-class RechnungSozialamtUpdateView(UpdateWithInlinesView):
+class RechnungSozialamtUpdateView(LoginRequiredMixin, UpdateWithInlinesView):
 
     model = models.RechnungSozialamt
     fields = ('name_sozialamt', 'anschrift_sozialamt')
@@ -89,7 +93,15 @@ class RechnungSozialamtUpdateView(UpdateWithInlinesView):
         return forms.RechnungEinrichtungUpdateFormHelper()
 
 
-class RechnungSozialamtDeleteView(DeleteView):
+class RechnungSozialamtDeleteView(LoginRequiredMixin, DeleteView):
 
     model = models.RechnungSozialamt
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
+
+
+class SaxmbsView(LoginRequiredMixin, BaseDetailView):
+
+    model = models.RechnungSozialamt
+
+    def render_to_response(self, context):
+        return responses.SaxMBSResponse(self.object)

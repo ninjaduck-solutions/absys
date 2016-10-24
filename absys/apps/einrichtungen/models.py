@@ -35,6 +35,7 @@ class Einrichtung(TimeStampedModel):
         related_name='einrichtungen'
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
+    titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=True)
 
     class Meta:
         ordering = ['name']
@@ -43,6 +44,10 @@ class Einrichtung(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.titel > 100000:
+            raise ValidationError({'titel': self._meta.get_field('titel').help_text})
 
     def hat_ferien(self, datum):
         """
@@ -164,10 +169,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
         """Abwesenheitstage für Schüler in Einrichtung im gewählten Zeitraum ermitteln."""
         if len(tage) == 0:
             return self.schueler.anwesenheit.none()
-        return self.schueler.anwesenheit.war_abwesend(tage[0], tage[-1]).filter(
-            einrichtung=self.einrichtung,
-            datum__in=tage
-        )
+        return self.schueler.anwesenheit.war_abwesend(tage[0], tage[-1]).filter(datum__in=tage)
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):

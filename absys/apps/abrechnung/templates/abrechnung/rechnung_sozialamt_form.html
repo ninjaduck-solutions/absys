@@ -34,6 +34,9 @@
                 <li>
                   <a href="{% url 'abrechnung_rechnungsozialamt_pdf' pk=rechnung.pk %}">PDF</a>
                 </li>
+                <li>
+                  <a href="{% url 'abrechnung_saxmbs_dat' pk=rechnung.pk %}">SAXMBS</a>
+                </li>
               </ul>
             </div>
             <a href="{% url 'abrechnung_rechnungsozialamt_update' pk=rechnung.pk %}" class="btn btn-primary btn-xs">
