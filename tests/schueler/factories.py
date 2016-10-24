@@ -16,6 +16,7 @@ class SozialamtFactory(factory.DjangoModelFactory):
 
     name = factory.Faker('word')
     anschrift = factory.Faker('address')
+    zahlungspartnernummer = factory.Sequence(lambda n: n)
 
     class Meta:
         model = Sozialamt

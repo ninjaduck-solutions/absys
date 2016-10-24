@@ -22,9 +22,10 @@ class Sozialamt(TimeStampedModel):
     name = models.CharField(max_length=35)
     anschrift = models.TextField()
     zahlungspartnernummer = models.CharField(
-        "Zahlungspartnernummer", 
-        max_length=7, 
-        unique=True)
+        "Zahlungspartnernummer",
+        max_length=7,
+        unique=True
+    )
 
     class Meta:
         verbose_name = "Sozialamt"
