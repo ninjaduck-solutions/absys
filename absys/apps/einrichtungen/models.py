@@ -169,10 +169,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
         """Abwesenheitstage für Schüler in Einrichtung im gewählten Zeitraum ermitteln."""
         if len(tage) == 0:
             return self.schueler.anwesenheit.none()
-        return self.schueler.anwesenheit.war_abwesend(tage[0], tage[-1]).filter(
-            einrichtung=self.einrichtung,
-            datum__in=tage
-        )
+        return self.schueler.anwesenheit.war_abwesend(tage[0], tage[-1]).filter(datum__in=tage)
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):
