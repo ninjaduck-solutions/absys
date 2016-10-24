@@ -23,4 +23,9 @@ urlpatterns = [
         views.RechnungSozialamtDeleteView.as_view(),
         name='abrechnung_rechnungsozialamt_delete'
     ),
+    url(
+        r'^(?P<pk>[\d]+)/saxmbs/',
+        views.SaxmbsView.as_view(),
+        name='abrechnung_saxmbs_dat'
+    ),
 ]

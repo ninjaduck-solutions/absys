@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models, router
 from django.db.models.deletion import Collector
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from model_utils import Choices
@@ -130,6 +131,26 @@ class RechnungSozialamt(TimeStampedModel):
             rechnung_pos.abgerechnet = True
             rechnung_pos.rechnung_sozialamt = self
             rechnung_pos.save()
+
+    @cached_property
+    def mittelwert_einrichtungssummen(self):
+        """
+        Ermittelt den Mittelwert aus den Summen aller zugehörigen Einrichtungsrechnungen.
+
+        Anschließend werden die beiden Nachkommastellen werden auf "00" abgerundet.
+        """
+        return int(self.rechnungen_einrichtungen.aggregate(models.Avg('summe'))['summe__avg'])
+
+    @cached_property
+    def mittelwert_titel(self):
+        return self.rechnungen_einrichtungen.aggregate(models.Avg(
+            'einrichtung__titel',
+            output_field=models.DecimalField()
+        ))['einrichtung__titel__avg']
+
+    @cached_property
+    def mittelwert_kapitel(self):
+        return settings.ABSYS_SAX_KAPITEL
 
 
 class RechnungsPositionSchueler(TimeStampedModel):

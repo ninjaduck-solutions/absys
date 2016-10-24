@@ -89,6 +89,25 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
 # echo '31' | sudo tee /var/envdir/absys/DJANGO_ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
 
+# Feste Adresse der Schule
+# echo 'Musterschule\nMusterstr. 42\n23232 Musterstadt' | sudo tee /var/envdir/absys/DJANGO_ABSYS_ADRESSE_SCHULE
+
+# SaxMBS Konfiguration
+# SaxMBS Ebene 1 - String, muss acht Stellen haben
+# echo '01      ' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_EBENE_1
+# SaxMBS Kapitel - Integer, darf maximal fünf Stellen haben
+# echo '12345' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_KAPITEL
+# SaxMBS Mahnschlüssel - Integer, darf maximal zwei Stellen haben
+# echo '10' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_MAHNSCHLUESSEL
+# SaxMBS SEPA - Integer, muss eine Stelle haben
+# echo '1' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_SEPA
+# SaxMBS Währung - String, darf maximal drei Stellen haben
+# echo 'EUR' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_WAEHRUNG
+# SaxMBS Zahlungsanzeigeschlüssel - Integer, darf maximal zwei Stellen haben
+# echo '10' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_ZAHLUNGSANZEIGESCHLUESSEL
+# SaxMBS Zinsschlüssel - Integer, muss eine Stelle haben
+# echo '1' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_ZINSSCHLUESSEL
+
 # Lockdown-Schutz aktivieren/deaktivieren
 # echo 'True' | sudo tee /var/envdir/absys/DJANGO_LOCKDOWN_ENABLED
 

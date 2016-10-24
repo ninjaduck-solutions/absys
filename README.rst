@@ -135,6 +135,17 @@ Das Django Projekt kann nun unter http://127.0.0.1:8000 im Browser aufgerufen we
 
 .. note::
 
+    Sollen Zeilenenden auf Windowssystemen (CRLF) immer durch LF (Unix) ersetzt werden, lege eine Datei Namens ``.gitattributes``
+    im Root-Verzeichnis des Projektes an und füge folgende Zeile in die Datei ein:
+
+    ::
+
+        *    text
+
+
+
+.. note::
+
     Um alle Befehle zu sehen, die mit ``make`` ausgeführt werden können,
     einfach ``make`` ohne weitere Argumente aufrufen:
 

@@ -67,3 +67,6 @@ docs/_build
 # PyCharm
 /idea
 *.idea
+
+# Git
+.gitattributes
