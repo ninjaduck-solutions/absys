@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models, router
 from django.db.models.deletion import Collector
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from model_utils import Choices
@@ -142,13 +143,14 @@ class RechnungSozialamt(TimeStampedModel):
 
     @cached_property
     def mittelwert_titel(self):
-        import decimal
-        return decimal.Decimal('2.42')
+        return self.rechnungen_einrichtungen.aggregate(models.Avg(
+            'einrichtung__titel',
+            output_field=models.DecimalField()
+        ))['einrichtung__titel__avg']
 
     @cached_property
     def mittelwert_kapitel(self):
-        import decimal
-        return decimal.Decimal('3.42')
+        return settings.ABSYS_SAX_KAPITEL
 
 
 class RechnungsPositionSchueler(TimeStampedModel):

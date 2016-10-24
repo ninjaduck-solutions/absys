@@ -35,7 +35,7 @@ class Einrichtung(TimeStampedModel):
         related_name='einrichtungen'
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
-    titel = models.CharField("Titel", max_length=5)
+    titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=True)
 
     class Meta:
         ordering = ['name']
@@ -44,6 +44,10 @@ class Einrichtung(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.titel > 100000:
+            raise ValidationError({'titel': self._meta.get_field('titel').help_text})
 
     def hat_ferien(self, datum):
         """

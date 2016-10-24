@@ -237,3 +237,26 @@ class Common(Configuration):
 
     # Feste Adresse der Schule
     ABSYS_ADRESSE_SCHULE = values.Value('Musterschule\nMusterstr. 42\n23232 Musterstadt')
+
+    # Start SaxMBS Konfiguration
+    # SaxMBS Ebene 1 - String, muss acht Stellen haben
+    ABSYS_SAX_EBENE_1 = values.Value('01      ')
+
+    # SaxMBS Kapitel - Integer, darf maximal fünf Stellen haben
+    ABSYS_SAX_KAPITEL = values.IntegerValue(12345)
+
+    # SaxMBS Mahnschlüssel - Integer, darf maximal zwei Stellen haben
+    ABSYS_SAX_MAHNSCHLUESSEL = values.IntegerValue(10)
+
+    # SaxMBS SEPA - Integer, muss eine Stelle haben
+    ABSYS_SAX_SEPA = values.IntegerValue(1)
+
+    # SaxMBS Währung - String, darf maximal drei Stellen haben
+    ABSYS_SAX_WAEHRUNG = values.Value('EUR')
+
+    # SaxMBS Zahlungsanzeigeschlüssel - Integer, darf maximal zwei Stellen haben
+    ABSYS_SAX_ZAHLUNGSANZEIGESCHLUESSEL = values.IntegerValue(10)
+
+    # SaxMBS Zinsschlüssel - Integer, muss eine Stelle haben
+    ABSYS_SAX_ZINSSCHLUESSEL = values.IntegerValue(1)
+    # Ende SaxMBS Konfiguration
