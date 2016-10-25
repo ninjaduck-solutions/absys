@@ -214,6 +214,11 @@ class Common(Configuration):
     LOGOUT_URL = 'absys_logout'
     LOGIN_REDIRECT_URL = 'dashboard_dashboard'
 
+    # Custom locale formats
+    FORMAT_MODULE_PATH = [
+        'absys.config.locale',
+    ]
+
     from django.contrib.messages import constants as message_constants
 
     MESSAGE_TAGS = {
