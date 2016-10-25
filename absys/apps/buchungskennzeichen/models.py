@@ -14,7 +14,8 @@ class Buchungskennzeichen(TimeStampedModel):
     nicht noch einmal verwendet werden können.
     """
 
-    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20, unique=True)
+    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20, unique=True,
+        help_text="Bitte das Buchungskennzeichen ohne Trennpunkte eingeben.")
     verfuegbar = models.BooleanField("ist verfügbar", default=True, editable=False)
 
     objects = managers.BuchungskennzeichenManager()
