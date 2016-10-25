@@ -45,7 +45,9 @@ Zum Upgrade eines Demo Servers wie folgt vorgehen:
     root:~$ su -l vagrant
     vagrant:~$ cd absys
     vagrant:absys$ git pull
+    vagrant:absys$ git stash
     vagrant:absys$ git checkout <release_version>
+    vagrant:absys$ git stash pop
     vagrant:absys$ ./setup/install.sh
     vagrant:absys$ git checkout master
     vagrant:absys$ exit
