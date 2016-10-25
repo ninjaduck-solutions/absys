@@ -141,10 +141,10 @@ class RechnungSozialamt(TimeStampedModel):
 
     @cached_property
     def mittelwert_titel(self):
-        return self.rechnungen_einrichtungen.aggregate(models.Avg(
+        return (self.rechnungen_einrichtungen.aggregate(models.Avg(
             'einrichtung__titel',
             output_field=models.DecimalField()
-        ))['einrichtung__titel__avg']
+        ))['einrichtung__titel__avg'])
 
     @cached_property
     def mittelwert_kapitel(self):
@@ -244,7 +244,7 @@ class RechnungEinrichtung(TimeStampedModel):
     einrichtung = models.ForeignKey(Einrichtung, models.SET_NULL, null=True,
         verbose_name="Einrichtung", related_name='rechnungen')
     name_einrichtung = models.CharField("Name der Einrichtung", max_length=30)
-    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20)
+    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=12)
     datum_faellig = models.DateField("Fälligkeitsdatum")
     betreuungstage = models.PositiveIntegerField(default=0)
     summe = models.DecimalField("Gesamtbetrag", max_digits=8, decimal_places=2, null=True)
