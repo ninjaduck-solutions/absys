@@ -98,6 +98,9 @@ class RechnungSozialamtDeleteView(LoginRequiredMixin, DeleteView):
     model = models.RechnungSozialamt
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
 
+    def kandidaten(self):
+        return models.RechnungSozialamt.objects.seit(self.object.startdatum)
+
 
 class SaxmbsView(LoginRequiredMixin, BaseDetailView):
 
