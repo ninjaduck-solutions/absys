@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  - Anwesenheitsliste {{ view.datum }}
+  - Anwesenheitsliste {{ view.datum|date:"SHORT_DATE_FORMAT" }}
 {% endblock title %}
 
 {% block content %}
@@ -17,7 +17,7 @@
             </button>
           </a>
         {% endif %}
-        {{ view.datum }}
+        {{ view.datum|date:"SHORT_DATE_FORMAT" }}
         {% if view.morgen %}
           <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.morgen %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
             <button type="button" class="btn btn-primary" aria-label="Left Align">

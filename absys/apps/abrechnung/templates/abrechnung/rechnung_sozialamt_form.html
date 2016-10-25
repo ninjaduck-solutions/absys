@@ -20,8 +20,8 @@
     <tbody>
       {% for rechnung in object_list %}
         <tr>
-          <td>{{ rechnung.startdatum|date:"d.m.Y" }}</td>
-          <td>{{ rechnung.enddatum|date:"d.m.Y" }}</td>
+          <td>{{ rechnung.startdatum|date:"SHORT_DATE_FORMAT" }}</td>
+          <td>{{ rechnung.enddatum|date:"SHORT_DATE_FORMAT" }}</td>
           <td>{{ rechnung.name_sozialamt }}</td>
           <td>{{ rechnung.nummer }}</td>
           <td class="rechnung-buttons">
