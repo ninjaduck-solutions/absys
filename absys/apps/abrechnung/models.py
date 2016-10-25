@@ -37,7 +37,7 @@ class RechnungSozialamt(TimeStampedModel):
             " Außerdem müssen Startdatum und Enddatum im gleichen Jahr liegen.")
     )
 
-    objects = managers.RechnungSozialamtManager()
+    objects = managers.RechnungSozialamtManager.from_queryset(managers.RechnungSozialamtQuerySet)()
 
     class Meta:
         ordering = ('-startdatum', '-enddatum', 'sozialamt')
@@ -70,13 +70,11 @@ class RechnungSozialamt(TimeStampedModel):
             "%s object can't be deleted because its %s attribute is set to None." %
             (self._meta.object_name, self._meta.pk.attname)
         )
-        qs = RechnungSozialamt.objects.filter(
-            startdatum__gte=self.startdatum,
-            enddatum__lte=datetime.date(self.enddatum.year, 12, 31)
-        )
-
         collector = Collector(using=using)
-        collector.collect(qs, keep_parents=keep_parents)
+        collector.collect(
+            RechnungSozialamt.objects.seit(self.startdatum),
+            keep_parents=keep_parents
+        )
         return collector.delete()
 
     delete.alters_data = True

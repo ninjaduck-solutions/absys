@@ -8,6 +8,21 @@ from absys.apps.buchungskennzeichen.models import Buchungskennzeichen
 from . import services
 
 
+class RechnungSozialamtQuerySet(models.QuerySet):
+
+    def seit(self, datum):
+        """
+        Gibt alle Sozialamtsrechnungen seit ``datum`` zurück.
+
+        Das Ende des betrachteten Zeitraums ist der 31.12. im Jahr von
+        ``datum``.
+        """
+        return self.filter(
+            startdatum__gte=datum,
+            enddatum__lte=datetime.date(datum.year, 12, 31)
+        )
+
+
 class RechnungSozialamtManager(models.Manager):
 
     def get_startdatum(self, sozialamt, enddatum):
