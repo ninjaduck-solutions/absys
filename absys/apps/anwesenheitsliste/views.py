@@ -5,6 +5,7 @@ from dateutil.parser import parse
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.views.generic import RedirectView
@@ -13,7 +14,7 @@ import extra_views
 from absys.apps.schueler.models import Gruppe, Schueler
 
 from . import forms
-from . import models
+from .models import Anwesenheit
 
 
 class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
@@ -48,7 +49,7 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     def formset_valid(self, formset):
         for form in formset:
-            models.Anwesenheit.objects.update_or_create(
+            Anwesenheit.objects.update_or_create(
                 schueler=Schueler.objects.get(
                     id=form.cleaned_data['schueler_id']
                 ),
@@ -65,6 +66,14 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
     @property
     def helper(self):
         return forms.AnwesenheitFormHelper()
+
+    @property
+    def komplett_erfasst(self):
+        schueler = Gruppe.objects.get(id=self.gruppe_id).schueler.count()
+        anwesenheiten = Anwesenheit.objects.filter(
+            schueler__gruppe__id=self.gruppe_id, datum=self.datum
+        ).count()
+        return schueler == anwesenheiten
 
     @property
     def datum(self):

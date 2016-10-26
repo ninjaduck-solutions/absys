@@ -44,5 +44,7 @@
       {% endif %}
     </div>
   </div>
-  {% crispy formset view.helper %}
+  <div class="{{ view.komplett_erfasst|yesno:"green,orange" }}">
+    {% crispy formset view.helper %}
+  </div>
 {% endblock content %}
