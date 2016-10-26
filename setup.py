@@ -31,7 +31,7 @@ requires = [
     'fake-factory==0.6.0',
     'psycopg2==2.6.2',
     'pytz==2016.6.1',
-    'django-import-export==0.4.5',
+    'django-import-export==0.5.1',
     'django-wkhtmltopdf==3.1.0',
 ]
 
