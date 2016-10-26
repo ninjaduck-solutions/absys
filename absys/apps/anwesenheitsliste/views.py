@@ -59,7 +59,7 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     def get_success_url(self):
         return reverse('anwesenheitsliste_anwesenheit_anwesenheitsliste',
-            kwargs={'datum': self.datum + timedelta(1)}
+            kwargs={'datum': self.morgen or self.datum}
         ) + '?' + self.query_string
 
     @property
