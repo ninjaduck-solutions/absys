@@ -6,7 +6,7 @@ from model_utils.models import TimeStampedModel
 
 from absys.apps.schueler.models import Sozialamt, Schueler
 
-from . import managers
+from . import configurations, managers
 
 
 class Standort(TimeStampedModel):
@@ -25,6 +25,11 @@ class Standort(TimeStampedModel):
 
 
 class Einrichtung(TimeStampedModel):
+    EINRICHTUNGS_KONFIGURATIONEN = (
+        (1, configurations.EinrichtungsKonfiguration250()),
+        (2, configurations.EinrichtungsKonfiguration280()),
+        (3, configurations.EinrichtungsKonfiguration365()),
+    )
 
     name = models.CharField("Name", max_length=30, unique=True)
     kuerzel = models.CharField("Kürzel", max_length=3, unique=True)
