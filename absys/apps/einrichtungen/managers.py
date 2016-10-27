@@ -18,7 +18,7 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         einem Tag im gesamten Abfragezeitraum angemeldet war, damit er erfasst
         wird.
 
-        Jeder Wert enthält einen ``tuple`` von ``datetime`` Objekten, die der
+        Jeder Wert enthält einen ``tuple`` von ``date`` Objekten, die der
         Anzahl der Tage entsprechen, an denen der Schüler in der Einrichtung
         angemeldet war.
 
