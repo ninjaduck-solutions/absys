@@ -25,11 +25,7 @@ class Standort(TimeStampedModel):
 
 
 class Einrichtung(TimeStampedModel):
-    EINRICHTUNGS_KONFIGURATIONEN = (
-        (1, configurations.EinrichtungsKonfiguration250()),
-        (2, configurations.EinrichtungsKonfiguration280()),
-        (3, configurations.EinrichtungsKonfiguration365()),
-    )
+    EINRICHTUNGS_KONFIGURATIONEN_CHOICES = configurations.choices
 
     name = models.CharField("Name", max_length=30, unique=True)
     kuerzel = models.CharField("Kürzel", max_length=3, unique=True)
@@ -41,6 +37,7 @@ class Einrichtung(TimeStampedModel):
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
     titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=True)
+    konfiguration = models.IntegerField(choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES)
 
     class Meta:
         ordering = ['name']

@@ -1,3 +1,6 @@
+import collections
+
+
 class EinrichtungsKonfigurationBase:
     """
     Basis EinrichtungsKonfiguration
@@ -6,18 +9,60 @@ class EinrichtungsKonfigurationBase:
     EinrichtungsKonfiguration Klassen.
     """
 
-    fehltage_immer_abrechnen = None
+    tage = 0
     """
-    Bestimmt, ob für diese Einrichtung die Fehltage komplett abgerechnet werden
-    oder nicht.
+    Anzahl der Tage.
+    """
 
-    ``True``: Alle Fehltage werden abgerechnet, es gibt keine nicht
-    abgerechneten Fehltage
+    fehltage_immer_abrechnen = False
+    """
+    bool: Bestimmt, ob für diese Einrichtung die Fehltage komplett abgerechnet
+    werden oder nicht.
+
+    Wenn ``False``, dann werden nur so viele Fehltage abgerechnet, wie es die
+    maximalen Fehltage von :model:`einrichtungen.SchuelerInEinrichtung`
+    erlaubt.
+
+    Wenn ``True``, dann werden alle Fehltage abgerechnet, es gibt keine nicht
+    abgerechneten Fehltage. Jeder Fehltag wird dann mit einem Bettengeldsatz
+    abgerechnet. In diesem Fall muss vor Beginn des Rechnungslaufs geprüft
+    werden, ob alle Einrichtungen mit dieser Konfiguration einen Bettengeldsatz
+    haben.
+    """
+
+    bargeldauszahlung = False
+    """
+    bool: Bestimmt, ob Bargeldauszahlungen vorgenommen werden.
+
+    - Bargeldauszahlungen werden auf Basis vom
+      :model:`einrichtungen.Bargeldsatz` ermittelt, wo für das jeweilige
+      Lebensalter ein bestimmter Betrag definiert ist
+    - Das Lebensalter bezieht sich immer auf das Enddatum der Rechnung
+    - Nach Erreichen des 18. Lebensjahrs wird immer der Bargeldsatz für das
+      18. Lebensjahr genutzt
+    - Ist kein Bargeldsatz für das Lebensalter definiert, ist der
+      Bargeldsatz 0 EUR
+    - Für jeden Schüler wird ein Bargeldsatz-Anteil definiert (0-12), denn
+      zur Berechnung des konkreten Bargeldsatzes wird folgende Formel
+      verwendet: ``Bargeldsatz * Anteil / 12``
+    - Da das Enddatum einer Rechnung frei definiert werden kann, muss der
+      Bargeldsatz anteilig berechnet werden:
+      ``Bargeldsatz / Tage im Monat * Tage im Abrechnungszeitraum für diesen Monat``,
+      danach Runden auf zwei Stellen
+    """
+
+    bekleidungsgeld = False
+    """
+    bool: Bestimmt, ob das Bekleidungsgeld pro Schüler in die Rechnung einfließt.
+
+    Das Bekleidungsgeld pro Schüler in Einrichtung muss vor Erstellung der
+    Sozialamtsrechnung manuell erfasst werden, wenn Bekleidungsgeld gezahlt
+    wird.
     """
 
     feste_schliesstage = tuple()
     """
-    Tuple mit den Nummern der festen Schließtage.
+    tuple: Nummern der festen Schließtage.
 
     Die Nummerierung muss so erfolgen, dass sie mit
     ``datetime.date.isoweekday()`` kompatibel ist. Also Montag ist 1 und
@@ -49,44 +94,68 @@ class EinrichtungsKonfigurationBase:
         """
         Gibt den Namen der EinrichtungsKonfiguration zurück.
 
-        Muss von jeder EinrichtungsKonfiguration implementiert werden.
-
         Returns:
             str: Name der EinrichtungsKonfiguration
         """
-        raise NotImplementedError
+        return "{.tage} Tage".format(self)
 
 
 class EinrichtungsKonfiguration250(EinrichtungsKonfigurationBase):
+    """
+    EinrichtungsKonfiguration für 250 Tage
+    """
 
-    fehltage_immer_abrechnen = False
+    tage = 250
     feste_schliesstage = (6, 7)
 
     def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
         pass
 
-    def __str__(self):
-        return "250 Tage"
-
 
 class EinrichtungsKonfiguration280(EinrichtungsKonfigurationBase):
+    """
+    EinrichtungsKonfiguration für 280 Tage
 
+    - Sonntage sind keine Schließtage
+    - Bettengeldabrechnung: Fehltage x Bettengeldsatz
+    """
+
+    tage = 280
     fehltage_immer_abrechnen = True
+    bargeldauszahlung = True
+    bekleidungsgeld = True
     feste_schliesstage = (6,)
 
     def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
         pass
 
-    def __str__(self):
-        return "280 Tage"
-
 
 class EinrichtungsKonfiguration365(EinrichtungsKonfigurationBase):
+    """
+    EinrichtungsKonfiguration für 365 Tage
 
+    - Samstage und Sonntage sind keine Schließtage
+    - Ab vier oder mehr Fehltagen am Stück gilt für alle Fehltage ein
+      verminderter Bettengeldsatz
+
+        - Es gibt hier also zwei Bettengeldsätze: Standard und vermindert
+    """
+
+    tage = 365
     fehltage_immer_abrechnen = True
+    bargeldauszahlung = True
+    bekleidungsgeld = True
 
     def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
         pass
 
-    def __str__(self):
-        return "365 Tage"
+
+registry_classes = (
+    EinrichtungsKonfiguration250,
+    EinrichtungsKonfiguration280,
+    EinrichtungsKonfiguration365,
+)
+
+registry = collections.OrderedDict([(klass.tage, str(klass())) for klass in registry_classes])
+
+choices = tuple(registry.items())
