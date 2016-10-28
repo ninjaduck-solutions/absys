@@ -1,12 +1,12 @@
 import collections
 
 
-class EinrichtungsKonfigurationBase:
+class EinrichtungKonfigurationBase:
     """
-    Basis EinrichtungsKonfiguration
+    Basis Einrichtungs-Konfiguration
 
     Dient ausschließlich als Basisklasse für die konkreten
-    EinrichtungsKonfiguration Klassen.
+    EinrichtungKonfiguration Klassen.
     """
 
     tage = 0
@@ -73,7 +73,7 @@ class EinrichtungsKonfigurationBase:
         """
         Methode zum Abrechnen eines Zeitraums für einen Schüler in einer Einrichtung.
 
-        Jede EinrichtungsKonfiguration muss diese Methode implementieren, um
+        Jede Einrichtungs-Konfiguration muss diese Methode implementieren, um
         zu bestimmen welche Tage abgerechnet werden.
 
         Args:
@@ -92,17 +92,17 @@ class EinrichtungsKonfigurationBase:
 
     def __str__(self):
         """
-        Gibt den Namen der EinrichtungsKonfiguration zurück.
+        Gibt den Namen der Einrichtungs-Konfiguration zurück.
 
         Returns:
-            str: Name der EinrichtungsKonfiguration
+            str: Name der Einrichtungs-Konfiguration
         """
         return "{.tage} Tage".format(self)
 
 
-class EinrichtungsKonfiguration250(EinrichtungsKonfigurationBase):
+class EinrichtungKonfiguration250(EinrichtungKonfigurationBase):
     """
-    EinrichtungsKonfiguration für 250 Tage
+    Einrichtungs-Konfiguration für 250 Tage
     """
 
     tage = 250
@@ -112,9 +112,9 @@ class EinrichtungsKonfiguration250(EinrichtungsKonfigurationBase):
         pass
 
 
-class EinrichtungsKonfiguration280(EinrichtungsKonfigurationBase):
+class EinrichtungKonfiguration280(EinrichtungKonfigurationBase):
     """
-    EinrichtungsKonfiguration für 280 Tage
+    Einrichtungs-Konfiguration für 280 Tage
 
     - Sonntage sind keine Schließtage
     - Bettengeldabrechnung: Fehltage x Bettengeldsatz
@@ -130,9 +130,9 @@ class EinrichtungsKonfiguration280(EinrichtungsKonfigurationBase):
         pass
 
 
-class EinrichtungsKonfiguration365(EinrichtungsKonfigurationBase):
+class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
     """
-    EinrichtungsKonfiguration für 365 Tage
+    Einrichtungs-Konfiguration für 365 Tage
 
     - Samstage und Sonntage sind keine Schließtage
     - Ab vier oder mehr Fehltagen am Stück gilt für alle Fehltage ein
@@ -151,9 +151,9 @@ class EinrichtungsKonfiguration365(EinrichtungsKonfigurationBase):
 
 
 registry_classes = (
-    EinrichtungsKonfiguration250,
-    EinrichtungsKonfiguration280,
-    EinrichtungsKonfiguration365,
+    EinrichtungKonfiguration250,
+    EinrichtungKonfiguration280,
+    EinrichtungKonfiguration365,
 )
 
 registry = collections.OrderedDict([(klass.tage, str(klass())) for klass in registry_classes])
