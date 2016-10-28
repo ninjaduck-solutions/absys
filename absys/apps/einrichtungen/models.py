@@ -48,7 +48,7 @@ class Einrichtung(TimeStampedModel):
         return self.name
 
     def clean(self):
-        if self.titel > 100000:
+        if self.titel and self.titel > 100000:
             raise ValidationError({'titel': self._meta.get_field('titel').help_text})
 
     def hat_ferien(self, datum):
