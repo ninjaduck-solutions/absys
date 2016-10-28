@@ -59,11 +59,11 @@ class RechnungSozialamt(TimeStampedModel):
 
     def delete(self, using=None, keep_parents=False):
         """
-        Löscht diese :model:`Sozialamtsrechnung`-Instanz sowie alle nachfolgenden.
+        Löscht diese Instanz sowie alle nachfolgenden.
 
-        Gelöscht werden alle :model:`Sozialamtsrechnung`-Instanzen, die
-        zwischen dem `startdatum` dieser Rechnung und dem 31.12. im Jahr von
-        `startdatum` liegen - unabhängig vom zugehörigen Sozialamt.
+        Gelöscht werden alle :model:`abrechnung.RechnungSozialamt`-Instanzen,
+        die zwischen dem `startdatum` dieser Rechnung und dem 31.12. im Jahr
+        von `startdatum` liegen - unabhängig vom zugehörigen Sozialamt.
         """
         using = using or router.db_for_write(self.__class__, instance=self)
         assert self._get_pk_val() is not None, (
@@ -389,7 +389,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     @cached_property
     def detailabrechnung(self):
         """
-        Gibt alle :model:`RechnungsPositionSchueler`-Instanzen zurück, die zu dieser Instanz gehören.
+        Gibt alle :model:`abrechnung.RechnungsPositionSchueler`-Instanzen zurück, die zu dieser Instanz gehören.
         """
         return self.schueler.positionen_schueler.filter(
             rechnung_sozialamt=self.rechnung_einrichtung.rechnung_sozialamt,

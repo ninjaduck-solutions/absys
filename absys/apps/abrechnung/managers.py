@@ -210,11 +210,11 @@ class RechnungEinrichtungManager(models.Manager):
 
     def erstelle_rechnung(self, rechnung_sozialamt, einrichtung):
         """
-        Erstellt eine Rechnung für eine :model:`RechnungEinrichtung`-Instanz.
+        Erstellt eine Rechnung für eine :model:`abrechnung.RechnungEinrichtung`-Instanz.
 
-        Sollte für :model:`RechnungSozialamt` und :model:`Einrichtung` schon
-        eine Rechnung existieren wird diese zurückgegeben und keine neue
-        erstellt.
+        Sollte für :model:`abrechnung.RechnungSozialamt` und
+        :model:`einrichtungen.Einrichtung` schon eine Rechnung existieren wird
+        diese zurückgegeben und keine neue erstellt.
         """
         tage_faelligkeit = datetime.timedelta(
             settings.ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
