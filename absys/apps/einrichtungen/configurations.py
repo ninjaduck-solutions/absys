@@ -11,7 +11,7 @@ class EinrichtungsKonfigurationBase:
 
     tage = 0
     """
-    Anzahl der Tage.
+    int: Anzahl der Tage.
     """
 
     fehltage_immer_abrechnen = False
