@@ -7,19 +7,22 @@
 {% endblock title %}
 
 {% block content %}
+{% if view.query_string %}
 <div class"well-sm"><br></div>
-<div class=" well-sm {{ view.komplett_erfasst|yesno:"green,orange" }}">
-  {% if view.komplett_erfasst %}
-    <ul>
-      <li>Für diesen Tag liegt für jeden Schüler dieser Gruppe bereits ein Anwesenheitsdatensatz vor.</li>
-      <li>Sie können die Datensätze nun editieren und erneut abspeichern, falls Sie Berichtigungen vornehmen möchten.</li>
-    </ul>
-  {% else %}
-    <ul>
-      <li>Für diesen Tag liegt für mindestens einen der Schüler dieser Gruppe noch kein Anwesenheitsdatensatz vor.</li>
-      <li>Falls für diesen Tag nötig, können Sie nun die Datensätze ergänzen und abspeichern.</li>
-    </ul>
-  {% endif %}
+  <div class=" well-sm {{ view.komplett_erfasst|yesno:"green,orange" }}">
+    {% if view.komplett_erfasst %}
+      <ul>
+        <li>Für diesen Tag liegt für jeden Schüler dieser Gruppe bereits ein Anwesenheitsdatensatz vor.</li>
+        <li>Sie können die Datensätze nun editieren und erneut abspeichern, falls Sie Berichtigungen vornehmen möchten.</li>
+      </ul>
+    {% else %}
+      <ul>
+        <li>Für diesen Tag liegt für mindestens einen der Schüler dieser Gruppe noch kein Anwesenheitsdatensatz vor.</li>
+        <li>Falls für diesen Tag nötig, können Sie nun die Datensätze ergänzen und abspeichern.</li>
+      </ul>
+    {% endif %}
+  </div>
+{% endif %}
 </div>
   <div class="page-header row well well-sm">
     <div class="col-md-4">
