@@ -108,7 +108,7 @@ class EinrichtungKonfiguration250(EinrichtungKonfigurationBase):
     tage = 250
     feste_schliesstage = (6, 7)
 
-    def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
+    def abrechnen(self, rechnung_einrichtung, schueler, eintritt, tage, tage_abwesend):
         pass
 
 
@@ -126,7 +126,7 @@ class EinrichtungKonfiguration280(EinrichtungKonfigurationBase):
     bekleidungsgeld = True
     feste_schliesstage = (6,)
 
-    def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
+    def abrechnen(self, rechnung_einrichtung, schueler, eintritt, tage, tage_abwesend):
         pass
 
 
@@ -146,7 +146,7 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
     bargeldauszahlung = True
     bekleidungsgeld = True
 
-    def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
+    def abrechnen(self, rechnung_einrichtung, schueler, eintritt, tage, tage_abwesend):
         pass
 
 
