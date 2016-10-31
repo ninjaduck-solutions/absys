@@ -42,6 +42,7 @@ class EinrichtungFactory(factory.DjangoModelFactory):
     kuerzel = factory.Sequence(lambda n: '{0}{1}'.format('E', n))
     standort = factory.SubFactory(StandortFactory)
     titel = factory.Sequence(lambda n: n)
+    konfiguration = models.Einrichtung.EINRICHTUNGS_KONFIGURATIONEN_CHOICES[0][0]
 
     @factory.post_generation
     def schueler(self, create, extracted, **kwargs):
