@@ -1,5 +1,3 @@
-import datetime
-
 from django.db import models, router
 from django.db.models.deletion import Collector
 from django.conf import settings
@@ -81,14 +79,19 @@ class RechnungSozialamt(TimeStampedModel):
 
     def clean(self):
         if self.startdatum > self.enddatum:
-            raise ValidationError({'enddatum': "Das Enddatum muss nach dem Startdatum liegen."})
+            raise ValidationError(
+                {'enddatum': "Das Enddatum muss nach dem Startdatum liegen."},
+                code='enddatum_nach_startdatum'
+            )
         if self.enddatum > now().date():
             raise ValidationError(
-                {'enddatum': "Das Enddatum darf nicht nach dem heutigen Datum liegen."}
+                {'enddatum': "Das Enddatum darf nicht nach dem heutigen Datum liegen."},
+                code='enddatum_nach_heute'
             )
         if self.startdatum.year != self.enddatum.year:
             raise ValidationError(
-                {'enddatum': "Startdatum und Enddatum müssen im gleichen Jahr liegen."}
+                {'enddatum': "Startdatum und Enddatum müssen im gleichen Jahr liegen."},
+                code='enddatum_und_startdatum_nicht_im_gleichen_jahr'
             )
         qs = RechnungSozialamt.objects.filter(
             models.Q(
@@ -102,7 +105,8 @@ class RechnungSozialamt(TimeStampedModel):
             qs = qs.exclude(pk=self.pk)
         if qs.count():
             raise ValidationError(
-                {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."}
+                {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."},
+                code='startdatum_exitiert_schon'
             )
 
     @property

@@ -49,7 +49,10 @@ class Einrichtung(TimeStampedModel):
 
     def clean(self):
         if self.titel and self.titel > 100000:
-            raise ValidationError({'titel': self._meta.get_field('titel').help_text})
+            raise ValidationError(
+                {'titel': self._meta.get_field('titel').help_text},
+                code='title_zu_lang'
+            )
 
     def hat_ferien(self, datum):
         """
@@ -155,7 +158,10 @@ class SchuelerInEinrichtung(TimeStampedModel):
     def clean(self):
         if self.eintritt and self.austritt:
             if self.eintritt > self.austritt:
-                raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
+                raise ValidationError(
+                    {'austritt': self._meta.get_field('austritt').help_text},
+                    code='austritt_vor_eintritt'
+                )
             if not self.pk and self.schueler:
                 dubletten = SchuelerInEinrichtung.objects.dubletten(
                     self.schueler, self.eintritt, self.austritt
@@ -165,7 +171,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
                         "Für diesen Zeitraum existiert schon eine Anmeldung für {s.schueler}"
                         " für eine Einrichtung."
                     )
-                    raise ValidationError(msg.format(s=self))
+                    raise ValidationError(msg.format(s=self), code='anmeldung_existiert_schon')
 
     def war_abwesend(self, tage):
         """Abwesenheitstage für Schüler in Einrichtung im gewählten Zeitraum ermitteln."""
