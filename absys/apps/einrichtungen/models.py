@@ -37,7 +37,10 @@ class Einrichtung(TimeStampedModel):
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
     titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=True)
-    konfiguration = models.IntegerField(choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES)
+    konfiguration_id = models.IntegerField(
+        "Konfiguration",
+        choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES
+    )
 
     class Meta:
         ordering = ['name']
@@ -90,6 +93,10 @@ class Einrichtung(TimeStampedModel):
                 betreuungstage.append(tag)
             tag += datetime.timedelta(1)
         return betreuungstage
+
+    @property
+    def konfiguration(self):
+        return configurations.registry[self.konfiguration_id]
 
 
 class SchuelerInEinrichtung(TimeStampedModel):

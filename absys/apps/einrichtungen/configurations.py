@@ -103,6 +103,8 @@ class EinrichtungKonfigurationBase:
 class EinrichtungKonfiguration250(EinrichtungKonfigurationBase):
     """
     Einrichtungs-Konfiguration für 250 Tage
+
+    - Samstage und Sonntage sind feste Schließtage
     """
 
     tage = 250
@@ -116,7 +118,7 @@ class EinrichtungKonfiguration280(EinrichtungKonfigurationBase):
     """
     Einrichtungs-Konfiguration für 280 Tage
 
-    - Sonntage sind keine Schließtage
+    - Samstage sind feste Schließtage
     - Bettengeldabrechnung: Fehltage x Bettengeldsatz
     """
 
@@ -134,7 +136,7 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
     """
     Einrichtungs-Konfiguration für 365 Tage
 
-    - Samstage und Sonntage sind keine Schließtage
+    - Es gibt keine festen Schließtage
     - Ab vier oder mehr Fehltagen am Stück gilt für alle Fehltage ein
       verminderter Bettengeldsatz
 
@@ -156,6 +158,6 @@ registry_classes = (
     EinrichtungKonfiguration365,
 )
 
-registry = collections.OrderedDict([(klass.tage, str(klass())) for klass in registry_classes])
+registry = collections.OrderedDict([(klass.tage, klass()) for klass in registry_classes])
 
-choices = tuple(registry.items())
+choices = tuple([(obj_id, str(obj)) for obj_id, obj in registry.items()])
