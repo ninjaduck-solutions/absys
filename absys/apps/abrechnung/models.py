@@ -341,10 +341,16 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     - Fehltage gesamt
     - Fehltage zur Abrechnung im Abrechnungszeitraum
     - Zahltage im Abrechnungszeitraum (Anwesend + Fehltage zur Abrechnung im Abrechnungszeitraum)
+    - Bargeldbetrag
+    - Bekleidungsgeld
     - Summe der Aufwendungen
     """
 
-    schueler = models.ForeignKey(Schueler, models.SET_NULL, null=True, verbose_name="Schüler",
+    schueler = models.ForeignKey(
+        Schueler,
+        models.SET_NULL,
+        null=True,
+        verbose_name="Schüler",
         related_name='positionen_einrichtung')
     name_schueler = models.CharField("Name des Schülers", max_length=62)
     rechnung_einrichtung = models.ForeignKey(
@@ -355,12 +361,19 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     fehltage_max = models.PositiveIntegerField("Maximale Fehltage")
     anwesend = models.PositiveIntegerField("Anwesend")
     fehltage = models.PositiveIntegerField("Fehltage")
-    fehltage_uebertrag = models.PositiveIntegerField("Übertrag Fehltage ab 1.1. des laufenden Jahres oder Eintritt")
+    fehltage_uebertrag = models.PositiveIntegerField(
+        "Übertrag Fehltage ab 1.1. des laufenden Jahres oder Eintritt"
+    )
     fehltage_gesamt = models.PositiveIntegerField("Fehltage gesamt")
     fehltage_abrechnung = models.PositiveIntegerField("Fehltage zur Abrechnung im Abrechnungszeitraum")
     zahltage = models.PositiveIntegerField("Zahltage im Abrechnungszeitraum")
-    summe = models.DecimalField("Summe der Aufwendungen", max_digits=8, decimal_places=2,
-        null=True)
+    bargeldbetrag = models.DecimalField("Bargeldbetrag", max_digits=8, decimal_places=2, default=0)
+    bekleidungsgeld = models.DecimalField(
+        "Bekleidungsgeld", max_digits=8, decimal_places=2, default=0
+    )
+    summe = models.DecimalField(
+        "Summe der Aufwendungen", max_digits=8, decimal_places=2, null=True
+    )
 
     objects = managers.RechnungsPositionEinrichtungManager.from_queryset(
         managers.RechnungsPositionEinrichtungQuerySet
@@ -411,3 +424,63 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
                 self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
                 self.rechnung_einrichtung.rechnung_sozialamt.enddatum)
         ).count()
+
+
+class Bettengeldsatz(TimeStampedModel):
+
+    einrichtung = models.ForeignKey(
+        Einrichtung,
+        verbose_name="Einrichtung",
+        related_name='bettengeldsaetze'
+    )
+    startdatum = models.DateField("Startdatum")
+    enddatum = models.DateField(
+        "Enddatum",
+        help_text="Das Enddatum muss nach dem Startdatum liegen."
+    )
+    satz = models.DecimalField("Satz", max_digits=8, decimal_places=2)
+    satz_vermindert = models.DecimalField(
+        "Verminderter Satz", max_digits=8, decimal_places=2, default=0
+    )
+
+    class Meta:
+        unique_together = ('einrichtung', 'startdatum', 'enddatum')
+        verbose_name = "Bettengeldsatz"
+        verbose_name_plural = "Bettengeldsätze"
+
+    def __str__(self):
+        return "Bettengeldsatz {s.satz} € für {s.einrichtung}".format(s=self)
+
+    def clean(self):
+        if self.startdatum > self.enddatum:
+            raise ValidationError(
+                {'enddatum': "Das Enddatum muss nach dem Startdatum liegen."},
+                code='enddatum_nach_startdatum'
+            )
+
+
+class Bargeldsatz(TimeStampedModel):
+    """
+    Bargeldsatz pro Monat.
+
+    Wird nur an Schüler ausgezahlt, deren Einrichtung einen Bargeldsatz
+    auszahlt.
+    """
+
+    LEBENSJAHR_CHOICES = (
+        (3, "3. Lebensjahr"),
+    ) + tuple([(i, "{:d}. Lebensjahr".format(i)) for i in range(4, 18)]) + (
+        (18, "18. Lebensjahr"),
+    )
+
+    lebensjahr = models.IntegerField(
+        "Lebensjahr", choices=LEBENSJAHR_CHOICES, unique=True
+    )
+    betrag = models.DecimalField("Betrag", max_digits=5, decimal_places=2)
+
+    class Meta:
+        verbose_name = "Bargeldsatz"
+        verbose_name_plural = "Bargeldsätze"
+
+    def __str__(self):
+        return "{s.lebensjahr}. Lebensjahr: {s.betrag} €".format(s=self)
