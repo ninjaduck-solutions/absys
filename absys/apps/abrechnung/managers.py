@@ -57,19 +57,24 @@ class RechnungSozialamtManager(models.Manager):
             startdatum = enddatum + datetime.timedelta(1)
         return startdatum
 
-    @transaction.atomic
-    def rechnungslauf(self, sozialamt, enddatum):
+    def vorbereiten(self, sozialamt, enddatum):
         """
-        Erzeugt eine ``RechnungEinrichtung`` pro Einrichtung des Sozialamts im gewählten Zeitraum.
+        Bereitet eine :model:`abrechnung.RechnungSozialamt`-Instanz vor.
 
-        1. Abwesenheitstage pro Schüler im gewählten Zeitraum ermitteln.
-        2. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine ``RechnungsPositionSchueler`` erstellen und mit passender ``RechnungSozialamt``-Instanz verknüpfen.
-        3. Noch nicht abgerechnete ``RechnungsPositionSchueler``-Instanzen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
-        4. Erstellen einer ``RechnungEinrichtung``-Instanz für Einrichtung.
-        5. ``RechnungEinrichtung``-Instanz mit Schüler abrechnen.
-        6. ``RechnungEinrichtung``-Instanz abschließen.
+        - Das Startdatum wird ermittelt
+        - Ein neue Instanz wird erstellt
+        - Die Daten der Instanz werden geprüft
+        - Die Instanz wird nicht gespeichert
+
+        Args:
+            sozialamt (Sozialamt): :model:'schueler.Sozialamt' Instanz
+            enddatum (date): Enddatum
+
+        Returns:
+            RechnungSozialamt: Eine neue
+                :model:`abrechnung.RechnungSozialamt`-Instanz, die nicht
+                gespeichert wurde
         """
-        from .models import RechnungEinrichtung, RechnungsPositionSchueler
         startdatum = self.get_startdatum(sozialamt, enddatum)
         rechnung_sozialamt = self.model(
             sozialamt=sozialamt,
@@ -77,8 +82,35 @@ class RechnungSozialamtManager(models.Manager):
             enddatum=enddatum
         )
         rechnung_sozialamt.clean()
+        return rechnung_sozialamt
+
+    @transaction.atomic
+    def rechnungslauf(self, sozialamt, enddatum, bekleidungsgeld=None):
+        """
+        Erzeugt eine ``RechnungEinrichtung`` pro Einrichtung des Sozialamts im gewählten Zeitraum.
+
+        1. Abwesenheitstage pro Schüler in Einrichtung im gewählten Zeitraum
+           ermitteln.
+        2. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine
+           :model:`abrechnung.RechnungsPositionSchueler` erstellen und mit
+           passender :model:`abrechnung.RechnungSozialamt`-Instanz verknüpfen.
+        3. Noch nicht abgerechnete
+           :model:`abrechnung.RechnungsPositionSchueler`-Instanzen pro Schüler
+           seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
+        4. Erstellen einer :model:`abrechnung.RechnungEinrichtung`-Instanz für
+           Einrichtung.
+        5. :model:`abrechnung.RechnungEinrichtung`-Instanz mit Schüler
+           abrechnen.
+        6. :model:`abrechnung.RechnungEinrichtung`-Instanz abschließen.
+        """
+        from .models import RechnungEinrichtung, RechnungsPositionSchueler
+        rechnung_sozialamt = self.vorbereiten(sozialamt, enddatum)
         rechnung_sozialamt.save()
-        for schueler_in_einrichtung, tage in sozialamt.anmeldungen.get_betreuungstage(startdatum, enddatum).items():
+        betreuungstage = rechnung_sozialamt.sozialamt.anmeldungen.get_betreuungstage(
+            rechnung_sozialamt.startdatum,
+            rechnung_sozialamt.enddatum
+        )
+        for schueler_in_einrichtung, tage in betreuungstage.items():
             tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
             tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
             for tag in tage:
@@ -158,10 +190,10 @@ class RechnungsPositionSchuelerManager(models.Manager):
 
     def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung_sozialamt, abwesend=False):
         """
-        Erstellt eine ``RechnungsPositionSchueler`` für einen Betreuungstag und einen Schüler.
+        Erstellt eine :model:`abrechnung.RechnungsPositionSchueler` für einen Betreuungstag und einen Schüler.
 
-        Die ``RechnungsPositionSchueler`` wird mit der passenden ``RechnungSozialamt``-Instanz
-        verknüpft.
+        Die :model:`abrechnung.RechnungsPositionSchueler` wird mit der
+        passenden :model:`abrechnung.RechnungSozialamt`-Instanz verknüpft.
         """
         rechnung_pos = self.model(
             rechnung_sozialamt=rechnung_sozialamt,

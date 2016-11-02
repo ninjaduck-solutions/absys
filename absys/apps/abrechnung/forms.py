@@ -10,7 +10,8 @@ class RechnungSozialamtForm(forms.Form):
 
     enddatum = forms.DateField(
         label="Enddatum",
-        help_text=("Das Enddatum muss nach dem Startdatum liegen, "
+        help_text=(
+            "Das Enddatum muss nach dem Startdatum liegen, "
             "darf aber nicht nach dem heutigen Datum liegen."
             " Außerdem müssen Startdatum und Enddatum im gleichen Jahr liegen.")
     )
@@ -44,6 +45,51 @@ class RechnungSozialamtForm(forms.Form):
                 ),
                 css_class="row"
             ),
+            FormActions(
+                Submit('submit', "Rechnungen erstellen", css_class="btn btn-success")
+            )
+        )
+
+
+class ErfassungBekleidungsgeldForm(forms.Form):
+
+    schueler_in_einrichtung_id = forms.IntegerField(widget=forms.HiddenInput())
+    schueler = forms.CharField(label="", required=False)
+    einrichtung = forms.CharField(label="", required=False)
+    bekleidungsgeld = forms.DecimalField(label="", max_digits=5, decimal_places=2)
+
+
+class ErfassungBekleidungsgeldFormHelper(FormHelper):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_input(Submit('submit', 'Bekleidungsgeld erfassen', css_class="btn btn-success"))
+        self.layout = Layout(
+            Div(
+                Div(
+                    Field('schueler',  disabled=''),
+                    css_class='col-md-5 dark'
+                ),
+                Div(
+                    Field('einrichtung',  disabled=''),
+                    css_class='col-md-5 dark'
+                ),
+                Div(
+                    Field('bekleidungsgeld'),
+                    Div(HTML("€"), css_class="input-group-addon"),
+                    css_class='col-md-2 input-group'
+                ),
+                css_class="row"
+            ),
+        )
+
+
+class NurRechnungErstellenForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
             FormActions(
                 Submit('submit', "Rechnungen erstellen", css_class="btn btn-success")
             )

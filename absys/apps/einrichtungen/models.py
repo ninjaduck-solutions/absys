@@ -89,6 +89,8 @@ class Einrichtung(TimeStampedModel):
         schliesstage = self.schliesstage.values_list('datum', flat=True)
         tag = start
         while tag <= ende:
+            # Schließtage aus Einrichtung.konfiguration.feste_schliesstage
+            # nutzen.
             if tag.isoweekday() not in (6, 7) and tag not in schliesstage:
                 betreuungstage.append(tag)
             tag += datetime.timedelta(1)

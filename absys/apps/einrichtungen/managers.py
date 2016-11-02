@@ -9,6 +9,31 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
             austritt__gte=datum
         )
 
+    def zeitraum(self, startdatum, enddatum):
+        """
+        Gibt alle Objekte zurück, für die im angegebenen Zeitraum Anmeldungen vorliegen.
+
+        Es reicht, dass ein Schüler an nur einem Tag im gesamten
+        Abfragezeitraum angemeldet war, damit er erfasst wird.
+
+        Args:
+            startdatum (datetime): Erster Tag
+            enddatum (datetime): Letzter Tag
+
+        Returns:
+            QuerySet: Alle Objekte im angegebenen Zeitraum, sortiert nach
+                Eintritt.
+        """
+        return self.filter(
+            (
+                models.Q(eintritt__range=(startdatum, enddatum)) |
+                models.Q(austritt__range=(startdatum, enddatum))
+            ) | (
+                models.Q(eintritt__lt=startdatum) &
+                models.Q(austritt__gt=enddatum)
+            )
+        ).order_by('eintritt')
+
     def get_betreuungstage(self, startdatum, enddatum):
         """
         Gibt ein ``dictionary`` mit :model:`einrichtungen.SchuelerInEinrichtung` Objekten als Schlüssel zurück.
@@ -24,17 +49,8 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
 
         Alle Samstage, Sonntage und Schließ­tage werden entfernt.
         """
-        qs = self.filter(
-            (
-                models.Q(eintritt__range=(startdatum, enddatum)) |
-                models.Q(austritt__range=(startdatum, enddatum))
-            ) | (
-                models.Q(eintritt__lt=startdatum) &
-                models.Q(austritt__gt=enddatum)
-            )
-        ).order_by('eintritt')
         betreuungstage = {}
-        for schueler_in_einrichtung in qs:
+        for schueler_in_einrichtung in self.zeitraum(startdatum, enddatum):
             start = schueler_in_einrichtung.eintritt
             if schueler_in_einrichtung.eintritt < startdatum:
                 start = startdatum
