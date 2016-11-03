@@ -20,8 +20,8 @@
     <tbody>
       {% for rechnung in object_list %}
         <tr>
-          <td>{{ rechnung.startdatum|date:"d.m.Y" }}</td>
-          <td>{{ rechnung.enddatum|date:"d.m.Y" }}</td>
+          <td>{{ rechnung.startdatum|date:"SHORT_DATE_FORMAT" }}</td>
+          <td>{{ rechnung.enddatum|date:"SHORT_DATE_FORMAT" }}</td>
           <td>{{ rechnung.name_sozialamt }}</td>
           <td>{{ rechnung.nummer }}</td>
           <td class="rechnung-buttons">
@@ -33,6 +33,9 @@
               <ul class="dropdown-menu">
                 <li>
                   <a href="{% url 'abrechnung_rechnungsozialamt_pdf' pk=rechnung.pk %}">PDF</a>
+                </li>
+                <li>
+                  <a href="{% url 'abrechnung_saxmbs_dat' pk=rechnung.pk %}">SAXMBS</a>
                 </li>
               </ul>
             </div>

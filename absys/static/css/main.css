@@ -20,3 +20,11 @@ a:hover {
 .rechnung-buttons {
   min-width: 22em;
 }
+
+.green {
+  background-color: LightGreen;
+}
+
+.orange {
+  background-color: LightSalmon;
+}

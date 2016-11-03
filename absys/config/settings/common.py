@@ -202,6 +202,8 @@ class Common(Configuration):
 
     CRISPY_TEMPLATE_PACK = values.Value('bootstrap3')
 
+    WKHTMLTOPDF_CMD = values.Value('xvfb-run -- /usr/bin/wkhtmltopdf')
+
     EMAIL_SUBJECT_PREFIX = '[AbSys]'
 
     DEFAULT_FROM_EMAIL = values.EmailValue('noreply@example.com')
@@ -211,6 +213,11 @@ class Common(Configuration):
     LOGIN_URL = 'absys_login'
     LOGOUT_URL = 'absys_logout'
     LOGIN_REDIRECT_URL = 'dashboard_dashboard'
+
+    # Custom locale formats
+    FORMAT_MODULE_PATH = [
+        'absys.config.locale',
+    ]
 
     from django.contrib.messages import constants as message_constants
 
@@ -232,3 +239,29 @@ class Common(Configuration):
 
     # Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
     ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG = values.IntegerValue(31)
+
+    # Feste Adresse der Schule
+    ABSYS_ADRESSE_SCHULE = values.Value('Musterschule\nMusterstr. 42\n23232 Musterstadt')
+
+    # Start SaxMBS Konfiguration
+    # SaxMBS Ebene 1 - String, muss acht Stellen haben
+    ABSYS_SAX_EBENE_1 = values.Value('01      ')
+
+    # SaxMBS Kapitel - Integer, darf maximal fünf Stellen haben
+    ABSYS_SAX_KAPITEL = values.IntegerValue(12345)
+
+    # SaxMBS Mahnschlüssel - Integer, darf maximal zwei Stellen haben
+    ABSYS_SAX_MAHNSCHLUESSEL = values.IntegerValue(10)
+
+    # SaxMBS SEPA - Integer, muss eine Stelle haben
+    ABSYS_SAX_SEPA = values.IntegerValue(1)
+
+    # SaxMBS Währung - String, darf maximal drei Stellen haben
+    ABSYS_SAX_WAEHRUNG = values.Value('EUR')
+
+    # SaxMBS Zahlungsanzeigeschlüssel - Integer, darf maximal zwei Stellen haben
+    ABSYS_SAX_ZAHLUNGSANZEIGESCHLUESSEL = values.IntegerValue(10)
+
+    # SaxMBS Zinsschlüssel - Integer, muss eine Stelle haben
+    ABSYS_SAX_ZINSSCHLUESSEL = values.IntegerValue(1)
+    # Ende SaxMBS Konfiguration

@@ -39,8 +39,9 @@ class StandortFactory(factory.DjangoModelFactory):
 class EinrichtungFactory(factory.DjangoModelFactory):
 
     name = factory.Faker('word')
-    kuerzel = factory.Faker('pystr', max_chars=1)
+    kuerzel = factory.Sequence(lambda n: '{0}{1}'.format('E', n))
     standort = factory.SubFactory(StandortFactory)
+    titel = factory.Sequence(lambda n: n)
 
     @factory.post_generation
     def schueler(self, create, extracted, **kwargs):

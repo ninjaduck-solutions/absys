@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 
 {% block title %}
-  Rechnung {{ rechnungsozialamt.nummer }} löschen
+  Rechnung {{ rechnungsozialamt.nummer }} für {{ rechnungsozialamt.sozialamt }} löschen
 {% endblock title %}
 
 {% block content %}
   <h3>
-    Rechnung {{ rechnungsozialamt.nummer }} löschen<br>
-    <small>{{ rechnungsozialamt.startdatum }} - {{ rechnungsozialamt.enddatum }}</small>
+    Rechnung {{ rechnungsozialamt.nummer }} für {{ rechnungsozialamt.sozialamt }} löschen<br>
+    <small>{{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }} - {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}</small>
   </h3>
   <form action="" method="post">
     {% csrf_token %}
     <p>Sind Sie sicher, dass Sie die folgenden Rechnungen löschen möchten?</p>
-    <ul>
-      <li>Rechnung {{ rechnungsozialamt.nummer }}</li>
+    {% for rechnung_sozialamt in view.kandidaten %}
+      <li>Rechnung {{ rechnung_sozialamt.nummer }} für {{ rechnung_sozialamt.sozialamt }} vom {{ rechnung_sozialamt.startdatum|date:"SHORT_DATE_FORMAT" }} - {{ rechnung_sozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}</li>
       <ul>
-        {% for rechnung_einrichtung in rechnungsozialamt.rechnungen_einrichtungen.all %}
+        {% for rechnung_einrichtung in rechnung_sozialamt.rechnungen_einrichtungen.all %}
           <li>Einrichtungs-Rechnung {{ rechnung_einrichtung.nummer }} für Einrichtung {{ rechnung_einrichtung.name_einrichtung }}</li>
         {% endfor %}
       </ul>
+    {% endfor %}
     </ul>
     <div class="form-actions">
         <input type="submit" name="delete" value="Löschen" class="btn btn-danger" id="submit-delete">

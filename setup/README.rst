@@ -5,7 +5,10 @@ Installation AbSys
 Folgende Schritte sind zur Installation von AbSys Staging- und Production-
 Servern nötig:
 
-1. Alle in der Datei ``packages.txt`` enthaltenen Ubuntu-Pakete installieren.
+1. Alle in der Datei ``packages.txt`` enthaltenen Ubuntu-Pakete installieren:
+
+    $ sudo apt-get install $(cat packages.txt)
+
 2. Die folgenden Dateien in die entsprechenden Pfade kopieren:
 
     - ``django.conf`` (Beispiel: ``/etc/apache2/sites-available/django.conf``)

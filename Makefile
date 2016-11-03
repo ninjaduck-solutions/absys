@@ -147,7 +147,7 @@ test:
 	envdir envs/$(ENV) python -m pytest -m "not slowtest" --reuse-db --last-failed tests/
 
 test-fresh:
-	envdir envs/$(ENV) python -m pytest --create-db --cache-clear tests/
+	envdir envs/$(ENV) python -m pytest -m "not slowtest" --create-db --cache-clear tests/
 
 test-fixtures:
 	envdir envs/$(ENV) python -m pytest --fixtures tests/

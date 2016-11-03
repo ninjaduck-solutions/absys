@@ -3,10 +3,24 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  - Anwesenheitsliste {{ view.datum }}
+  - Anwesenheitsliste {{ view.datum|date:"SHORT_DATE_FORMAT" }}
 {% endblock title %}
 
 {% block content %}
+<div class"well-sm"><br></div>
+<div class=" well-sm {{ view.komplett_erfasst|yesno:"green,orange" }}">
+  {% if view.komplett_erfasst %}
+    <ul>
+      <li>Für diesen Tag liegt für jeden Schüler dieser Gruppe bereits ein Anwesenheitsdatensatz vor.</li>
+      <li>Sie können die Datensätze nun editieren und erneut abspeichern, falls Sie Berichtigungen vornehmen möchten.</li>
+    </ul>
+  {% else %}
+    <ul>
+      <li>Für diesen Tag liegt für mindestens einen der Schüler dieser Gruppe noch kein Anwesenheitsdatensatz vor.</li>
+      <li>Falls für diesen Tag nötig, können Sie nun die Datensätze ergänzen und abspeichern.</li>
+    </ul>
+  {% endif %}
+</div>
   <div class="page-header row well well-sm">
     <div class="col-md-4">
       <h3 class="text-left">
@@ -17,7 +31,7 @@
             </button>
           </a>
         {% endif %}
-        {{ view.datum }}
+        {{ view.datum|date:"SHORT_DATE_FORMAT" }}
         {% if view.morgen %}
           <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.morgen %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
             <button type="button" class="btn btn-primary" aria-label="Left Align">
@@ -44,5 +58,5 @@
       {% endif %}
     </div>
   </div>
-  {% crispy formset view.helper %}
+ {% crispy formset view.helper %}
 {% endblock content %}

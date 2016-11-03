@@ -2,6 +2,7 @@ import datetime
 
 from django.db import models, router
 from django.db.models.deletion import Collector
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from model_utils import Choices
@@ -36,7 +37,7 @@ class RechnungSozialamt(TimeStampedModel):
             " Außerdem müssen Startdatum und Enddatum im gleichen Jahr liegen.")
     )
 
-    objects = managers.RechnungSozialamtManager()
+    objects = managers.RechnungSozialamtManager.from_queryset(managers.RechnungSozialamtQuerySet)()
 
     class Meta:
         ordering = ('-startdatum', '-enddatum', 'sozialamt')
@@ -69,13 +70,11 @@ class RechnungSozialamt(TimeStampedModel):
             "%s object can't be deleted because its %s attribute is set to None." %
             (self._meta.object_name, self._meta.pk.attname)
         )
-        qs = RechnungSozialamt.objects.filter(
-            startdatum__gte=self.startdatum,
-            enddatum__lte=datetime.date(self.enddatum.year, 12, 31)
-        )
-
         collector = Collector(using=using)
-        collector.collect(qs, keep_parents=keep_parents)
+        collector.collect(
+            RechnungSozialamt.objects.seit(self.startdatum),
+            keep_parents=keep_parents
+        )
         return collector.delete()
 
     delete.alters_data = True
@@ -130,6 +129,26 @@ class RechnungSozialamt(TimeStampedModel):
             rechnung_pos.abgerechnet = True
             rechnung_pos.rechnung_sozialamt = self
             rechnung_pos.save()
+
+    @cached_property
+    def mittelwert_einrichtungssummen(self):
+        """
+        Ermittelt den Mittelwert aus den Summen aller zugehörigen Einrichtungsrechnungen.
+
+        Anschließend werden die beiden Nachkommastellen werden auf "00" abgerundet.
+        """
+        return int(self.rechnungen_einrichtungen.aggregate(models.Avg('summe'))['summe__avg'])
+
+    @cached_property
+    def mittelwert_titel(self):
+        return (self.rechnungen_einrichtungen.aggregate(models.Avg(
+            'einrichtung__titel',
+            output_field=models.DecimalField()
+        ))['einrichtung__titel__avg'])
+
+    @cached_property
+    def mittelwert_kapitel(self):
+        return settings.ABSYS_SAX_KAPITEL
 
 
 class RechnungsPositionSchueler(TimeStampedModel):
@@ -225,7 +244,7 @@ class RechnungEinrichtung(TimeStampedModel):
     einrichtung = models.ForeignKey(Einrichtung, models.SET_NULL, null=True,
         verbose_name="Einrichtung", related_name='rechnungen')
     name_einrichtung = models.CharField("Name der Einrichtung", max_length=30)
-    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20)
+    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=12)
     datum_faellig = models.DateField("Fälligkeitsdatum")
     betreuungstage = models.PositiveIntegerField(default=0)
     summe = models.DecimalField("Gesamtbetrag", max_digits=8, decimal_places=2, null=True)
