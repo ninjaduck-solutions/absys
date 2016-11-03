@@ -61,9 +61,12 @@ class ErfassungBekleidungsgeldForm(forms.Form):
 
 class ErfassungBekleidungsgeldFormHelper(FormHelper):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, has_initial, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.add_input(Submit('submit', 'Bekleidungsgeld erfassen', css_class="btn btn-success"))
+        submit_label = "Bekleidungsgeld erfassen"
+        if not has_initial:
+            submit_label = "Rechnungen erstellen"
+        self.add_input(Submit('submit', submit_label, css_class="btn btn-success"))
         self.layout = Layout(
             Div(
                 Div(
@@ -81,18 +84,6 @@ class ErfassungBekleidungsgeldFormHelper(FormHelper):
                 ),
                 css_class="row"
             ),
-        )
-
-
-class NurRechnungErstellenForm(forms.Form):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            FormActions(
-                Submit('submit', "Rechnungen erstellen", css_class="btn btn-success")
-            )
         )
 
 

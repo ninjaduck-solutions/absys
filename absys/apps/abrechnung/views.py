@@ -86,18 +86,18 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, FormSetView):
         """
         Schüler in Einrichtungen laden, für die Bekleidungsgeld erfasst werden muss.
         """
-        data = []
+        self.initial = []
         for sozialamt in self.sozialaemter:
             for schueler_in_einrichtung in sozialamt.anmeldungen.zeitraum(self.startdatum, self.enddatum):
                 if not schueler_in_einrichtung.einrichtung.konfiguration.bekleidungsgeld:
                     continue
-                data.append({
+                self.initial.append({
                     'schueler_in_einrichtung_id': schueler_in_einrichtung.pk,
                     'schueler': schueler_in_einrichtung.schueler,
                     'einrichtung': schueler_in_einrichtung.einrichtung,
                     'bekleidungsgeld': 0.0
                 })
-        return data
+        return super().get_initial()
 
     def formset_valid(self, formset):
         """
@@ -118,7 +118,7 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, FormSetView):
                 messages.INFO,
                 "Rechnung Nr. {r.nummer} erstellt".format(r=rechnung_sozialamt)
             )
-        return super().formset_valid(form)
+        return super().formset_valid(formset)
 
     @cached_property
     def sozialaemter(self):
@@ -149,14 +149,7 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, FormSetView):
         """
         Gibt den FormHelper zum Erfassen des Bekleidungsgelds zurück.
         """
-        return forms.ErfassungBekleidungsgeldFormHelper()
-
-    @property
-    def nur_rechnung_erstellen_form(self):
-        """
-        Gibt den FormHelper zurück, der benutzt wird, wenn kein Bekleidungsgeld erfasst wird.
-        """
-        return forms.NurRechnungErstellenForm()
+        return forms.ErfassungBekleidungsgeldFormHelper(bool(len(self.initial)))
 
 
 class AbrechnungPDFView(LoginRequiredMixin, BaseDetailView, PDFTemplateView):
