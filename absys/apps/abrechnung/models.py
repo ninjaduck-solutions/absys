@@ -280,7 +280,7 @@ class RechnungEinrichtung(TimeStampedModel):
     def nummer(self):
         return "ER{:06d}".format(self.pk)
 
-    def abrechnen(self, schueler, eintritt, tage, tage_abwesend, bekleidungsgeld=None):
+    def abrechnen(self, schueler, eintritt, tage, tage_abwesend, bargeldbetrag, bekleidungsgeld=None):
         """Erstellt für jeden Schüler eine Rechnungsposition.
 
         Die Abrechnung erfolgt für die übergebenen Anwesenheits- und
@@ -308,8 +308,9 @@ class RechnungEinrichtung(TimeStampedModel):
             fehltage_gesamt=fehltage + fehltage_uebertrag,
             fehltage_abrechnung=summen['fehltage'],
             zahltage=summen['zahltage'],
+            bargeldbetrag=bargeldbetrag,
             bekleidungsgeld=bekleidungsgeld,
-            summe=summen['aufwaende'] + bekleidungsgeld
+            summe=summen['aufwaende'] + bargeldbetrag + bekleidungsgeld
         )
 
     def abschliessen(self):

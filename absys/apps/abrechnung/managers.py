@@ -134,6 +134,9 @@ class RechnungSozialamtManager(models.Manager):
                 schueler_in_einrichtung.eintritt,
                 tage,
                 tage_abwesend_datetime,
+                schueler_in_einrichtung.bargeldbetrag(
+                    rechnung_sozialamt.startdatum, rechnung_sozialamt.enddatum
+                ),
                 bekleidungsgeld.get(schueler_in_einrichtung.pk)
             )
         if rechnung_einrichtung is not None:

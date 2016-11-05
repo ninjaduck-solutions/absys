@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -6,7 +7,7 @@ from model_utils.models import TimeStampedModel
 
 from absys.apps.schueler.models import Sozialamt, Schueler
 
-from . import configurations, managers
+from . import configurations, managers, services
 
 
 class Standort(TimeStampedModel):
@@ -204,6 +205,26 @@ class SchuelerInEinrichtung(TimeStampedModel):
         if len(tage) == 0:
             return self.schueler.anwesenheit.none()
         return self.schueler.anwesenheit.war_abwesend(tage[0], tage[-1]).filter(datum__in=tage)
+
+    def bargeldbetrag(self, startdatum, enddatum):
+        """
+        Berechnung den Bargeldbetrag an einem bestimmten Datum.
+
+        - Für jeden Schüler wird ist ein Bargeldsatz-Anteil definiert (0-12),
+          denn zur Berechnung des Bargeldsatz-Anteils wird folgende Formel
+          verwendet: ``Bargeldsatz * Anteil / 12``
+        - Da das Enddatum einer Rechnung frei definiert werden kann, muss der
+          Bargeldsatz anteilig berechnet werden:
+          ``Bargeldsatz-Anteil / Tage im Monat * Tage im Abrechnungszeitraum für diesen Monat``,
+          danach Runden auf zwei Stellen
+        """
+        bargeldbetrag = decimal.Decimal()
+        if self.einrichtung.konfiguration.bargeldauszahlung:
+            bargeldsatz = Bargeldsatz.objects.nach_lebensalter(enddatum, self.schueler.geburtsdatum)
+            if bargeldsatz is not None:
+                bargeldanteil = bargeldsatz.betrag * self.anteile_bargeld / self.BARGELD_VOLLER_SATZ
+                bargeldbetrag = services.bargeld_zeitraum(bargeldanteil, startdatum, enddatum)
+        return bargeldbetrag
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):

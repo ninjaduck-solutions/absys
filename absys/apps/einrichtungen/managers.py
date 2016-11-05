@@ -82,7 +82,7 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
 
 class BargeldsatzManager(models.Manager):
 
-    def nach_lebensalter(self, datum, geburtstag):
+    def nach_lebensalter(self, datum, geburtsdatum):
         """
         Gibt den Bargeldsatz für das Lebensalter zurück.
 
@@ -94,16 +94,16 @@ class BargeldsatzManager(models.Manager):
 
         Args:
             datum (date):
-            geburtstag (date):
+            geburtsdatum (date):
 
         Returns:
             Decimal: Bargeldsatz
         """
-        lebensjahr = relativedelta.relativedelta(datum, geburtstag)
+        lebensjahr = relativedelta.relativedelta(datum, geburtsdatum).years
         if lebensjahr > 18:
             lebensjahr = 18
         try:
             bargeldsatz = self.get(lebensjahr=lebensjahr)
         except self.model.DoesNotExist:
-            bargeldsatz = decimal.Decimal()
+            bargeldsatz = None
         return bargeldsatz
