@@ -107,6 +107,8 @@ class RechnungSozialamtManager(models.Manager):
            :model:`abrechnung.RechnungEinrichtung`-Instanz abgeschlossen.
         """
         from .models import RechnungEinrichtung, RechnungsPositionSchueler
+        if bekleidungsgeld is None:
+            bekleidungsgeld = {}
         rechnung_sozialamt = self.vorbereiten(sozialamt, enddatum)
         rechnung_sozialamt.save()
         betreuungstage = rechnung_sozialamt.sozialamt.anmeldungen.get_betreuungstage(
@@ -131,7 +133,8 @@ class RechnungSozialamtManager(models.Manager):
                 schueler_in_einrichtung.schueler,
                 schueler_in_einrichtung.eintritt,
                 tage,
-                tage_abwesend_datetime
+                tage_abwesend_datetime,
+                bekleidungsgeld.get(schueler_in_einrichtung.pk)
             )
             rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt

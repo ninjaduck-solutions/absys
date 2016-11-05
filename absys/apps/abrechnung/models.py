@@ -1,3 +1,5 @@
+import decimal
+
 from django.db import models, router
 from django.db.models.deletion import Collector
 from django.conf import settings
@@ -278,7 +280,7 @@ class RechnungEinrichtung(TimeStampedModel):
     def nummer(self):
         return "ER{:06d}".format(self.pk)
 
-    def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
+    def abrechnen(self, schueler, eintritt, tage, tage_abwesend, bekleidungsgeld=None):
         """Erstellt für jeden Schüler eine Rechnungsposition.
 
         Die Abrechnung erfolgt für die übergebenen Anwesenheits- und
@@ -291,6 +293,8 @@ class RechnungEinrichtung(TimeStampedModel):
         fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
             tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
         )
+        if bekleidungsgeld is None:
+            bekleidungsgeld = decimal.Decimal()
         summen = schueler.positionen_schueler.filter(
             rechnung_sozialamt=self.rechnung_sozialamt
         ).summen()
@@ -304,7 +308,8 @@ class RechnungEinrichtung(TimeStampedModel):
             fehltage_gesamt=fehltage + fehltage_uebertrag,
             fehltage_abrechnung=summen['fehltage'],
             zahltage=summen['zahltage'],
-            summe=summen['aufwaende']
+            bekleidungsgeld=bekleidungsgeld,
+            summe=summen['aufwaende'] + bekleidungsgeld
         )
 
     def abschliessen(self):
