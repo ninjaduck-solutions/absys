@@ -27,7 +27,7 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
             QuerySet: Alle Objekte im angegebenen Zeitraum, sortiert nach
                 Eintritt.
         """
-        return self.filter(
+        return self.select_related('schueler', 'einrichtung').filter(
             (
                 models.Q(eintritt__range=(startdatum, enddatum)) |
                 models.Q(austritt__range=(startdatum, enddatum))

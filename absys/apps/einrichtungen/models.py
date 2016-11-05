@@ -61,11 +61,13 @@ class Einrichtung(TimeStampedModel):
         """
         Findet heraus, ob an dem Datum ein Ferientag war oder nicht.
         """
-        count = self.ferien.filter(
+        ferien = self.ferien.filter(
             startdatum__lte=datum,
             enddatum__gte=datum
-        ).count()
-        return bool(count)
+        )
+        # In diesem Fall ist die Nutzung von len() schneller als die von
+        # QuerySet.count().
+        return bool(len(ferien))
 
     def get_pflegesatz(self, datum):
         """
