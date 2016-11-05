@@ -89,19 +89,22 @@ class RechnungSozialamtManager(models.Manager):
         """
         Erzeugt eine ``RechnungEinrichtung`` pro Einrichtung des Sozialamts im gewählten Zeitraum.
 
-        1. Abwesenheitstage pro Schüler in Einrichtung im gewählten Zeitraum
+        1. Betreuungstage für den gewählten Zeitraum ermitteln.
+        2. Abwesenheitstage pro Schüler in Einrichtung im gewählten Zeitraum
            ermitteln.
-        2. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine
+        3. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine
            :model:`abrechnung.RechnungsPositionSchueler` erstellen und mit
            passender :model:`abrechnung.RechnungSozialamt`-Instanz verknüpfen.
-        3. Noch nicht abgerechnete
-           :model:`abrechnung.RechnungsPositionSchueler`-Instanzen pro Schüler
-           seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
-        4. Erstellen einer :model:`abrechnung.RechnungEinrichtung`-Instanz für
+        4. Noch nicht abgerechnete
+           :model:`abrechnung.RechnungsPositionSchueler`-Instanzen (Fehltage)
+           pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit
+           erreicht.
+        5. Erstellen einer :model:`abrechnung.RechnungEinrichtung`-Instanz für
            Einrichtung.
-        5. :model:`abrechnung.RechnungEinrichtung`-Instanz mit Schüler
+        6. :model:`abrechnung.RechnungEinrichtung`-Instanz mit Schüler
            abrechnen.
-        6. :model:`abrechnung.RechnungEinrichtung`-Instanz abschließen.
+        7. Nach dem letzten Schüler wird die
+           :model:`abrechnung.RechnungEinrichtung`-Instanz abgeschlossen.
         """
         from .models import RechnungEinrichtung, RechnungsPositionSchueler
         rechnung_sozialamt = self.vorbereiten(sozialamt, enddatum)
