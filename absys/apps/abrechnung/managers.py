@@ -111,6 +111,7 @@ class RechnungSozialamtManager(models.Manager):
             bekleidungsgeld = {}
         rechnung_sozialamt = self.vorbereiten(sozialamt, enddatum)
         rechnung_sozialamt.save()
+        rechnung_einrichtung = None
         betreuungstage = rechnung_sozialamt.sozialamt.anmeldungen.get_betreuungstage(
             rechnung_sozialamt.startdatum,
             rechnung_sozialamt.enddatum
@@ -118,13 +119,12 @@ class RechnungSozialamtManager(models.Manager):
         for schueler_in_einrichtung, tage in betreuungstage.items():
             tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
             tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
-            for tag in tage:
-                RechnungsPositionSchueler.objects.erstelle_fuer_tag(
-                    tag,
-                    schueler_in_einrichtung,
-                    rechnung_sozialamt,
-                    tag in tage_abwesend_datetime
-                )
+            RechnungsPositionSchueler.objects.erstelle_fuer_tage(
+                tage,
+                tage_abwesend_datetime,
+                schueler_in_einrichtung,
+                rechnung_sozialamt
+            )
             rechnung_sozialamt.fehltage_abrechnen(schueler_in_einrichtung)
             rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
                 rechnung_sozialamt, schueler_in_einrichtung.einrichtung
@@ -136,6 +136,7 @@ class RechnungSozialamtManager(models.Manager):
                 tage_abwesend_datetime,
                 bekleidungsgeld.get(schueler_in_einrichtung.pk)
             )
+        if rechnung_einrichtung is not None:
             rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt
 
@@ -194,25 +195,30 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
 
 class RechnungsPositionSchuelerManager(models.Manager):
 
-    def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung_sozialamt, abwesend=False):
+    def erstelle_fuer_tage(self, tage, tage_abwesend, schueler_in_einrichtung, rechnung_sozialamt):
         """
         Erstellt eine :model:`abrechnung.RechnungsPositionSchueler` für einen Betreuungstag und einen Schüler.
 
         Die :model:`abrechnung.RechnungsPositionSchueler` wird mit der
         passenden :model:`abrechnung.RechnungSozialamt`-Instanz verknüpft.
         """
-        rechnung_pos = self.model(
-            rechnung_sozialamt=rechnung_sozialamt,
-            schueler=schueler_in_einrichtung.schueler,
-            einrichtung=schueler_in_einrichtung.einrichtung,
-            datum=tag,
-            abgerechnet=not abwesend,
-            abwesend=abwesend,
-            pflegesatz=schueler_in_einrichtung.schueler.berechne_pflegesatz(tag)
-        )
-        if schueler_in_einrichtung.einrichtung.hat_ferien(tag):
-            rechnung_pos.tag_art = self.model.TAG_ART.ferien
-        return rechnung_pos.save(force_insert=True)
+        objs = []
+        for tag in tage:
+            obj = self.model(
+                rechnung_sozialamt=rechnung_sozialamt,
+                schueler=schueler_in_einrichtung.schueler,
+                name_schueler=schueler_in_einrichtung.schueler.voller_name,
+                einrichtung=schueler_in_einrichtung.einrichtung,
+                name_einrichtung=schueler_in_einrichtung.einrichtung.name,
+                datum=tag,
+                abgerechnet=tag not in tage_abwesend,
+                abwesend=tag in tage_abwesend,
+                pflegesatz=schueler_in_einrichtung.schueler.berechne_pflegesatz(tag)
+            )
+            if schueler_in_einrichtung.einrichtung.hat_ferien(tag):
+                obj.tag_art = self.model.TAG_ART.ferien
+            objs.append(obj)
+        return self.bulk_create(objs)
 
 
 class RechnungsPositionEinrichtungQuerySet(models.QuerySet):

@@ -88,7 +88,8 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, FormSetView):
         """
         self.initial = []
         for sozialamt in self.sozialaemter:
-            for schueler_in_einrichtung in sozialamt.anmeldungen.zeitraum(self.startdatum, self.enddatum):
+            qs = sozialamt.anmeldungen.zeitraum(self.startdatum, self.enddatum)
+            for schueler_in_einrichtung in qs:
                 if not schueler_in_einrichtung.einrichtung.konfiguration.bekleidungsgeld:
                     continue
                 self.initial.append({
@@ -125,10 +126,7 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, FormSetView):
         """
         Gibt alle Sozialämter aus dem Query String zurück.
         """
-        sozialaemter = []
-        for sozialamt_id in self.request.GET.get('sozialaemter').split(','):
-            sozialaemter.append(Sozialamt.objects.get(pk=sozialamt_id))
-        return sozialaemter
+        return Sozialamt.objects.filter(pk__in=self.request.GET.get('sozialaemter').split(','))
 
     @cached_property
     def startdatum(self):
