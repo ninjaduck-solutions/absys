@@ -42,9 +42,10 @@ class EinrichtungKonfigurationBase:
       18. Lebensjahr genutzt
     - Ist kein Bargeldsatz für das Lebensalter definiert, ist der
       Bargeldsatz 0 EUR
-    - Für jeden Schüler wird ein Bargeldsatz-Anteil definiert (0-12), denn
-      zur Berechnung des konkreten Bargeldsatzes wird folgende Formel
-      verwendet: ``Bargeldsatz * Anteil / 12``
+    - Für jeden Schüler wird in :model:`einrichtungen.SchuelerInEinrichtung`
+      ein Bargeldsatz-Anteil definiert (0-12), denn zur Berechnung des
+      konkreten Bargeldsatzes wird folgende Formel verwendet:
+      ``Bargeldsatz * Anteil / 12``
     - Da das Enddatum einer Rechnung frei definiert werden kann, muss der
       Bargeldsatz anteilig berechnet werden:
       ``Bargeldsatz / Tage im Monat * Tage im Abrechnungszeitraum für diesen Monat``,

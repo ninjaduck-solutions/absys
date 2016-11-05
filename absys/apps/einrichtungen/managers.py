@@ -1,3 +1,6 @@
+import decimal
+
+from dateutil import relativedelta
 from django.db import models
 
 
@@ -75,3 +78,32 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
                 models.Q(austritt__gt=austritt)
             )
         )
+
+
+class BargeldsatzManager(models.Manager):
+
+    def nach_lebensalter(self, datum, geburtstag):
+        """
+        Gibt den Bargeldsatz für das Lebensalter zurück.
+
+        - Das Lebensalter bezieht sich immer auf das übergebene Datum
+        - Nach Erreichen des 18. Lebensjahrs wird immer der Bargeldsatz für das
+          18. Lebensjahr genutzt
+        - Ist kein Bargeldsatz für das Lebensalter definiert, ist der
+          Bargeldsatz 0 EUR
+
+        Args:
+            datum (date):
+            geburtstag (date):
+
+        Returns:
+            Decimal: Bargeldsatz
+        """
+        lebensjahr = relativedelta.relativedelta(datum, geburtstag)
+        if lebensjahr > 18:
+            lebensjahr = 18
+        try:
+            bargeldsatz = self.get(lebensjahr=lebensjahr)
+        except self.model.DoesNotExist:
+            bargeldsatz = decimal.Decimal()
+        return bargeldsatz
