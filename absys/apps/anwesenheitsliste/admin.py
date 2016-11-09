@@ -6,11 +6,12 @@ from . import models, resources
 
 class AnwesenheitAdmin(ImportExportActionModelAdmin, admin.ModelAdmin):
 
+    date_hierarchy = 'datum'
     list_display = ('schueler', 'datum', 'abwesend')
     list_display_links = ('schueler',)
     list_editable = ['abwesend']
     list_filter = ('datum', 'schueler')
-    search_fields = ['schueler__nachname', 'schueler__vorname', 'datum']
+    search_fields = ['schueler__nachname', 'schueler__vorname']
 
     resource_class = resources.AnwesenheitenResource
 
