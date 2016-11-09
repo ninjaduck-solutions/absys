@@ -1,5 +1,3 @@
-import decimal
-
 from dateutil import relativedelta
 from django.db import models
 
