@@ -1,8 +1,8 @@
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, MessageMixin
 from django.conf import settings
-from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.shortcuts import redirect
 from django.utils.functional import cached_property
 from django.views.generic import DeleteView, FormView
 from django.views.generic.detail import BaseDetailView
@@ -65,7 +65,7 @@ class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormVie
         return super().post(request, *args, **kwargs)
 
 
-class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, FormSetView):
+class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, MessageMixin, FormSetView):
     """
     Erfassung des Bekleidungsgelds pro Schüler in Einrichtung.
 
@@ -114,11 +114,7 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, FormSetView):
             rechnung_sozialamt = models.RechnungSozialamt.objects.rechnungslauf(
                 sozialamt, self.enddatum, bekleidungsgeld
             )
-            messages.add_message(
-                self.request,
-                messages.INFO,
-                "Rechnung Nr. {r.nummer} erstellt".format(r=rechnung_sozialamt)
-            )
+            self.messages.info("Rechnung Nr. {r.nummer} erstellt".format(r=rechnung_sozialamt))
         return super().formset_valid(formset)
 
     @cached_property
@@ -206,9 +202,25 @@ class RechnungSozialamtDeleteView(LoginRequiredMixin, DeleteView):
         return models.RechnungSozialamt.objects.seit(self.object.startdatum)
 
 
-class SaxmbsView(LoginRequiredMixin, BaseDetailView):
+class SaxmbsView(LoginRequiredMixin, MessageMixin, BaseDetailView):
 
     model = models.RechnungSozialamt
 
     def render_to_response(self, context):
+        bkz = self.object.rechnungen_einrichtungen.values_list('buchungskennzeichen', flat=True)
+        if not all(map(lambda s: bool(len(s)), bkz)):
+            update_url = reverse(
+                'abrechnung_rechnungsozialamt_update',
+                kwargs={'pk': self.object.pk}
+            )
+            self.messages.error(
+                """
+                <p>Für Rechnung Nr. {r.nummer} kann kein SaxMBS-Export erstellt werden, da eine der
+                Einrichtungs-Rechnungen kein Buchungskennzeichen enthält.</p>
+                <p>Sie können die fehlenden Buchungskennzeichen hinzufügen, indem Sie die
+                <a href="{update_url}">Rechnung
+                bearbeiten</a>.</p>
+                """.format(r=self.object, update_url=update_url)
+            )
+            return redirect('abrechnung_rechnungsozialamt_form')
         return responses.SaxMBSResponse(self.object)
