@@ -307,7 +307,7 @@ class Bettengeldsatz(TimeStampedModel):
         return "Bettengeldsatz {s.satz} € für {s.einrichtung}".format(s=self)
 
     def clean(self):
-        if self.startdatum > self.enddatum:
+        if self.startdatum and self.enddatum and self.startdatum > self.enddatum:
             raise ValidationError(
                 {'enddatum': "Das Enddatum muss nach dem Startdatum liegen."},
                 code='enddatum_nach_startdatum'
