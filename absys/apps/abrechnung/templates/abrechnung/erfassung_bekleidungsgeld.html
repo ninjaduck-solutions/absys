@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}Bekleidungsgeld erfassen{% endblock title %}
+
+{% block content %}
+  <h3>
+    Bekleidungsgeld erfassen<br>
+    <small>{{ view.startdatum }} bis {{ view.enddatum }}</small>
+  </h3>
+  {% if not view.initial %}
+    <p>Es sind keine Bekleidungsgelder zu erfassen.</p>
+  {% endif %}
+  {% crispy formset view.helper %}
+{% endblock content %}

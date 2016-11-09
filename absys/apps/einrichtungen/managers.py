@@ -1,3 +1,4 @@
+from dateutil import relativedelta
 from django.db import models
 
 
@@ -9,6 +10,31 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
             austritt__gte=datum
         )
 
+    def zeitraum(self, startdatum, enddatum):
+        """
+        Gibt alle Objekte zurück, für die im angegebenen Zeitraum Anmeldungen vorliegen.
+
+        Es reicht, dass ein Schüler an nur einem Tag im gesamten
+        Abfragezeitraum angemeldet war, damit er erfasst wird.
+
+        Args:
+            startdatum (datetime): Erster Tag
+            enddatum (datetime): Letzter Tag
+
+        Returns:
+            QuerySet: Alle Objekte im angegebenen Zeitraum, sortiert nach
+                Eintritt.
+        """
+        return self.select_related('schueler', 'einrichtung').filter(
+            (
+                models.Q(eintritt__range=(startdatum, enddatum)) |
+                models.Q(austritt__range=(startdatum, enddatum))
+            ) | (
+                models.Q(eintritt__lt=startdatum) &
+                models.Q(austritt__gt=enddatum)
+            )
+        ).order_by('eintritt')
+
     def get_betreuungstage(self, startdatum, enddatum):
         """
         Gibt ein ``dictionary`` mit :model:`einrichtungen.SchuelerInEinrichtung` Objekten als Schlüssel zurück.
@@ -18,23 +44,14 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         einem Tag im gesamten Abfragezeitraum angemeldet war, damit er erfasst
         wird.
 
-        Jeder Wert enthält einen ``tuple`` von ``datetime`` Objekten, die der
+        Jeder Wert enthält einen ``tuple`` von ``date`` Objekten, die der
         Anzahl der Tage entsprechen, an denen der Schüler in der Einrichtung
         angemeldet war.
 
         Alle Samstage, Sonntage und Schließ­tage werden entfernt.
         """
-        qs = self.filter(
-            (
-                models.Q(eintritt__range=(startdatum, enddatum)) |
-                models.Q(austritt__range=(startdatum, enddatum))
-            ) | (
-                models.Q(eintritt__lt=startdatum) &
-                models.Q(austritt__gt=enddatum)
-            )
-        ).order_by('eintritt')
         betreuungstage = {}
-        for schueler_in_einrichtung in qs:
+        for schueler_in_einrichtung in self.zeitraum(startdatum, enddatum):
             start = schueler_in_einrichtung.eintritt
             if schueler_in_einrichtung.eintritt < startdatum:
                 start = startdatum
@@ -59,3 +76,32 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
                 models.Q(austritt__gt=austritt)
             )
         )
+
+
+class BargeldsatzManager(models.Manager):
+
+    def nach_lebensalter(self, datum, geburtsdatum):
+        """
+        Gibt den Bargeldsatz für das Lebensalter zurück.
+
+        - Das Lebensalter bezieht sich immer auf das übergebene Datum
+        - Nach Erreichen des 18. Lebensjahrs wird immer der Bargeldsatz für das
+          18. Lebensjahr genutzt
+        - Ist kein Bargeldsatz für das Lebensalter definiert, ist der
+          Bargeldsatz 0 EUR
+
+        Args:
+            datum (date):
+            geburtsdatum (date):
+
+        Returns:
+            Decimal: Bargeldsatz
+        """
+        lebensjahr = relativedelta.relativedelta(datum, geburtsdatum).years
+        if lebensjahr > 18:
+            lebensjahr = 18
+        try:
+            bargeldsatz = self.get(lebensjahr=lebensjahr)
+        except self.model.DoesNotExist:
+            bargeldsatz = None
+        return bargeldsatz

@@ -57,19 +57,24 @@ class RechnungSozialamtManager(models.Manager):
             startdatum = enddatum + datetime.timedelta(1)
         return startdatum
 
-    @transaction.atomic
-    def rechnungslauf(self, sozialamt, enddatum):
+    def vorbereiten(self, sozialamt, enddatum):
         """
-        Erzeugt eine ``RechnungEinrichtung`` pro Einrichtung des Sozialamts im gewählten Zeitraum.
+        Bereitet eine :model:`abrechnung.RechnungSozialamt`-Instanz vor.
 
-        1. Abwesenheitstage pro Schüler im gewählten Zeitraum ermitteln.
-        2. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine ``RechnungsPositionSchueler`` erstellen und mit passender ``RechnungSozialamt``-Instanz verknüpfen.
-        3. Noch nicht abgerechnete ``RechnungsPositionSchueler``-Instanzen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
-        4. Erstellen einer ``RechnungEinrichtung``-Instanz für Einrichtung.
-        5. ``RechnungEinrichtung``-Instanz mit Schüler abrechnen.
-        6. ``RechnungEinrichtung``-Instanz abschließen.
+        - Das Startdatum wird ermittelt
+        - Ein neue Instanz wird erstellt
+        - Die Daten der Instanz werden geprüft
+        - Die Instanz wird nicht gespeichert
+
+        Args:
+            sozialamt (Sozialamt): :model:'schueler.Sozialamt' Instanz
+            enddatum (date): Enddatum
+
+        Returns:
+            RechnungSozialamt: Eine neue
+                :model:`abrechnung.RechnungSozialamt`-Instanz, die nicht
+                gespeichert wurde
         """
-        from .models import RechnungEinrichtung, RechnungsPositionSchueler
         startdatum = self.get_startdatum(sozialamt, enddatum)
         rechnung_sozialamt = self.model(
             sozialamt=sozialamt,
@@ -77,17 +82,49 @@ class RechnungSozialamtManager(models.Manager):
             enddatum=enddatum
         )
         rechnung_sozialamt.clean()
+        return rechnung_sozialamt
+
+    @transaction.atomic
+    def rechnungslauf(self, sozialamt, enddatum, bekleidungsgeld=None):
+        """
+        Erzeugt eine ``RechnungEinrichtung`` pro Einrichtung des Sozialamts im gewählten Zeitraum.
+
+        1. Betreuungstage für den gewählten Zeitraum ermitteln.
+        2. Abwesenheitstage pro Schüler in Einrichtung im gewählten Zeitraum
+           ermitteln.
+        3. Für jeden Betreuungstag im gewählten Zeitraum pro Schüler eine
+           :model:`abrechnung.RechnungsPositionSchueler` erstellen und mit
+           passender :model:`abrechnung.RechnungSozialamt`-Instanz verknüpfen.
+        4. Noch nicht abgerechnete
+           :model:`abrechnung.RechnungsPositionSchueler`-Instanzen (Fehltage)
+           pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit
+           erreicht.
+        5. Erstellen einer :model:`abrechnung.RechnungEinrichtung`-Instanz für
+           Einrichtung.
+        6. :model:`abrechnung.RechnungEinrichtung`-Instanz mit Schüler
+           abrechnen.
+        7. Nach dem letzten Schüler wird die
+           :model:`abrechnung.RechnungEinrichtung`-Instanz abgeschlossen.
+        """
+        from .models import RechnungEinrichtung, RechnungsPositionSchueler
+        if bekleidungsgeld is None:
+            bekleidungsgeld = {}
+        rechnung_sozialamt = self.vorbereiten(sozialamt, enddatum)
         rechnung_sozialamt.save()
-        for schueler_in_einrichtung, tage in sozialamt.anmeldungen.get_betreuungstage(startdatum, enddatum).items():
+        rechnung_einrichtung = None
+        betreuungstage = rechnung_sozialamt.sozialamt.anmeldungen.get_betreuungstage(
+            rechnung_sozialamt.startdatum,
+            rechnung_sozialamt.enddatum
+        )
+        for schueler_in_einrichtung, tage in betreuungstage.items():
             tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
             tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
-            for tag in tage:
-                RechnungsPositionSchueler.objects.erstelle_fuer_tag(
-                    tag,
-                    schueler_in_einrichtung,
-                    rechnung_sozialamt,
-                    tag in tage_abwesend_datetime
-                )
+            RechnungsPositionSchueler.objects.erstelle_fuer_tage(
+                tage,
+                tage_abwesend_datetime,
+                schueler_in_einrichtung,
+                rechnung_sozialamt
+            )
             rechnung_sozialamt.fehltage_abrechnen(schueler_in_einrichtung)
             rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
                 rechnung_sozialamt, schueler_in_einrichtung.einrichtung
@@ -96,8 +133,13 @@ class RechnungSozialamtManager(models.Manager):
                 schueler_in_einrichtung.schueler,
                 schueler_in_einrichtung.eintritt,
                 tage,
-                tage_abwesend_datetime
+                tage_abwesend_datetime,
+                schueler_in_einrichtung.bargeldbetrag(
+                    rechnung_sozialamt.startdatum, rechnung_sozialamt.enddatum
+                ),
+                bekleidungsgeld.get(schueler_in_einrichtung.pk)
             )
+        if rechnung_einrichtung is not None:
             rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt
 
@@ -156,25 +198,30 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
 
 class RechnungsPositionSchuelerManager(models.Manager):
 
-    def erstelle_fuer_tag(self, tag, schueler_in_einrichtung, rechnung_sozialamt, abwesend=False):
+    def erstelle_fuer_tage(self, tage, tage_abwesend, schueler_in_einrichtung, rechnung_sozialamt):
         """
-        Erstellt eine ``RechnungsPositionSchueler`` für einen Betreuungstag und einen Schüler.
+        Erstellt eine :model:`abrechnung.RechnungsPositionSchueler` für einen Betreuungstag und einen Schüler.
 
-        Die ``RechnungsPositionSchueler`` wird mit der passenden ``RechnungSozialamt``-Instanz
-        verknüpft.
+        Die :model:`abrechnung.RechnungsPositionSchueler` wird mit der
+        passenden :model:`abrechnung.RechnungSozialamt`-Instanz verknüpft.
         """
-        rechnung_pos = self.model(
-            rechnung_sozialamt=rechnung_sozialamt,
-            schueler=schueler_in_einrichtung.schueler,
-            einrichtung=schueler_in_einrichtung.einrichtung,
-            datum=tag,
-            abgerechnet=not abwesend,
-            abwesend=abwesend,
-            pflegesatz=schueler_in_einrichtung.schueler.berechne_pflegesatz(tag)
-        )
-        if schueler_in_einrichtung.einrichtung.hat_ferien(tag):
-            rechnung_pos.tag_art = self.model.TAG_ART.ferien
-        return rechnung_pos.save(force_insert=True)
+        objs = []
+        for tag in tage:
+            obj = self.model(
+                rechnung_sozialamt=rechnung_sozialamt,
+                schueler=schueler_in_einrichtung.schueler,
+                name_schueler=schueler_in_einrichtung.schueler.voller_name,
+                einrichtung=schueler_in_einrichtung.einrichtung,
+                name_einrichtung=schueler_in_einrichtung.einrichtung.name,
+                datum=tag,
+                abgerechnet=tag not in tage_abwesend,
+                abwesend=tag in tage_abwesend,
+                pflegesatz=schueler_in_einrichtung.schueler.berechne_pflegesatz(tag)
+            )
+            if schueler_in_einrichtung.einrichtung.hat_ferien(tag):
+                obj.tag_art = self.model.TAG_ART.ferien
+            objs.append(obj)
+        return self.bulk_create(objs)
 
 
 class RechnungsPositionEinrichtungQuerySet(models.QuerySet):
@@ -210,11 +257,11 @@ class RechnungEinrichtungManager(models.Manager):
 
     def erstelle_rechnung(self, rechnung_sozialamt, einrichtung):
         """
-        Erstellt eine Rechnung für eine :model:`RechnungEinrichtung`-Instanz.
+        Erstellt eine Rechnung für eine :model:`abrechnung.RechnungEinrichtung`-Instanz.
 
-        Sollte für :model:`RechnungSozialamt` und :model:`Einrichtung` schon
-        eine Rechnung existieren wird diese zurückgegeben und keine neue
-        erstellt.
+        Sollte für :model:`abrechnung.RechnungSozialamt` und
+        :model:`einrichtungen.Einrichtung` schon eine Rechnung existieren wird
+        diese zurückgegeben und keine neue erstellt.
         """
         tage_faelligkeit = datetime.timedelta(
             settings.ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
