@@ -5,7 +5,6 @@ from dateutil.parser import parse
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.views.generic import RedirectView
@@ -29,7 +28,9 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     def dispatch(self, request, *args, **kwargs):
         if not self.ist_datum_erlaubt(self.datum):
-            raise PermissionDenied()
+            raise PermissionDenied(
+                "Sie haben nicht die Berechtigung, für diesen Tag die Anwesenheiten zu ändern."
+            )
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -59,7 +60,8 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
         return super().formset_valid(formset)
 
     def get_success_url(self):
-        return reverse('anwesenheitsliste_anwesenheit_anwesenheitsliste',
+        return reverse(
+            'anwesenheitsliste_anwesenheit_anwesenheitsliste',
             kwargs={'datum': self.morgen or self.datum}
         ) + '?' + self.query_string
 

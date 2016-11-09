@@ -72,8 +72,11 @@
     </head>
     <body>
         <div class="container">
-            <h1>Permission denied <span>:(</span></h1>
-            <p>Sorry, but you have no permissions for the page you were trying to view.</p>
+            <h1>Zugriff verweigert</h1>
+            <p>Sie haben nicht die nötigen Berechtigungen für diese Seite.</p>
+            {% if exception %}
+              <p>Grund: {{ exception }}</p>
+            {% endif %}
         </div>
     </body>
 </html>
