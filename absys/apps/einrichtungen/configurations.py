@@ -138,8 +138,11 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
     Einrichtungs-Konfiguration für 365 Tage
 
     - Es gibt keine festen Schließtage
-    - Ab vier oder mehr Fehltagen am Stück gilt für alle Fehltage ein
+    - Ab vier oder mehr Fehltagen am Stück gilt für diese Fehltage ein
       verminderter Bettengeldsatz
+    - Bei der Betrachtung der Fehltage werden auch die letzten drei Tage der
+      *vorhergehenden Rechnung* sowie die ersten drei *Anwesenheiten* im
+      Folgezeitraum berücksichtigt
 
         - Es gibt hier also zwei Bettengeldsätze: Standard und vermindert
     """
