@@ -247,8 +247,8 @@ class Common(Configuration):
     # SaxMBS Ebene 1 - String, muss acht Stellen haben
     ABSYS_SAX_EBENE_1 = values.Value('01      ')
 
-    # SaxMBS Kapitel - Integer, darf maximal fünf Stellen haben
-    ABSYS_SAX_KAPITEL = values.IntegerValue(12345)
+    # SaxMBS Kapitel - Integer, darf maximal fünf Stellen haben; OHNE FÜHRENDE NULLEN EINGEBEN!
+    ABSYS_SAX_KAPITEL = values.IntegerValue(554)
 
     # SaxMBS Mahnschlüssel - Integer, darf maximal zwei Stellen haben
     ABSYS_SAX_MAHNSCHLUESSEL = values.IntegerValue(10)
