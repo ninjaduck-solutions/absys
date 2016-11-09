@@ -11,6 +11,10 @@ set -o verbose
 # finden kann.
 PACKAGE_PATH=/vagrant/dist
 
+# Pfad zum Python Virtual Environment, in das alle Python Pakete später
+# installiert werden. Falls nötig anpassen.
+VENV_PATH=${HOME}/pyvenv
+
 # Hier, falls nötig, weitere Optionen für pip angeben. Beispiel:
 # PIP_DEFAULT_OPTIONS="--proxy https://proxy.example.com"
 # pip Dokumentation: https://pip.pypa.io/
@@ -64,11 +68,11 @@ echo 'noreply@example.com' | sudo tee /var/envdir/absys/DJANGO_EMAIL_HOST_USER
 
 # Pfad zum Verzeichnis für alle Uploads, alle Dateien sollten als Backup
 # gesichert werden.
-echo "$HOME/media" | sudo tee /var/envdir/absys/DJANGO_MEDIA_ROOT
+echo "${HOME}/media" | sudo tee /var/envdir/absys/DJANGO_MEDIA_ROOT
 
 # Pfad zum Verzeichnis für statische Dateien, diese ändern sich bei jedem
 # Deployment und müssen nicht zwingend als Backup gesichert werden.
-echo "$HOME/static_root" | sudo tee /var/envdir/absys/DJANGO_STATIC_ROOT
+echo "${HOME}/static_root" | sudo tee /var/envdir/absys/DJANGO_STATIC_ROOT
 
 # Liste der Hostnamen und Domains, die diese Website ausliefern soll. Hier die
 # IP Adresse und/oder den Domainnamen mit Kommata getrennt eintragen.
@@ -118,13 +122,13 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 sudo chgrp -R www-data /var/envdir/absys && sudo chmod -R g=rX,o= /var/envdir/absys
 
 # Installation/Upgrade von pip, AbSys und den abhängigen Paketen
-$HOME/pyvenv/bin/pip install $PIP_DEFAULT_OPTIONS --upgrade pip setuptools wheel
-$HOME/pyvenv/bin/pip install $PIP_DEFAULT_OPTIONS --find-links $PACKAGE_PATH --upgrade absys
+${VENV_PATH}/bin/pip install ${PIP_DEFAULT_OPTIONS} --upgrade pip setuptools wheel
+${VENV_PATH}/bin/pip install ${PIP_DEFAULT_OPTIONS} --find-links ${PACKAGE_PATH} --upgrade absys
 
 # Deployment Check, Datenbank Migration und Sammeln der statischen Dateien
-sudo $HOME/pyvenv/bin/envdir /var/envdir/absys $HOME/pyvenv/bin/manage.py check --deploy
-sudo $HOME/pyvenv/bin/envdir /var/envdir/absys $HOME/pyvenv/bin/manage.py migrate
-sudo $HOME/pyvenv/bin/envdir /var/envdir/absys $HOME/pyvenv/bin/manage.py collectstatic --noinput
+sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py check --deploy
+sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py migrate
+sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py collectstatic --noinput
 sudo service apache2 reload
 
 set +o verbose
@@ -141,8 +145,8 @@ echo
 echo "Nach der initialen Installation folgenden Befehle ausführen, um die Daten für das"
 echo "Website Model zu laden und einen neuen Superuser zu erstellen:"
 echo
-echo "sudo $HOME/pyvenv/bin/envdir /var/envdir/absys $HOME/pyvenv/bin/manage.py loaddata sites"
-echo "sudo $HOME/pyvenv/bin/envdir /var/envdir/absys $HOME/pyvenv/bin/manage.py createsuperuser"
+echo "sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py loaddata sites"
+echo "sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py createsuperuser"
 echo
 echo "Danach kann man sich mit dem Superuser anmelden und weitere Benutzer erstellen."
 echo "Außerdem sollte der Domainname der importierten Website im Admin (Verwaltung) angepasst werden."
