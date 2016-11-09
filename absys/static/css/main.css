@@ -31,5 +31,5 @@ a:hover {
 
 input[type="checkbox"] {
   transform:scale(2.2, 2.2);
-  margin-right: 20px;
+  margin-right: 1.1em;
 }
