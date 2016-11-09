@@ -2,7 +2,7 @@
 Abrechnungs-System
 ******************
 
-Abrechnungssystem der SLSH und LZH.
+Abrechnungssystem der SLSH und LZB.
 
 Voraussetzungen
 ===============

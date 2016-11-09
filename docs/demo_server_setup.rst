@@ -31,6 +31,37 @@ Zum Setup eines Demo Servers wie folgt vorgehen:
     vagrant:absys$ exit
     root:~$ exit
 
+PostgreSQL Backup
+=================
+
+Falls nötig, kann jederzeit ein PostgreSQL Backup erstellt werden.
+
+Backup erstellen
+----------------
+
+::
+
+    $ ssh root@absys-demo
+    root:~$ sudo --user postgres --login
+    postgres:~$ mkdir -p dumps
+    postgres:~$ pg_dump --format=custom --username=absys absys > dumps/absys_$(date --iso-8601=seconds).dump
+    postgres:~$ exit
+    root:~$ exit
+
+Backup wiederherstellen
+-----------------------
+
+::
+
+    $ ssh root@absys-demo
+    root:~$ systemctl stop apache2.service
+    root:~$ sudo --user postgres --login
+    postgres:~$ dropdb absys
+    postgres:~$ pg_restore --create --dbname=postgres dumps/absys_[ISO-DATE].dump
+    postgres:~$ exit
+    root:~$ systemctl start apache2.service
+    root:~$ exit
+
 Upgrade
 =======
 
@@ -42,10 +73,13 @@ Zum Upgrade eines Demo Servers wie folgt vorgehen:
     $ ssh root@absys-demo
     root:~$ cp --verbose absys-*.whl /home/vagrant
     root:~$ chown --verbose vagrant: /home/vagrant/absys-*.whl
+    root:~$ # Ggf. jetzt ein PostgreSQL Backup erstellen
     root:~$ su -l vagrant
     vagrant:~$ cd absys
     vagrant:absys$ git pull
+    vagrant:absys$ git stash
     vagrant:absys$ git checkout <release_version>
+    vagrant:absys$ git stash pop
     vagrant:absys$ ./setup/install.sh
     vagrant:absys$ git checkout master
     vagrant:absys$ exit

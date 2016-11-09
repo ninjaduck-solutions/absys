@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -6,7 +7,7 @@ from model_utils.models import TimeStampedModel
 
 from absys.apps.schueler.models import Sozialamt, Schueler
 
-from . import managers
+from . import configurations, managers, services
 
 
 class Standort(TimeStampedModel):
@@ -25,6 +26,7 @@ class Standort(TimeStampedModel):
 
 
 class Einrichtung(TimeStampedModel):
+    EINRICHTUNGS_KONFIGURATIONEN_CHOICES = configurations.choices
 
     name = models.CharField("Name", max_length=30, unique=True)
     kuerzel = models.CharField("Kürzel", max_length=3, unique=True)
@@ -36,6 +38,10 @@ class Einrichtung(TimeStampedModel):
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
     titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=True)
+    konfiguration_id = models.IntegerField(
+        "Konfiguration",
+        choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES
+    )
 
     class Meta:
         ordering = ['name']
@@ -46,18 +52,23 @@ class Einrichtung(TimeStampedModel):
         return self.name
 
     def clean(self):
-        if self.titel > 100000:
-            raise ValidationError({'titel': self._meta.get_field('titel').help_text})
+        if self.titel and self.titel > 100000:
+            raise ValidationError(
+                {'titel': self._meta.get_field('titel').help_text},
+                code='title_zu_lang'
+            )
 
     def hat_ferien(self, datum):
         """
         Findet heraus, ob an dem Datum ein Ferientag war oder nicht.
         """
-        count = self.ferien.filter(
+        ferien = self.ferien.filter(
             startdatum__lte=datum,
             enddatum__gte=datum
-        ).count()
-        return bool(count)
+        )
+        # In diesem Fall ist die Nutzung von len() schneller als die von
+        # QuerySet.count().
+        return bool(len(ferien))
 
     def get_pflegesatz(self, datum):
         """
@@ -81,25 +92,41 @@ class Einrichtung(TimeStampedModel):
         schliesstage = self.schliesstage.values_list('datum', flat=True)
         tag = start
         while tag <= ende:
-            if tag.isoweekday() not in (6, 7) and tag not in schliesstage:
+            fester_schliesstag = tag.isoweekday() in self.konfiguration.feste_schliesstage
+            if not fester_schliesstag and tag not in schliesstage:
                 betreuungstage.append(tag)
             tag += datetime.timedelta(1)
         return betreuungstage
 
+    @property
+    def konfiguration(self):
+        return configurations.registry[self.konfiguration_id]
+
 
 class SchuelerInEinrichtung(TimeStampedModel):
 
+    BARGELD_VOLLER_SATZ = 12
+    ANTEILE_BARGELD_CHOICES = (
+        (0, "0 (keine Auszahlung)"),
+    ) + tuple([(i, str(i)) for i in range(1, 12)]) + (
+        (BARGELD_VOLLER_SATZ, "12 (voller Satz)"),
+    )
+
     schueler = models.ForeignKey(Schueler, related_name='angemeldet_in_einrichtung')
     einrichtung = models.ForeignKey(Einrichtung, related_name='anmeldungen')
-    sozialamt = models.ForeignKey(Sozialamt, related_name='anmeldungen',
-        help_text="<span style=\"font-size: 1.3em\">"
-            "Es wird automatisch das aktuelle Sozialamt des Schülers ausgewählt.<br><br>"
-            "Soll der Schüler in dieser Einrichtung ein neues Sozialamt zugewiesen bekommen"
-            ", muss wie folgt vorgegangen werden:<br><br>"
-            "1. Das Austrittsdatum des aktuellen Datensatzes auf den letzten Tag für das alte Sozialamt setzen.<br>"
-            "2. Das Sozialamt am Datensatz des Schülers ändern.<br>"
-            "3. Den Schüler für den neuen Zeitraum der gleichen Einrichtung hinzufügen.<br><br>"
-            "</span>")
+    sozialamt = models.ForeignKey(
+        Sozialamt,
+        related_name='anmeldungen',
+        help_text=
+        "<span style=\"font-size: 1.3em\">"
+        "Es wird automatisch das aktuelle Sozialamt des Schülers ausgewählt.<br><br>"
+        "Soll der Schüler in dieser Einrichtung ein neues Sozialamt zugewiesen bekommen"
+        ", muss wie folgt vorgegangen werden:<br><br>"
+        "1. Das Austrittsdatum des aktuellen Datensatzes auf den letzten Tag für das alte Sozialamt setzen.<br>"
+        "2. Das Sozialamt am Datensatz des Schülers ändern.<br>"
+        "3. Den Schüler für den neuen Zeitraum der gleichen Einrichtung hinzufügen.<br><br>"
+        "</span>"
+    )
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
     pers_pflegesatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
@@ -107,6 +134,11 @@ class SchuelerInEinrichtung(TimeStampedModel):
     pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
     pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
     fehltage_erlaubt = models.PositiveIntegerField(default=45)
+    anteile_bargeld = models.IntegerField(
+        "Anteile Bargeld",
+        choices=ANTEILE_BARGELD_CHOICES,
+        default=BARGELD_VOLLER_SATZ
+    )
 
     objects = managers.SchuelerInEinrichtungQuerySet.as_manager()
 
@@ -153,7 +185,10 @@ class SchuelerInEinrichtung(TimeStampedModel):
     def clean(self):
         if self.eintritt and self.austritt:
             if self.eintritt > self.austritt:
-                raise ValidationError({'austritt': self._meta.get_field('austritt').help_text})
+                raise ValidationError(
+                    {'austritt': self._meta.get_field('austritt').help_text},
+                    code='austritt_vor_eintritt'
+                )
             if not self.pk and self.schueler:
                 dubletten = SchuelerInEinrichtung.objects.dubletten(
                     self.schueler, self.eintritt, self.austritt
@@ -163,13 +198,33 @@ class SchuelerInEinrichtung(TimeStampedModel):
                         "Für diesen Zeitraum existiert schon eine Anmeldung für {s.schueler}"
                         " für eine Einrichtung."
                     )
-                    raise ValidationError(msg.format(s=self))
+                    raise ValidationError(msg.format(s=self), code='anmeldung_existiert_schon')
 
     def war_abwesend(self, tage):
         """Abwesenheitstage für Schüler in Einrichtung im gewählten Zeitraum ermitteln."""
         if len(tage) == 0:
             return self.schueler.anwesenheit.none()
         return self.schueler.anwesenheit.war_abwesend(tage[0], tage[-1]).filter(datum__in=tage)
+
+    def bargeldbetrag(self, startdatum, enddatum):
+        """
+        Berechnung den Bargeldbetrag an einem bestimmten Datum.
+
+        - Für jeden Schüler wird ist ein Bargeldsatz-Anteil definiert (0-12),
+          denn zur Berechnung des Bargeldsatz-Anteils wird folgende Formel
+          verwendet: ``Bargeldsatz * Anteil / 12``
+        - Da das Enddatum einer Rechnung frei definiert werden kann, muss der
+          Bargeldsatz anteilig berechnet werden:
+          ``Bargeldsatz-Anteil / Tage im Monat * Tage im Abrechnungszeitraum für diesen Monat``,
+          danach Runden auf zwei Stellen
+        """
+        bargeldbetrag = decimal.Decimal()
+        if self.einrichtung.konfiguration.bargeldauszahlung:
+            bargeldsatz = Bargeldsatz.objects.nach_lebensalter(enddatum, self.schueler.geburtsdatum)
+            if bargeldsatz is not None:
+                bargeldanteil = bargeldsatz.betrag * self.anteile_bargeld / self.BARGELD_VOLLER_SATZ
+                bargeldbetrag = services.bargeld_zeitraum(bargeldanteil, startdatum, enddatum)
+        return bargeldbetrag
 
 
 class EinrichtungHatPflegesatz(TimeStampedModel):
@@ -224,3 +279,65 @@ class Schliesstag(TimeStampedModel):
 
     def __str__(self):
         return '{s.name}: {s.datum} '.format(s=self)
+
+
+class Bettengeldsatz(TimeStampedModel):
+
+    einrichtung = models.ForeignKey(
+        Einrichtung,
+        verbose_name="Einrichtung",
+        related_name='bettengeldsaetze'
+    )
+    startdatum = models.DateField("Startdatum")
+    enddatum = models.DateField(
+        "Enddatum",
+        help_text="Das Enddatum muss nach dem Startdatum liegen."
+    )
+    satz = models.DecimalField("Satz", max_digits=8, decimal_places=2)
+    satz_vermindert = models.DecimalField(
+        "Verminderter Satz", max_digits=8, decimal_places=2, default=0
+    )
+
+    class Meta:
+        unique_together = ('einrichtung', 'startdatum', 'enddatum')
+        verbose_name = "Bettengeldsatz"
+        verbose_name_plural = "Bettengeldsätze"
+
+    def __str__(self):
+        return "Bettengeldsatz {s.satz} € für {s.einrichtung}".format(s=self)
+
+    def clean(self):
+        if self.startdatum > self.enddatum:
+            raise ValidationError(
+                {'enddatum': "Das Enddatum muss nach dem Startdatum liegen."},
+                code='enddatum_nach_startdatum'
+            )
+
+
+class Bargeldsatz(TimeStampedModel):
+    """
+    Bargeldsatz pro Monat.
+
+    Wird nur an Schüler ausgezahlt, deren Einrichtung einen Bargeldsatz
+    auszahlt.
+    """
+
+    LEBENSJAHR_CHOICES = (
+        (3, "3. Lebensjahr"),
+    ) + tuple([(i, "{:d}. Lebensjahr".format(i)) for i in range(4, 18)]) + (
+        (18, "18. Lebensjahr"),
+    )
+
+    lebensjahr = models.IntegerField(
+        "Lebensjahr", choices=LEBENSJAHR_CHOICES, unique=True
+    )
+    betrag = models.DecimalField("Betrag pro Monat", max_digits=5, decimal_places=2)
+
+    objects = managers.BargeldsatzManager()
+
+    class Meta:
+        verbose_name = "Bargeldsatz"
+        verbose_name_plural = "Bargeldsätze"
+
+    def __str__(self):
+        return "{s.lebensjahr}. Lebensjahr: {s.betrag} €".format(s=self)

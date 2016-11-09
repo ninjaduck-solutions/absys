@@ -13,7 +13,7 @@ import extra_views
 from absys.apps.schueler.models import Gruppe, Schueler
 
 from . import forms
-from . import models
+from .models import Anwesenheit
 
 
 class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
@@ -28,7 +28,9 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     def dispatch(self, request, *args, **kwargs):
         if not self.ist_datum_erlaubt(self.datum):
-            raise PermissionDenied()
+            raise PermissionDenied(
+                "Sie haben nicht die Berechtigung, für diesen Tag die Anwesenheiten zu ändern."
+            )
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -48,7 +50,7 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     def formset_valid(self, formset):
         for form in formset:
-            models.Anwesenheit.objects.update_or_create(
+            Anwesenheit.objects.update_or_create(
                 schueler=Schueler.objects.get(
                     id=form.cleaned_data['schueler_id']
                 ),
@@ -58,13 +60,22 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
         return super().formset_valid(formset)
 
     def get_success_url(self):
-        return reverse('anwesenheitsliste_anwesenheit_anwesenheitsliste',
-            kwargs={'datum': self.datum + timedelta(1)}
+        return reverse(
+            'anwesenheitsliste_anwesenheit_anwesenheitsliste',
+            kwargs={'datum': self.morgen or self.datum}
         ) + '?' + self.query_string
 
     @property
     def helper(self):
         return forms.AnwesenheitFormHelper()
+
+    @property
+    def komplett_erfasst(self):
+        schueler = Gruppe.objects.get(id=self.gruppe_id).schueler.count()
+        anwesenheiten = Anwesenheit.objects.filter(
+            schueler__gruppe__id=self.gruppe_id, datum=self.datum
+        ).count()
+        return schueler == anwesenheiten
 
     @property
     def datum(self):

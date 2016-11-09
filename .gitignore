@@ -70,3 +70,6 @@ docs/_build
 
 # Git
 .gitattributes
+
+# Database Dumps
+*.json

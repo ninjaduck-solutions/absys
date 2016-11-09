@@ -59,13 +59,16 @@ class TestRechnungSozialamt:
         """
         rechnung_sozialamt.fehltage_abrechnen(schueler_in_einrichtung)
 
-    def test_delete(self, rechnung_sozialamt_factory):
+    def test_delete(self, rechnung_sozialamt_factory, sozialamt_factory):
+        sozialamt_2 = sozialamt_factory()
         first = rechnung_sozialamt_factory(enddatum=datetime.date(2016, 1, 31))
         obj = rechnung_sozialamt_factory(enddatum=datetime.date(2016, 2, 29))
         rechnung_sozialamt_factory(enddatum=datetime.date(2016, 3, 31))
+        rechnung_sozialamt_factory(enddatum=datetime.date(2016, 3, 31), sozialamt=sozialamt_2)
+        rechnung_sozialamt_factory(enddatum=datetime.date(2016, 4, 30), sozialamt=sozialamt_2)
         rechnung_sozialamt_factory(enddatum=datetime.date(2016, 4, 30))
         last = rechnung_sozialamt_factory(enddatum=datetime.date(2017, 1, 31))
-        assert models.RechnungSozialamt.objects.count() == 5
+        assert models.RechnungSozialamt.objects.count() == 7
         obj.delete()
         assert models.RechnungSozialamt.objects.count() == 2
         assert models.RechnungSozialamt.objects.get(pk=first.pk)

@@ -1,4 +1,4 @@
-import datetime
+import decimal
 
 from django.db import models, router
 from django.db.models.deletion import Collector
@@ -37,7 +37,7 @@ class RechnungSozialamt(TimeStampedModel):
             " Außerdem müssen Startdatum und Enddatum im gleichen Jahr liegen.")
     )
 
-    objects = managers.RechnungSozialamtManager()
+    objects = managers.RechnungSozialamtManager.from_queryset(managers.RechnungSozialamtQuerySet)()
 
     class Meta:
         ordering = ('-startdatum', '-enddatum', 'sozialamt')
@@ -59,38 +59,41 @@ class RechnungSozialamt(TimeStampedModel):
 
     def delete(self, using=None, keep_parents=False):
         """
-        Löscht diese :model:`Sozialamtsrechnung`-Instanz sowie alle nachfolgenden.
+        Löscht diese Instanz sowie alle nachfolgenden.
 
-        Gelöscht werden alle :model:`Sozialamtsrechnung`-Instanzen, die
-        zwischen dem `startdatum` dieser Rechnung und dem 31.12. im Jahr von
-        `startdatum` liegen - unabhängig vom zugehörigen Sozialamt.
+        Gelöscht werden alle :model:`abrechnung.RechnungSozialamt`-Instanzen,
+        die zwischen dem `startdatum` dieser Rechnung und dem 31.12. im Jahr
+        von `startdatum` liegen - unabhängig vom zugehörigen Sozialamt.
         """
         using = using or router.db_for_write(self.__class__, instance=self)
         assert self._get_pk_val() is not None, (
             "%s object can't be deleted because its %s attribute is set to None." %
             (self._meta.object_name, self._meta.pk.attname)
         )
-        qs = RechnungSozialamt.objects.filter(
-            startdatum__gte=self.startdatum,
-            enddatum__lte=datetime.date(self.enddatum.year, 12, 31)
-        )
-
         collector = Collector(using=using)
-        collector.collect(qs, keep_parents=keep_parents)
+        collector.collect(
+            RechnungSozialamt.objects.seit(self.startdatum),
+            keep_parents=keep_parents
+        )
         return collector.delete()
 
     delete.alters_data = True
 
     def clean(self):
         if self.startdatum > self.enddatum:
-            raise ValidationError({'enddatum': "Das Enddatum muss nach dem Startdatum liegen."})
+            raise ValidationError(
+                {'enddatum': "Das Enddatum muss nach dem Startdatum liegen."},
+                code='enddatum_nach_startdatum'
+            )
         if self.enddatum > now().date():
             raise ValidationError(
-                {'enddatum': "Das Enddatum darf nicht nach dem heutigen Datum liegen."}
+                {'enddatum': "Das Enddatum darf nicht nach dem heutigen Datum liegen."},
+                code='enddatum_nach_heute'
             )
         if self.startdatum.year != self.enddatum.year:
             raise ValidationError(
-                {'enddatum': "Startdatum und Enddatum müssen im gleichen Jahr liegen."}
+                {'enddatum': "Startdatum und Enddatum müssen im gleichen Jahr liegen."},
+                code='enddatum_und_startdatum_nicht_im_gleichen_jahr'
             )
         qs = RechnungSozialamt.objects.filter(
             models.Q(
@@ -104,7 +107,8 @@ class RechnungSozialamt(TimeStampedModel):
             qs = qs.exclude(pk=self.pk)
         if qs.count():
             raise ValidationError(
-                {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."}
+                {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."},
+                code='startdatum_exitiert_schon'
             )
 
     @property
@@ -143,10 +147,10 @@ class RechnungSozialamt(TimeStampedModel):
 
     @cached_property
     def mittelwert_titel(self):
-        return self.rechnungen_einrichtungen.aggregate(models.Avg(
+        return (self.rechnungen_einrichtungen.aggregate(models.Avg(
             'einrichtung__titel',
             output_field=models.DecimalField()
-        ))['einrichtung__titel__avg']
+        ))['einrichtung__titel__avg'])
 
     @cached_property
     def mittelwert_kapitel(self):
@@ -194,6 +198,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     name_einrichtung = models.CharField("Einrichtung", max_length=20)
     tag_art = models.CharField("Schul- oder Ferientag", choices=TAG_ART, default=TAG_ART.schule, max_length=20)
     abwesend = models.BooleanField("Abwesenheit", default=False)
+    vermindert = models.BooleanField("Verminderter Bettengeldsatz", default=False)
     pflegesatz = models.DecimalField("Pflegesatz", max_digits=5, decimal_places=2)
 
     objects = managers.RechnungsPositionSchuelerManager.from_queryset(
@@ -246,7 +251,7 @@ class RechnungEinrichtung(TimeStampedModel):
     einrichtung = models.ForeignKey(Einrichtung, models.SET_NULL, null=True,
         verbose_name="Einrichtung", related_name='rechnungen')
     name_einrichtung = models.CharField("Name der Einrichtung", max_length=30)
-    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=20)
+    buchungskennzeichen = models.CharField("Buchungskennzeichen", max_length=12)
     datum_faellig = models.DateField("Fälligkeitsdatum")
     betreuungstage = models.PositiveIntegerField(default=0)
     summe = models.DecimalField("Gesamtbetrag", max_digits=8, decimal_places=2, null=True)
@@ -276,7 +281,7 @@ class RechnungEinrichtung(TimeStampedModel):
     def nummer(self):
         return "ER{:06d}".format(self.pk)
 
-    def abrechnen(self, schueler, eintritt, tage, tage_abwesend):
+    def abrechnen(self, schueler, eintritt, tage, tage_abwesend, bargeldbetrag, bekleidungsgeld=None):
         """Erstellt für jeden Schüler eine Rechnungsposition.
 
         Die Abrechnung erfolgt für die übergebenen Anwesenheits- und
@@ -289,6 +294,8 @@ class RechnungEinrichtung(TimeStampedModel):
         fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
             tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
         )
+        if bekleidungsgeld is None:
+            bekleidungsgeld = decimal.Decimal()
         summen = schueler.positionen_schueler.filter(
             rechnung_sozialamt=self.rechnung_sozialamt
         ).summen()
@@ -302,7 +309,9 @@ class RechnungEinrichtung(TimeStampedModel):
             fehltage_gesamt=fehltage + fehltage_uebertrag,
             fehltage_abrechnung=summen['fehltage'],
             zahltage=summen['zahltage'],
-            summe=summen['aufwaende']
+            bargeldbetrag=bargeldbetrag,
+            bekleidungsgeld=bekleidungsgeld,
+            summe=summen['aufwaende'] + bargeldbetrag + bekleidungsgeld
         )
 
     def abschliessen(self):
@@ -339,10 +348,16 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     - Fehltage gesamt
     - Fehltage zur Abrechnung im Abrechnungszeitraum
     - Zahltage im Abrechnungszeitraum (Anwesend + Fehltage zur Abrechnung im Abrechnungszeitraum)
+    - Bargeldbetrag
+    - Bekleidungsgeld
     - Summe der Aufwendungen
     """
 
-    schueler = models.ForeignKey(Schueler, models.SET_NULL, null=True, verbose_name="Schüler",
+    schueler = models.ForeignKey(
+        Schueler,
+        models.SET_NULL,
+        null=True,
+        verbose_name="Schüler",
         related_name='positionen_einrichtung')
     name_schueler = models.CharField("Name des Schülers", max_length=62)
     rechnung_einrichtung = models.ForeignKey(
@@ -353,12 +368,19 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     fehltage_max = models.PositiveIntegerField("Maximale Fehltage")
     anwesend = models.PositiveIntegerField("Anwesend")
     fehltage = models.PositiveIntegerField("Fehltage")
-    fehltage_uebertrag = models.PositiveIntegerField("Übertrag Fehltage ab 1.1. des laufenden Jahres oder Eintritt")
+    fehltage_uebertrag = models.PositiveIntegerField(
+        "Übertrag Fehltage ab 1.1. des laufenden Jahres oder Eintritt"
+    )
     fehltage_gesamt = models.PositiveIntegerField("Fehltage gesamt")
     fehltage_abrechnung = models.PositiveIntegerField("Fehltage zur Abrechnung im Abrechnungszeitraum")
     zahltage = models.PositiveIntegerField("Zahltage im Abrechnungszeitraum")
-    summe = models.DecimalField("Summe der Aufwendungen", max_digits=8, decimal_places=2,
-        null=True)
+    bargeldbetrag = models.DecimalField("Bargeldbetrag", max_digits=8, decimal_places=2, default=0)
+    bekleidungsgeld = models.DecimalField(
+        "Bekleidungsgeld", max_digits=8, decimal_places=2, default=0
+    )
+    summe = models.DecimalField(
+        "Summe der Aufwendungen", max_digits=8, decimal_places=2, null=True
+    )
 
     objects = managers.RechnungsPositionEinrichtungManager.from_queryset(
         managers.RechnungsPositionEinrichtungQuerySet
@@ -391,7 +413,7 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     @cached_property
     def detailabrechnung(self):
         """
-        Gibt alle :model:`RechnungsPositionSchueler`-Instanzen zurück, die zu dieser Instanz gehören.
+        Gibt alle :model:`abrechnung.RechnungsPositionSchueler`-Instanzen zurück, die zu dieser Instanz gehören.
         """
         return self.schueler.positionen_schueler.filter(
             rechnung_sozialamt=self.rechnung_einrichtung.rechnung_sozialamt,

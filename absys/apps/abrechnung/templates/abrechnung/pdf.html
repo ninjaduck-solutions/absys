@@ -20,9 +20,9 @@
       <br>
       <b>Rechnungsnummer:</b> {{ rechnungsozialamt.nummer }} <br>
       <b>Abrechnungszeitraum:</b>
-      {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
+      {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
       -
-      {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}<br><br><br>
+      {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}<br><br><br>
       <b>Einrichtungen zur Abrechnung: </b>
         {% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
           {{ einrichtungsrechnung.name_einrichtung }}{% if not forloop.last %},{% endif %}
@@ -62,14 +62,14 @@
             <td style="border: 0;">
               <p>
                 <b>Abrechnungszeitraum:</b>
-                {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
+                {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
                 -
-                {{ rechnungsozialamt.enddatum|date:"d.m.Y" }}
+                {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}
                 <br>
                 <b>Schließtage:</b>
                 {# TODO umbauen auf Zeitraumauswahl fuer vorliegende Rechnung #}
                 {% for schliesstag in einrichtungsrechnung.schliesstage %}
-                  {{ schliesstag.datum|date:"d.m.Y" }}{% if not forloop.last %},{% endif %}
+                  {{ schliesstag.datum|date:"SHORT_DATE_FORMAT" }}{% if not forloop.last %},{% endif %}
                 {% empty %}
                   keine Schließtage in diesem Zeitraum definiert
                 {% endfor %}
@@ -83,7 +83,7 @@
             </td>
             <td style="border: 0;">
               <p>
-                  Fälligkeitsdatum: {{ einrichtungsrechnung.datum_faellig|date:"d.m.Y" }}<br>
+                  Fälligkeitsdatum: {{ einrichtungsrechnung.datum_faellig|date:"SHORT_DATE_FORMAT" }}<br>
                   <br>
                   Buchungskennzeichen: {{ einrichtungsrechnung.buchungskennzeichen }}<br>
                   <br>
@@ -124,7 +124,7 @@
               <td>{{ forloop.counter }}</td>
               <td>{{ einrichtungsposition.name_schueler }}</td>
               <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
-              <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"d.m.Y" }}</td>
+              <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"SHORT_DATE_FORMAT" }}</td>
               <td>{{ einrichtungsposition.fehltage_max }}</td>
               <td>{{ einrichtungsposition.anwesend }}</td>
               <td>{{ einrichtungsposition.fehltage }}</td>
@@ -152,8 +152,8 @@
           <h3> Schülerposition {{ forloop.counter }} </h3>
           <h4> ({{ einrichtungsposition.name_schueler }}
             in {{ einrichtungsposition.rechnung_einrichtung.name_einrichtung }}
-            vom {{ rechnungsozialamt.startdatum|date:"d.m.Y" }} bis
-            {{ rechnungsozialamt.enddatum|date:"d.m.Y" }})
+            vom {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }} bis
+            {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }})
           </h4>
 
           <table class="table table-striped">
@@ -175,7 +175,7 @@
             <tbody>
               <tr>
                 <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
-                <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"d.m.Y" }}</td>
+                <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"SHORT_DATE_FORMAT" }}</td>
                 <td>{{ einrichtungsposition.fehltage_max }}</td>
                 <td>{{ einrichtungsposition.anwesend }}</td>
                 <td>{{ einrichtungsposition.fehltage }}</td>
@@ -204,7 +204,7 @@
             <tbody>
               {% for schuelerposition in einrichtungsposition.detailabrechnung.all %}
                 <tr>
-                  <td>{{ schuelerposition.datum|date:"d.m.Y" }} </td>
+                  <td>{{ schuelerposition.datum|date:"SHORT_DATE_FORMAT" }} </td>
                   <td>{{ schuelerposition.tag_art }}</td>
                   <td>{% if schuelerposition.abwesend %}Fehltag
                     {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
@@ -224,8 +224,8 @@
     <br><br><br><br>
     <hr>
     <h3> <center> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }}
-      FÜR DEN ZEITRAUM VOM {{ rechnungsozialamt.startdatum|date:"d.m.Y" }}
-      BIS {{ rechnungsozialamt.enddatum|date:"d.m.Y" }} </center></h3>
+      FÜR DEN ZEITRAUM VOM {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
+      BIS {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }} </center></h3>
   </div>
 {% endblock %}
 
