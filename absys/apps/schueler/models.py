@@ -3,6 +3,8 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from model_utils.models import TimeStampedModel
 
+from . import validators
+
 
 class Gruppe(TimeStampedModel):
 
@@ -38,7 +40,10 @@ class Schueler(TimeStampedModel):
 
     vorname = models.CharField("Vorname", max_length=30)
     nachname = models.CharField("Nachname", max_length=30)
-    geburtsdatum = models.DateField()
+    geburtsdatum = models.DateField(
+        "Geburtsdatum",
+        validators=[validators.validate_geburtsdatum_in_vergangenheit]
+    )
     bemerkungen = models.TextField(blank=True)
     aktenzeichen = models.CharField("Aktenzeichen", max_length=30)
     gruppe = models.ForeignKey(Gruppe, related_name='schueler')
