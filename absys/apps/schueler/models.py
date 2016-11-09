@@ -23,8 +23,7 @@ class Sozialamt(TimeStampedModel):
     anschrift = models.TextField()
     zahlungspartnernummer = models.CharField(
         "Zahlungspartnernummer",
-        max_length=7,
-        unique=True
+        max_length=7
     )
 
     class Meta:
