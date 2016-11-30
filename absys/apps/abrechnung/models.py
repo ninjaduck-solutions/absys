@@ -185,6 +185,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     - Name der Einrichtung (String)
     - Schul- oder Ferientag
     - Abwesenheit
+    - Verminderter Bettengeldsatz
     - Pflegesatz
 
     Rechnungsposition für einen Schüler verändern ihren Zustand abhängig von
