@@ -78,6 +78,12 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         )
 
 
+class BettengeldsatzQuerySet(models.QuerySet):
+
+    def zeitraum(self, startdatum, enddatum):
+        return self.filter(startdatum__lte=startdatum, enddatum__gte=enddatum)
+
+
 class BargeldsatzManager(models.Manager):
 
     def nach_lebensalter(self, datum, geburtsdatum):

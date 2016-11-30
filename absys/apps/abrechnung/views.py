@@ -44,8 +44,12 @@ class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormVie
                     form.cleaned_data['enddatum']
                 )
             except ValidationError as e:
-                for field, error in e.error_dict.items():
-                    form.add_error(field, error)
+                if hasattr(e, 'error_dict'):
+                    for field, error in e.error_dict.items():
+                        form.add_error(field, error)
+                if hasattr(e, 'error_list'):
+                    for error in e.error_list:
+                        form.add_error(None, error)
                 return self.form_invalid(form)
         self.query_string = 'sozialaemter={0}&enddatum={1}'.format(
             ','.join(map(str, form.cleaned_data['sozialaemter'].values_list('pk', flat=True))),

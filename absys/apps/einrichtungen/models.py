@@ -298,6 +298,8 @@ class Bettengeldsatz(TimeStampedModel):
         "Verminderter Satz", max_digits=8, decimal_places=2, default=0
     )
 
+    objects = managers.BettengeldsatzQuerySet.as_manager()
+
     class Meta:
         unique_together = ('einrichtung', 'startdatum', 'enddatum')
         verbose_name = "Bettengeldsatz"

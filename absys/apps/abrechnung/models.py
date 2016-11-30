@@ -110,6 +110,19 @@ class RechnungSozialamt(TimeStampedModel):
                 {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."},
                 code='startdatum_exitiert_schon'
             )
+        qs = self.sozialamt.anmeldungen.zeitraum(self.startdatum, self.enddatum)
+        for schueler_in_einrichtung in qs:
+            einrichtung = schueler_in_einrichtung.einrichtung
+            fehltage_immer_abrechnen = einrichtung.konfiguration.fehltage_immer_abrechnen
+            bettengeldsaetze = einrichtung.bettengeldsaetze.zeitraum(
+                self.startdatum, self.enddatum
+            )
+            if fehltage_immer_abrechnen and bettengeldsaetze.count() == 0:
+                raise ValidationError(
+                    ("Der Einrichtung {0} wurde für den Abrechnungszeitraum kein"
+                        " Bettengeldsatz zugewiesen.").format(einrichtung),
+                    code='einrichtung_ohne_bettengeld'
+                )
 
     @property
     def nummer(self):
