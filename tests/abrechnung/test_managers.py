@@ -75,8 +75,14 @@ class TestRechnungSozialamtManager:
             assert rechnung_sozialamt.enddatum == ende
             assert rechnung_sozialamt.enddatum > rechnung_sozialamt.startdatum
             assert rechnung_sozialamt.positionen_schueler.count() == 5
-            pos_schueler = rechnung_sozialamt.positionen_schueler.first()
             # RechnungsPositionSchueler
+            assert rechnung_sozialamt.positionen_schueler.filter(
+                abgerechnet=True, abwesend=False
+            ).count() == 4
+            assert rechnung_sozialamt.positionen_schueler.filter(
+                abgerechnet=True, abwesend=True
+            ).count() == 1
+            pos_schueler = rechnung_sozialamt.positionen_schueler.first()
             assert pos_schueler.rechnung_sozialamt == rechnung_sozialamt
             assert pos_schueler.schueler == schueler_in_einrichtung.schueler
             assert pos_schueler.einrichtung == schueler_in_einrichtung.einrichtung
