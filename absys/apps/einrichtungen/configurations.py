@@ -1,4 +1,5 @@
 import collections
+import datetime
 
 
 class EinrichtungKonfigurationBase:
@@ -70,24 +71,18 @@ class EinrichtungKonfigurationBase:
     Sonntag ist 7.
     """
 
-    def abrechnen(self, rechnung_einrichtung, schueler, eintritt, tage, tage_abwesend):
+    def fehltage_abrechnen(self, rechnungs_pos_schueler, schueler_in_einrichtung):
         """
         Methode zum Abrechnen eines Zeitraums für einen Schüler in einer Einrichtung.
 
         Jede Einrichtungs-Konfiguration muss diese Methode implementieren, um
-        zu bestimmen welche Tage abgerechnet werden.
+        zu bestimmen welche Tage nach welchen Regeln abgerechnet werden.
 
         Args:
-            rechnung_einrichtung (RechnungEinrichtung): Rechnung für eine Einrichtung
-            schueler (Schueler): Schüler Instanz
-            eintritt (date): Tag des Eintritts in die Einrichtung
-            tage (tuple): Tupel von date Objekten, die den Zeitraum zur
-                Abrechnung bestimmen
-            tage_abwesend (QuerySet): Liste von date Objekten, die die abwesenden
-                Tage definiert
-
-        Returns:
-            QuerySet: Ein QuerySet von RechnungsPositionEinrichtung Instanzen
+            rechnungs_pos_schueler(RechnungsPositionSchuelerQuerySet):
+                Rechnungsposition für einen Schüler
+            schueler_in_einrichtung (SchuelerInEinrichtung):
+                Anmeldung für einen Schüler in einer Einrichtung
         """
         raise NotImplementedError
 
@@ -111,8 +106,23 @@ class EinrichtungKonfiguration250(EinrichtungKonfigurationBase):
     tage = 250
     feste_schliesstage = (6, 7)
 
-    def abrechnen(self, rechnung_einrichtung, schueler, eintritt, tage, tage_abwesend):
-        pass
+    def fehltage_abrechnen(self, rechnungs_pos_schueler, schueler_in_einrichtung):
+        """
+        Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
+
+        Das ``limit`` ist die Anzahl der erlaubten Fehltage minus der bisher abgerechneten Fehltage.
+        """
+        limit = 0
+        if len(rechnungs_pos_schueler):
+            fehltage_abgerechnet = schueler_in_einrichtung.schueler.positionen_schueler.fehltage_abgerechnet(
+                schueler_in_einrichtung,
+                rechnungs_pos_schueler.first().rechnung_sozialamt.enddatum
+            ).count()
+            if fehltage_abgerechnet <= schueler_in_einrichtung.fehltage_erlaubt:
+                limit = schueler_in_einrichtung.fehltage_erlaubt - fehltage_abgerechnet
+        for rechnung_pos in rechnungs_pos_schueler[:limit]:
+            rechnung_pos.abgerechnet = True
+            rechnung_pos.save()
 
 
 class EinrichtungKonfiguration280(EinrichtungKonfigurationBase):
@@ -129,8 +139,14 @@ class EinrichtungKonfiguration280(EinrichtungKonfigurationBase):
     bekleidungsgeld = True
     feste_schliesstage = (6,)
 
-    def abrechnen(self, rechnung_einrichtung, schueler, eintritt, tage, tage_abwesend):
-        pass
+    def fehltage_abrechnen(self, rechnungs_pos_schueler, schueler_in_einrichtung):
+        for rechnung_pos in rechnungs_pos_schueler:
+            rechnung_pos.abgerechnet = True
+            rechnung_pos.pflegesatz = schueler_in_einrichtung.einrichtung.bettengeldsaetze.zeitraum(
+                rechnung_pos.datum,
+                rechnung_pos.datum
+            ).get().satz
+            rechnung_pos.save()
 
 
 class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
@@ -152,8 +168,93 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
     bargeldauszahlung = True
     bekleidungsgeld = True
 
-    def abrechnen(self, rechnung_einrichtung, schueler, eintritt, tage, tage_abwesend):
-        pass
+    def fehltage_gruppieren(self, rechnungs_pos_schueler):
+        """
+        Gruppen von Fehltagen zurückgeben.
+
+        Die Fehltage werden in Gruppen aufgeteilt, die keine Lücken haben.
+        """
+        rechnung_pos_gruppen = []
+        if len(rechnungs_pos_schueler):
+            rechnung_pos_gruppen.append([rechnungs_pos_schueler[0]])
+            for rechnung_pos in rechnungs_pos_schueler[1:]:
+                if rechnung_pos_gruppen[-1][-1].datum == rechnung_pos.datum - datetime.timedelta(1):
+                    rechnung_pos_gruppen[-1].append(rechnung_pos)
+                else:
+                    rechnung_pos_gruppen.append([rechnung_pos])
+        return rechnung_pos_gruppen
+
+    @staticmethod
+    def fehltage_zaehlen(qs):
+        """
+        Anzahl der Fehltage im QuerySet zurückgeben.
+
+        Die Fehltage müssen aufeinander folgen, damit diese gezählt werden.
+
+        Example:
+            ================== ===================
+            Tage (vereinfacht) Anzhal der Fehltage
+            ================== ===================
+            F,F,F              3
+            F,A,F              1
+            A,A,A              0
+            A,F,F              0
+            ================== ===================
+            F = fehlt
+            A = anwesend
+        """
+        anzahl = 0
+        for obj in qs:
+            if obj.abwesend:
+                anzahl += 1
+            else:
+                break
+        return anzahl
+
+    def fehltage_letzte_rechnung(self, schueler):
+        """Fehltage der letzten Rechnung zurückgeben."""
+        return self.fehltage_zaehlen(schueler.positionen_schueler.order_by('-datum')[:3])
+
+    def fehltage_folgezeitraum(self, schueler, enddatum):
+        """Fehltage für den Folgezeitraum zurückgeben."""
+        return self.fehltage_zaehlen(
+            schueler.anwesenheit.filter(datum__gt=enddatum).order_by('datum')[:3]
+        )
+
+    def fehltage_abrechnen(self, rechnungs_pos_schueler, schueler_in_einrichtung):
+        """
+        Abrechnung der Fehltage.
+
+        - Ab vier oder mehr Fehltagen am Stück gilt für diese Fehltage ein
+          verminderter Bettengeldsatz
+        - Bei der Betrachtung der Fehltage werden auch die letzten drei Tage
+          der *vorhergehenden Rechnung* sowie die ersten drei *Anwesenheiten*
+          im Folgezeitraum berücksichtigt
+
+            - Es gibt hier also zwei Bettengeldsätze: Standard und vermindert
+        """
+        for rechnung_pos_gruppe in self.fehltage_gruppieren(rechnungs_pos_schueler):
+            anzahl_fehltage = len(rechnung_pos_gruppe)
+            rechnung_sozialamt = rechnung_pos_gruppe[0].rechnung_sozialamt
+            if rechnung_pos_gruppe[0].datum == rechnung_sozialamt.startdatum:
+                anzahl_fehltage += self.fehltage_letzte_rechnung(schueler_in_einrichtung.schueler)
+            if rechnung_pos_gruppe[-1].datum == rechnung_sozialamt.enddatum:
+                anzahl_fehltage += self.fehltage_folgezeitraum(
+                    schueler_in_einrichtung.schueler, rechnung_sozialamt.enddatum
+                )
+            vermindert = bool(anzahl_fehltage >= 4)
+            for rechnung_pos in rechnung_pos_gruppe:
+                rechnung_pos.abgerechnet = True
+                rechnung_pos.vermindert = vermindert
+                bettengeldsatz = schueler_in_einrichtung.einrichtung.bettengeldsaetze.zeitraum(
+                    rechnung_pos.datum,
+                    rechnung_pos.datum
+                ).get()
+                if vermindert:
+                    rechnung_pos.pflegesatz = bettengeldsatz.satz_vermindert
+                else:
+                    rechnung_pos.pflegesatz = bettengeldsatz.satz
+                rechnung_pos.save()
 
 
 registry_classes = (

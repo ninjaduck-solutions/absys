@@ -129,25 +129,13 @@ class RechnungSozialamt(TimeStampedModel):
         return "S{:06d}".format(self.pk)
 
     def fehltage_abrechnen(self, schueler_in_einrichtung):
-        """
-        Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
-
-        Das ``limit`` ist die Anzahl der erlaubten Fehltage minus der bisher abgerechneten Fehltage.
-        """
+        """Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen."""
         qs = RechnungsPositionSchueler.objects.nicht_abgerechnet(
             schueler_in_einrichtung, self.enddatum
         )
-        fehltage_abgerechnet = RechnungsPositionSchueler.objects.fehltage_abgerechnet(
-            schueler_in_einrichtung,
-            self.enddatum
-        ).count()
-        limit = schueler_in_einrichtung.fehltage_erlaubt - fehltage_abgerechnet
-        if limit < 0:
-            limit = 0
-        for rechnung_pos in qs[:limit]:
-            rechnung_pos.abgerechnet = True
-            rechnung_pos.rechnung_sozialamt = self
-            rechnung_pos.save()
+        schueler_in_einrichtung.einrichtung.konfiguration.fehltage_abrechnen(
+            qs, schueler_in_einrichtung
+        )
 
     @cached_property
     def mittelwert_einrichtungssummen(self):
