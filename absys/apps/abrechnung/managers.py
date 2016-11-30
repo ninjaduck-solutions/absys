@@ -117,11 +117,12 @@ class RechnungSozialamtManager(models.Manager):
             rechnung_sozialamt.enddatum
         )
         for schueler_in_einrichtung, tage in betreuungstage.items():
-            tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
-            tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
+            tage_abwesend = schueler_in_einrichtung.war_abwesend(tage).values_list(
+                'datum', flat=True
+            )
             RechnungsPositionSchueler.objects.erstelle_fuer_tage(
                 tage,
-                tage_abwesend_datetime,
+                tage_abwesend,
                 schueler_in_einrichtung,
                 rechnung_sozialamt
             )
@@ -133,7 +134,7 @@ class RechnungSozialamtManager(models.Manager):
                 schueler_in_einrichtung.schueler,
                 schueler_in_einrichtung.eintritt,
                 tage,
-                tage_abwesend_datetime,
+                tage_abwesend,
                 schueler_in_einrichtung.bargeldbetrag(
                     rechnung_sozialamt.startdatum, rechnung_sozialamt.enddatum
                 ),
