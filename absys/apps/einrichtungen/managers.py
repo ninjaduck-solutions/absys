@@ -48,7 +48,9 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         Anzahl der Tage entsprechen, an denen der Schüler in der Einrichtung
         angemeldet war.
 
-        Alle Samstage, Sonntage und Schließ­tage werden entfernt.
+        Alle Samstage, Sonntage und Schließ­tage werden entfernt. Ob Samstage
+        oder Sonntage entfernt werden, richtet sich nach der Konfiguration der
+        Einrichtung.
         """
         betreuungstage = {}
         for schueler_in_einrichtung in self.zeitraum(startdatum, enddatum):
