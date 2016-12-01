@@ -56,10 +56,16 @@ class EinrichtungHatPflegesatzAdmin(admin.TabularInline):
     extra = 0
 
 
+class BettengeldsatzInlineAdmin(admin.TabularInline):
+    model = models.Bettengeldsatz
+    fields = ('satz', 'satz_vermindert', 'startdatum', 'enddatum')
+    extra = 0
+
+
 class EinrichtungAdmin(ImportExportActionModelAdmin):
     list_display = ('name', 'kuerzel')
     inlines = [
-        EinrichtungHatPflegesatzAdmin,
+        EinrichtungHatPflegesatzAdmin, BettengeldsatzInlineAdmin
     ]
 
 
@@ -68,5 +74,4 @@ admin.site.register(models.Einrichtung, EinrichtungAdmin)
 admin.site.register(models.Ferien)
 admin.site.register(models.Schliesstag)
 admin.site.register(models.Standort)
-admin.site.register(models.Bettengeldsatz)
 admin.site.register(models.Bargeldsatz)
