@@ -293,7 +293,15 @@ class Bettengeldsatz(TimeStampedModel):
         "Enddatum",
         help_text="Das Enddatum muss nach dem Startdatum liegen."
     )
-    satz = models.DecimalField("Satz", max_digits=8, decimal_places=2)
+    satz = models.DecimalField(
+        "Satz", max_digits=8, decimal_places=2,
+        help_text=(
+            "<p>Dieses ist Feld ist doppelt belegt:<br><ol>"
+            "<li>Für 280-Tages-Einrichtungen ist dieses Feld der Abwesenheitsvergütungssatz.</li>"
+            "<li>Für 365-Tages-Einrichtungen ist dieses Feld der Bettengeldsatz.</li>"
+            "<ol></p>"
+        )
+    )
     satz_vermindert = models.DecimalField(
         "Verminderter Satz", max_digits=8, decimal_places=2, default=0
     )
