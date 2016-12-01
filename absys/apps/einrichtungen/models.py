@@ -230,10 +230,10 @@ class SchuelerInEinrichtung(TimeStampedModel):
 class EinrichtungHatPflegesatz(TimeStampedModel):
 
     einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
-    pflegesatz = models.DecimalField(max_digits=5, decimal_places=2)
-    pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2)
-    pflegesatz_startdatum = models.DateField()
-    pflegesatz_enddatum = models.DateField()
+    pflegesatz = models.DecimalField("Pflegesatz", max_digits=5, decimal_places=2)
+    pflegesatz_ferien = models.DecimalField("Pflegesatz Ferien", max_digits=5, decimal_places=2)
+    pflegesatz_startdatum = models.DateField("Startdatum")
+    pflegesatz_enddatum = models.DateField("Enddatum")
 
     class Meta:
         verbose_name = "Pflegesatz einer Einrichtung"
