@@ -284,37 +284,39 @@ class RechnungEinrichtung(TimeStampedModel):
         return "ER{:06d}".format(self.pk)
 
     def abrechnen(self, schueler, eintritt, tage, tage_abwesend, bargeldbetrag, bekleidungsgeld=None):
-        """Erstellt für jeden Schüler eine Rechnungsposition.
+        """Erstellt für den Schüler eine Rechnungsposition.
 
         Die Abrechnung erfolgt für die übergebenen Anwesenheits- und
         Abwesenheitstage.
         """
-        fehltage_max = self.einrichtung.anmeldungen.filter(schueler=schueler).war_angemeldet(
-            tage[0]
-        ).get().fehltage_erlaubt
-        fehltage = len(tage_abwesend)
-        fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
-            tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
-        )
-        if bekleidungsgeld is None:
-            bekleidungsgeld = decimal.Decimal()
-        summen = schueler.positionen_schueler.filter(
-            rechnung_sozialamt=self.rechnung_sozialamt
-        ).summen()
-        return self.positionen.create(
-            schueler=schueler,
-            name_schueler=schueler.voller_name,
-            fehltage_max=fehltage_max,
-            anwesend=len(tage) - fehltage,
-            fehltage=fehltage,
-            fehltage_uebertrag=fehltage_uebertrag,
-            fehltage_gesamt=fehltage + fehltage_uebertrag,
-            fehltage_abrechnung=summen['fehltage'],
-            zahltage=summen['zahltage'],
-            bargeldbetrag=bargeldbetrag,
-            bekleidungsgeld=bekleidungsgeld,
-            summe=summen['aufwaende'] + bargeldbetrag + bekleidungsgeld
-        )
+        if len(tage):
+            fehltage_max = self.einrichtung.anmeldungen.filter(schueler=schueler).war_angemeldet(
+                tage[0]
+            ).get().fehltage_erlaubt
+            fehltage = len(tage_abwesend)
+            fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
+                tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
+            )
+            if bekleidungsgeld is None:
+                bekleidungsgeld = decimal.Decimal()
+            summen = schueler.positionen_schueler.filter(
+                rechnung_sozialamt=self.rechnung_sozialamt
+            ).summen()
+            return self.positionen.create(
+                schueler=schueler,
+                name_schueler=schueler.voller_name,
+                fehltage_max=fehltage_max,
+                anwesend=len(tage) - fehltage,
+                fehltage=fehltage,
+                fehltage_uebertrag=fehltage_uebertrag,
+                fehltage_gesamt=fehltage + fehltage_uebertrag,
+                fehltage_abrechnung=summen['fehltage'],
+                zahltage=summen['zahltage'],
+                bargeldbetrag=bargeldbetrag,
+                bekleidungsgeld=bekleidungsgeld,
+                summe=summen['aufwaende'] + bargeldbetrag + bekleidungsgeld
+            )
+        return None
 
     def abschliessen(self):
         """Rechnung abschließen."""
