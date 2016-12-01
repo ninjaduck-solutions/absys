@@ -436,3 +436,17 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
                 self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
                 self.rechnung_einrichtung.rechnung_sozialamt.enddatum)
         ).count()
+
+    @cached_property
+    def anwesenheitssumme(self):
+        """Betrag Anwesenheit."""
+        return self.detailabrechnung.filter(
+            abgerechnet=True, abwesend=False
+        ).aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
+
+    @cached_property
+    def abwesenheitssumme(self):
+        """Betrag Abwesenheit."""
+        return self.detailabrechnung.filter(
+            abgerechnet=True, abwesend=True
+        ).aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
