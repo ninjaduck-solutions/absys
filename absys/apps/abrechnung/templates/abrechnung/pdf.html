@@ -64,20 +64,10 @@
                 <b>Typ der Einrichtung: </b>
                 {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 250 %}
                   250-Tages-Einrichtung
-                {% endif %}
-                {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 280 %}
+                {% elif einrichtungsrechnung.einrichtung.konfiguration.tage == 280 %}
                   280-Tages-Einrichtung
-                {% endif %}
-                {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+                {% elif einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
                   365-Tages-Einrichtung
-                {% endif %}
-                <br>
-                {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
-                  <b>Bettengeld:</b> ??? <br>
-                  <b>Vermindertes Bettengeld:</b> ??? <br>
-                {% endif %}
-                {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 280 %}
-                  <b>Abwesenheitsvergütung:</b> ??? <br>
                 {% endif %}
                 <br>
                 <b>Abrechnungszeitraum:</b>
@@ -86,7 +76,6 @@
                 {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}
                 <br>
                 <b>Schließtage:</b>
-                {# TODO umbauen auf Zeitraumauswahl fuer vorliegende Rechnung #}
                 {% for schliesstag in einrichtungsrechnung.schliesstage %}
                   {{ schliesstag.datum|date:"SHORT_DATE_FORMAT" }}{% if not forloop.last %},{% endif %}
                 {% empty %}
@@ -367,8 +356,12 @@
                 <th>Tagart</th>
                 <th>Anwesenheit</th>
 
+                {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+                  <th>Bettengeldsatz</th>
+                {% endif %}
+
                 <th>
-                  Pflegesatz
+                  Angewendete(r) Pflegesatz
                   {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 280 %} / Abwesenheitsvergütung{% endif %}
                   {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %} / (Vermindertes) Bettengeld{% endif %}
                 </th>
@@ -380,8 +373,17 @@
                 <tr>
                   <td>{{ schuelerposition.datum|date:"SHORT_DATE_FORMAT" }} </td>
                   <td>{{ schuelerposition.tag_art }}</td>
-                  <td>{% if schuelerposition.abwesend %}Fehltag
+                  <td>
+                    {% if schuelerposition.abwesend %}Fehltag
                     {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
+
+                  {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+                    <td>
+                      {% if schuelerposition.vermindert %}vermindert
+                      {% else %}normal
+                      {% endif %}
+                  {% endif %}
+
                   <td>{{ schuelerposition.pflegesatz }}</td>
                 </tr>
               {% endfor %}
@@ -389,7 +391,6 @@
           </table>
         {% endfor %}
       {% endfor %}
-
 
     {# ENDE DER ANWESENHEITSAUFLISTUNG #}
 
