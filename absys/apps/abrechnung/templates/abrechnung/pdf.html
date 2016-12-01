@@ -350,7 +350,8 @@
                   {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
                     <td>
                       {% if schuelerposition.vermindert %}vermindert
-                      {% else %}normal
+                      {% elif schuelerposition.abwesend and not schuelerposition.vermindert %}normal
+                      {% else %}
                       {% endif %}
                   {% endif %}
 
