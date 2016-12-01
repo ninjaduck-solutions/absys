@@ -349,9 +349,8 @@
 
                   {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
                     <td>
-                      {% if schuelerposition.vermindert %}vermindert
-                      {% elif schuelerposition.abwesend and not schuelerposition.vermindert %}normal
-                      {% else %}
+                      {% if schuelerposition.abwesend %}
+                        {{ schuelerposition.vermindert|yesno:"vermindert,normal" }}
                       {% endif %}
                   {% endif %}
 
