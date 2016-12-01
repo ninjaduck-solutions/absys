@@ -138,13 +138,7 @@
 
             {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
               <th>Übertrag Fehltage</th>
-            {% endif %}
-
-            {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
               <th>Fehltage Gesamt</th>
-            {% endif %}
-
-            {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
               <th>Fehltage zur Anrechnung</th>
             {% endif %}
 
@@ -190,18 +184,12 @@
 
               {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                 <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
-              {% endif %}
-
-              {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                 <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
-              {% endif %}
-
-              {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                 <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
               {% endif %}
 
               <td>{{ einrichtungsposition.zahltage }}</td>
-              
+
               {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
                 <td>{{ einrichtungsposition.bargeldbetrag }}</td>
               {% endif %}
@@ -209,7 +197,7 @@
               {% if einrichtungsrechnung.einrichtung.konfiguration.bekleidungsgeld %}
                 <td>{{ einrichtungsposition.bekleidungsgeld }}</td>
               {% endif %}
-              
+
               <td>{{ einrichtungsposition.summe }}</td>
             </tr>
           {% endfor %}
@@ -258,24 +246,15 @@
                 {% endif %}
 
                 <th>Fehltage im Abrechnungs-zeitraum</th>
-                
+
                 {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <th>Betrag Abwesenheit</th>
                 {% endif %}
 
                 {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <th>Übertrag abgerechnete Fehltage</th>
-                {% endif %}
-
-                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <th>Fehltage Gesamt</th>
-                {% endif %}
-
-                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <th>Fehltage zur Abrechnung</th>
-                {% endif %}
-
-                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <th>davon Fehltage nachträglich zur Abrechnung</th>
                 {% endif %}
 
@@ -316,17 +295,8 @@
 
                 {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
-                {% endif %}
-                
-                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
-                {% endif %}
-
-                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
-                {% endif %}
-
-                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
                   <td>{{ einrichtungsposition.fehltage_anderer_zeitraum }}</td>
                 {% endif %}
 
