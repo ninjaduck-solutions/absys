@@ -300,7 +300,8 @@ class RechnungEinrichtung(TimeStampedModel):
             if bekleidungsgeld is None:
                 bekleidungsgeld = decimal.Decimal()
             summen = schueler.positionen_schueler.filter(
-                rechnung_sozialamt=self.rechnung_sozialamt
+                rechnung_sozialamt=self.rechnung_sozialamt,
+                einrichtung=self.einrichtung
             ).summen()
             return self.positionen.create(
                 schueler=schueler,
