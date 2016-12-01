@@ -111,13 +111,13 @@
             <th>Maximale Fehltage</th>
             <th>Anzahl Tage anwesend</th>
             <th>Fehltage im Abrechnungs-zeitraum</th>
-            {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 250 %}
+            {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
             <th>Übertrag Fehltage</th>
             {% endif %}
             <th>Fehltage Gesamt</th>
             <th>Fehltage zur Anrechnung</th>
             <th>Zahltage dieser Rechnung</th>
-            {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 280 or einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+            {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
             <th>Barbetrag</th>
             {% endif %}
             <th>Gesamtbetrag in Euro</th>
@@ -133,13 +133,13 @@
               <td>{{ einrichtungsposition.fehltage_max }}</td>
               <td>{{ einrichtungsposition.anwesend }}</td>
               <td>{{ einrichtungsposition.fehltage }}</td>
-              {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 250 %}
+              {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
               <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
               {% endif %}
               <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
               <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
               <td>{{ einrichtungsposition.zahltage }}</td>
-              {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 280 or einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+              {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
               <td>{{ einrichtungsposition.bargeldbetrag }}</td>
               {% endif %}
               <td>{{ einrichtungsposition.summe }}</td>
