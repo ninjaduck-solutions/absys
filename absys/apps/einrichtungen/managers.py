@@ -80,6 +80,14 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         )
 
 
+class EinrichtungHatPflegesatzQuerySet(models.QuerySet):
+
+    def zeitraum(self, startdatum, enddatum):
+        return self.filter(
+            pflegesatz_startdatum__lte=startdatum, pflegesatz_enddatum__gte=enddatum
+        )
+
+
 class BettengeldsatzQuerySet(models.QuerySet):
 
     def zeitraum(self, startdatum, enddatum):

@@ -81,6 +81,7 @@ class TestRechnungsPositionEinrichtung:
     def test_detailabrechnung(self, schueler, rechnung_sozialamt_factory,
             einrichtung_hat_pflegesatz_factory, schueler_in_einrichtung_factory):
         rechnung_sozialamt_factory(enddatum=datetime.date(2016, 5, 31))
+        pflegesatz_start = datetime.date(2016, 1, 1)
         start = datetime.date(2016, 6, 1)
         ende = datetime.date(2016, 6, 30)
         schueler_in_einrichtung_1 = schueler_in_einrichtung_factory(
@@ -90,7 +91,8 @@ class TestRechnungsPositionEinrichtung:
         )
         einrichtung_hat_pflegesatz_factory(
             einrichtung=schueler_in_einrichtung_1.einrichtung,
-            pflegesatz_startdatum=schueler_in_einrichtung_1.eintritt
+            pflegesatz_startdatum=pflegesatz_start,
+            pflegesatz_dauer=(ende - pflegesatz_start).days
         )
         schueler_in_einrichtung_2 = schueler_in_einrichtung_factory(
             schueler=schueler,
@@ -99,7 +101,8 @@ class TestRechnungsPositionEinrichtung:
         )
         einrichtung_hat_pflegesatz_factory(
             einrichtung=schueler_in_einrichtung_2.einrichtung,
-            pflegesatz_startdatum=schueler_in_einrichtung_2.eintritt
+            pflegesatz_startdatum=pflegesatz_start,
+            pflegesatz_dauer=(ende - pflegesatz_start).days
         )
         assert schueler_in_einrichtung_1.einrichtung != schueler_in_einrichtung_2.einrichtung
         rechnung_sozialamt = models.RechnungSozialamt.objects.rechnungslauf(schueler.sozialamt, ende)

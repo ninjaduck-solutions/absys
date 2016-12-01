@@ -235,6 +235,8 @@ class EinrichtungHatPflegesatz(TimeStampedModel):
     pflegesatz_startdatum = models.DateField("Startdatum")
     pflegesatz_enddatum = models.DateField("Enddatum")
 
+    objects = managers.EinrichtungHatPflegesatzQuerySet.as_manager()
+
     class Meta:
         verbose_name = "Pflegesatz einer Einrichtung"
         verbose_name_plural = "Pflegesätze der Einrichtungen"

@@ -123,6 +123,13 @@ class RechnungSozialamt(TimeStampedModel):
                         " Bettengeldsatz zugewiesen.").format(einrichtung),
                     code='einrichtung_ohne_bettengeld'
                 )
+            pflegesaetze = einrichtung.pflegesaetze.zeitraum(self.startdatum, self.enddatum)
+            if pflegesaetze.count() == 0:
+                raise ValidationError(
+                    ("Der Einrichtung {0} wurde für den Abrechnungszeitraum kein"
+                        " Pflegesatz zugewiesen.").format(einrichtung),
+                    code='einrichtung_ohne_pflegesatz'
+                )
 
     @property
     def nummer(self):
