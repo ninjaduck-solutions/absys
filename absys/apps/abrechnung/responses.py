@@ -52,7 +52,7 @@ class SaxMBSResponse(HttpResponse):
         }
         return self.render_to_string(self.TEMPLATE_RECHNUNG_EINRICHTUNG, context)
 
-    def zeile_rechnung_einrichtung(self, rechnung_einrichtung, schueler, counter):
+    def zeile_rechnung_schueler(self, rechnung_einrichtung, schueler, counter):
         context = {
             'rechnungeinrichtung': rechnung_einrichtung,
             'schueler': schueler,
