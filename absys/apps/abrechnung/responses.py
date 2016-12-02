@@ -30,8 +30,12 @@ class SaxMBSResponse(HttpResponse):
                     print(self.zeile_rechnung_einrichtung(rechnung_einrichtung, counter), file=output)
                 else:
                     for schueler in rechnung_einrichtung.einrichtung.schueler.all():
-                        print(self.zeile_rechnung_einrichtung(
-                            rechnung_einrichtung, counter, schueler, self.TEMPLATE_RECHNUNG_SCHUELER), file=output
+                        extra_context = {
+                            'schueler': schueler,
+                        }
+                        print(
+                            self.zeile_rechnung_einrichtung(rechnung_einrichtung, counter, extra_context, self.TEMPLATE_RECHNUNG_SCHUELER),
+                            file=output
                         )
                 counter += 1
             print(self.zeile_sicherungsdatensatz(), file=output)
@@ -40,10 +44,9 @@ class SaxMBSResponse(HttpResponse):
     def render_to_string(self, template, context):
         return self.engine.from_string(template).render(Context(context))
 
-    def zeile_rechnung_einrichtung(self, rechnung_einrichtung, counter, schueler=None, template=None):
+    def zeile_rechnung_einrichtung(self, rechnung_einrichtung, counter, extra_context=None, template=None):
         context = {
             'rechnungeinrichtung': rechnung_einrichtung,
-            'schueler': schueler,
             'counter': counter,
             'ebene_1': settings.ABSYS_SAX_EBENE_1,
             'kapitel': settings.ABSYS_SAX_KAPITEL,
@@ -53,6 +56,8 @@ class SaxMBSResponse(HttpResponse):
             'zahlungsanzeigeschluessel': settings.ABSYS_SAX_ZAHLUNGSANZEIGESCHLUESSEL,
             'zinsschluessel': settings.ABSYS_SAX_ZINSSCHLUESSEL,
         }
+        if extra_context is not None:
+            context.update(extra_context)
         if template is None:
             template = self.TEMPLATE_RECHNUNG_EINRICHTUNG
         return self.render_to_string(template, context)
