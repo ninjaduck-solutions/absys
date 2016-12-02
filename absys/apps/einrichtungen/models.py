@@ -42,6 +42,8 @@ class Einrichtung(TimeStampedModel):
         "Konfiguration",
         choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES
     )
+    pers_bkz= models.BooleanField("Einrichtung mit persönlichen BKZ?", 
+        default=False)
 
     class Meta:
         ordering = ['name']
@@ -183,6 +185,11 @@ class SchuelerInEinrichtung(TimeStampedModel):
         return self.get_pers_pflegesatz(datum) or self.einrichtung.get_pflegesatz(datum)
 
     def clean(self):
+        if not self.schueler.aktenzeichen and self.einrichtung.pers_bkz:
+            msg = str("Dieser Schüler soll einer Einrichtung mit persönlichen Buchungskennzeichen hinzugefügt werden."
+                " Bitte vergeben Sie für diesen Schüler zuerst ein Aktenzeichen,"
+                " das als persönliches Buchungskennzeichen genutzt werden kann.")
+            raise ValidationError(msg.format(s=self))
         if self.eintritt and self.austritt:
             if self.eintritt > self.austritt:
                 raise ValidationError(
