@@ -124,7 +124,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
         ", muss wie folgt vorgegangen werden:<br><br>"
         "1. Das Austrittsdatum des aktuellen Datensatzes auf den letzten Tag für das alte Sozialamt setzen.<br>"
         "2. Das Sozialamt am Datensatz des Schülers ändern.<br>"
-        "3. Den Schüler für den neuen Zeitraum der gleichen Einrichtung hinzufügen.<br><br>"
+        "3. Einen neuen Schüler-in-Einrichtung-Datensatz für den neuen Zeitraum für den gleichen Schüler der gleichen Einrichtung hinzufügen.<br><br>"
         "</span>"
     )
     eintritt = models.DateField("Eintritt")
