@@ -37,7 +37,7 @@ class Einrichtung(TimeStampedModel):
         related_name='einrichtungen'
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
-    titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=True)
+    titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=False)
     konfiguration_id = models.IntegerField(
         "Konfiguration",
         choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES
