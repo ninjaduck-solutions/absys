@@ -45,7 +45,7 @@ class Schueler(TimeStampedModel):
         validators=[validators.validate_geburtsdatum_in_vergangenheit]
     )
     bemerkungen = models.TextField(blank=True)
-    aktenzeichen = models.CharField("Aktenzeichen", max_length=12, blank=True, null=True)
+    aktenzeichen = models.CharField("Aktenzeichen", max_length=12, blank=True)
     gruppe = models.ForeignKey(Gruppe, related_name='schueler')
     sozialamt = models.ForeignKey(Sozialamt, related_name='schueler')
 

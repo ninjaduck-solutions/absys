@@ -37,7 +37,7 @@ class Einrichtung(TimeStampedModel):
         related_name='einrichtungen'
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
-    titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=False)
+    titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.")
     konfiguration_id = models.IntegerField(
         "Konfiguration",
         choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES
@@ -186,10 +186,12 @@ class SchuelerInEinrichtung(TimeStampedModel):
 
     def clean(self):
         if not self.schueler.aktenzeichen and self.einrichtung.pers_bkz:
-            msg = str("Dieser Schüler soll einer Einrichtung mit persönlichen Buchungskennzeichen hinzugefügt werden."
+            msg = (
+                "Dieser Schüler soll einer Einrichtung mit persönlichen Buchungskennzeichen hinzugefügt werden."
                 " Bitte vergeben Sie für diesen Schüler zuerst ein Aktenzeichen,"
-                " das als persönliches Buchungskennzeichen genutzt werden kann.")
-            raise ValidationError(msg.format(s=self))
+                " das als persönliches Buchungskennzeichen genutzt werden kann."
+            )
+            raise ValidationError(msg)
         if self.eintritt and self.austritt:
             if self.eintritt > self.austritt:
                 raise ValidationError(
