@@ -8,7 +8,7 @@ from . import validators
 
 class Gruppe(TimeStampedModel):
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Gruppe")
     bemerkungen = models.TextField(blank=True)
 
     class Meta:
