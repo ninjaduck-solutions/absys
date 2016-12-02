@@ -10,7 +10,7 @@ class AnwesenheitenResource(resources.ModelResource):
 
     class Meta:
         model = models.Anwesenheit
-        fields = ('id', 'schueler', 'datum', 'abwesend')
+        fields = ('id', 'schueler__nachname', 'schueler__vorname', 'datum', 'abwesend')
 
     def before_import(self, dataset, using_transactions, dry_run, **kwargs):
         """
