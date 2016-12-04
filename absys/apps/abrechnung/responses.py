@@ -26,7 +26,7 @@ class SaxMBSResponse(HttpResponse):
         with io.StringIO(newline='\r\n') as output:
             counter = 1
             for rechnung_einrichtung in self.rechnung_sozialamt.rechnungen_einrichtungen.all():
-                if rechnung_einrichtung.einrichtung.pers_bkz:
+                if not rechnung_einrichtung.einrichtung.pers_bkz:
                     print(self.zeile_rechnung_einrichtung(rechnung_einrichtung, counter), file=output)
                 else:
                     for einrichtungsposition in rechnung_einrichtung.positionen.all():
