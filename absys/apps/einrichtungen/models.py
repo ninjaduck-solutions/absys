@@ -59,6 +59,17 @@ class Einrichtung(TimeStampedModel):
                 {'titel': self._meta.get_field('titel').help_text},
                 code='title_zu_lang'
             )
+        if self.pers_bkz:
+            for schueler in self.schueler.all():
+                if schueler and not schueler.aktenzeichen:
+                    msg = (
+                        "Es existieren Schüler in dieser Einrichtung, "
+                        "die noch kein Aktenzeichen besitzen. "
+                        "Eine Einrichtung , die persönlichen Buchungskennzeichen verwendet, "
+                        "darf nur Schüler beinhalten, für die ein Aktenzeichen eingtragen ist."
+                    )
+                    raise ValidationError(msg)
+
 
     def hat_ferien(self, datum):
         """
