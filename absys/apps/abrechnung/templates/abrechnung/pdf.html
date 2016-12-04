@@ -105,6 +105,7 @@
                   <b> Das Buchungskennzeichen bitte unbedingt<br>
                   bei der Überweisung angeben!</b><br>
                   <br>
+
                 <h4><b>Aufwendungen Gesamt: {{ einrichtungsrechnung.summe }} € </b></h4><br><br>
               </p>
             </td>
@@ -123,7 +124,9 @@
 
             <th>Name</th>
 
-            <th>Aktenzeichen</th>
+            {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+              <th>Aktenzeichen</th>
+            {% endif %}
 
             <th>Geburtsdatum</th>
 
@@ -169,7 +172,9 @@
 
               <td>{{ einrichtungsposition.name_schueler }}</td>
 
-              <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+              {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+              {% endif %}
 
               <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"SHORT_DATE_FORMAT" }}</td>
 
@@ -238,7 +243,10 @@
           <table class="table table-striped">
             <thead style="display: table-row-group">
               <tr>
-                <th>Aktenzeichen</th>
+
+                {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                  <th>Aktenzeichen</th>
+                {% endif %}
 
                 <th>Geburtsdatum</th>
 
@@ -280,7 +288,10 @@
             </thead>
             <tbody>
               <tr>
-                <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+
+                {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                  <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+                {% endif %}
 
                 <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"SHORT_DATE_FORMAT" }}</td>
 
