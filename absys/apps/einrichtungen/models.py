@@ -29,7 +29,7 @@ class Einrichtung(TimeStampedModel):
     EINRICHTUNGS_KONFIGURATIONEN_CHOICES = configurations.choices
 
     name = models.CharField("Name", max_length=30, unique=True)
-    kuerzel = models.CharField("Kürzel", max_length=3, unique=True)
+    kuerzel = models.CharField("Kürzel", max_length=10, unique=True)
     schueler = models.ManyToManyField(
         Schueler,
         verbose_name='Schüler',
