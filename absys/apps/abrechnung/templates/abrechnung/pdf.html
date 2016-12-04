@@ -93,7 +93,14 @@
               <p>
                   <b>Fälligkeitsdatum:</b> {{ einrichtungsrechnung.datum_faellig|date:"SHORT_DATE_FORMAT" }}<br>
                   <br>
-                  <b>Buchungskennzeichen: </b>{{ einrichtungsrechnung.buchungskennzeichen }}<br>
+
+                  <b>Buchungskennzeichen: </b>
+                    {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                      Bitte persönliche Aktenzeichen der Schüler verwenden<br>
+                    {% else %}
+                      {{ einrichtungsrechnung.buchungskennzeichen }}<br>
+                    {% endif %}
+
                   <br>
                   <b> Das Buchungskennzeichen bitte unbedingt<br>
                   bei der Überweisung angeben!</b><br>
