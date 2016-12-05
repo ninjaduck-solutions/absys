@@ -304,9 +304,6 @@ class Bettengeldsatz(TimeStampedModel):
             "<ol></p>"
         )
     )
-    satz_vermindert = models.DecimalField(
-        "Verminderter Satz", max_digits=8, decimal_places=2, default=0
-    )
 
     objects = managers.BettengeldsatzQuerySet.as_manager()
 

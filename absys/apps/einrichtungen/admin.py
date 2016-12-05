@@ -60,7 +60,7 @@ class EinrichtungHatPflegesatzAdmin(admin.TabularInline):
 
 class BettengeldsatzInlineAdmin(admin.TabularInline):
     model = models.Bettengeldsatz
-    fields = ('satz', 'satz_vermindert', 'startdatum', 'enddatum')
+    fields = ('satz', 'startdatum', 'enddatum')
     extra = 0
 
 

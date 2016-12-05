@@ -155,12 +155,10 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
 
     - Es gibt keine festen Schließtage
     - Ab vier oder mehr Fehltagen am Stück gilt für diese Fehltage ein
-      verminderter Bettengeldsatz
+      verminderter Pflegesatz (auch Bettengeldsatz)
     - Bei der Betrachtung der Fehltage werden auch die letzten drei Tage der
       *vorhergehenden Rechnung* sowie die ersten drei *Anwesenheiten* im
       Folgezeitraum berücksichtigt
-
-        - Es gibt hier also zwei Bettengeldsätze: Standard und vermindert
     """
 
     tage = 365
@@ -226,12 +224,10 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
         Abrechnung der Fehltage.
 
         - Ab vier oder mehr Fehltagen am Stück gilt für diese Fehltage ein
-          verminderter Bettengeldsatz
+          verminderter Pflegesatz (auch Bettengeldsatz)
         - Bei der Betrachtung der Fehltage werden auch die letzten drei Tage
           der *vorhergehenden Rechnung* sowie die ersten drei *Anwesenheiten*
           im Folgezeitraum berücksichtigt
-
-            - Es gibt hier also zwei Bettengeldsätze: Standard und vermindert
         """
         for rechnung_pos_gruppe in self.fehltage_gruppieren(rechnungs_pos_schueler):
             anzahl_fehltage = len(rechnung_pos_gruppe)
@@ -242,18 +238,14 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
                 anzahl_fehltage += self.fehltage_folgezeitraum(
                     schueler_in_einrichtung.schueler, rechnung_sozialamt.enddatum
                 )
-            vermindert = bool(anzahl_fehltage >= 4)
             for rechnung_pos in rechnung_pos_gruppe:
                 rechnung_pos.abgerechnet = True
-                rechnung_pos.vermindert = vermindert
-                bettengeldsatz = schueler_in_einrichtung.einrichtung.bettengeldsaetze.zeitraum(
-                    rechnung_pos.datum,
-                    rechnung_pos.datum
-                ).get()
-                if vermindert:
-                    rechnung_pos.pflegesatz = bettengeldsatz.satz_vermindert
-                else:
-                    rechnung_pos.pflegesatz = bettengeldsatz.satz
+                if bool(anzahl_fehltage >= 4):
+                    rechnung_pos.vermindert = True
+                    rechnung_pos.pflegesatz = schueler_in_einrichtung.einrichtung.bettengeldsaetze.zeitraum(
+                        rechnung_pos.datum,
+                        rechnung_pos.datum
+                    ).get().satz
                 rechnung_pos.save()
 
 
