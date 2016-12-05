@@ -180,7 +180,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     - Name der Einrichtung (String)
     - Schul- oder Ferientag
     - Abwesenheit
-    - Verminderter Bettengeldsatz
+    - Verminderter Pflegesatz (Bettengeldsatz)
     - Pflegesatz
 
     Rechnungsposition für einen Schüler verändern ihren Zustand abhängig von
@@ -207,7 +207,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     name_einrichtung = models.CharField("Einrichtung", max_length=20)
     tag_art = models.CharField("Schul- oder Ferientag", choices=TAG_ART, default=TAG_ART.schule, max_length=20)
     abwesend = models.BooleanField("Abwesenheit", default=False)
-    vermindert = models.BooleanField("Verminderter Bettengeldsatz", default=False)
+    vermindert = models.BooleanField("Verminderter Pflegesatz (Bettengeldsatz)", default=False)
     pflegesatz = models.DecimalField("Pflegesatz", max_digits=5, decimal_places=2)
 
     objects = managers.RechnungsPositionSchuelerManager.from_queryset(
