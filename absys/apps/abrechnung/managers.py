@@ -111,7 +111,7 @@ class RechnungSozialamtManager(models.Manager):
             bekleidungsgeld = {}
         rechnung_sozialamt = self.vorbereiten(sozialamt, enddatum)
         rechnung_sozialamt.save()
-        rechnung_einrichtung = None
+        einrichtungs_rechnungen = {}
         betreuungstage = rechnung_sozialamt.sozialamt.anmeldungen.get_betreuungstage(
             rechnung_sozialamt.startdatum,
             rechnung_sozialamt.enddatum
@@ -130,6 +130,8 @@ class RechnungSozialamtManager(models.Manager):
             rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
                 rechnung_sozialamt, schueler_in_einrichtung.einrichtung
             )
+            if rechnung_einrichtung.pk not in einrichtungs_rechnungen:
+                einrichtungs_rechnungen[schueler_in_einrichtung.einrichtung.pk] = rechnung_einrichtung
             rechnung_einrichtung.abrechnen(
                 schueler_in_einrichtung.schueler,
                 schueler_in_einrichtung.eintritt,
@@ -140,7 +142,7 @@ class RechnungSozialamtManager(models.Manager):
                 ),
                 bekleidungsgeld.get(schueler_in_einrichtung.pk)
             )
-        if rechnung_einrichtung is not None:
+        for rechnung_einrichtung in einrichtungs_rechnungen.values():
             rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt
 
