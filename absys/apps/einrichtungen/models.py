@@ -29,7 +29,7 @@ class Einrichtung(TimeStampedModel):
     EINRICHTUNGS_KONFIGURATIONEN_CHOICES = configurations.choices
 
     name = models.CharField("Name", max_length=30, unique=True)
-    kuerzel = models.CharField("Kürzel", max_length=3, unique=True)
+    kuerzel = models.CharField("Kürzel", max_length=10, unique=True)
     schueler = models.ManyToManyField(
         Schueler,
         verbose_name='Schüler',
@@ -37,11 +37,13 @@ class Einrichtung(TimeStampedModel):
         related_name='einrichtungen'
     )
     standort = models.ForeignKey(Standort, related_name='einrichtungen')
-    titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.", unique=True)
+    titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.")
     konfiguration_id = models.IntegerField(
         "Konfiguration",
         choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES
     )
+    pers_bkz= models.BooleanField("Einrichtung mit persönlichen BKZ?", 
+        default=False)
 
     class Meta:
         ordering = ['name']
@@ -57,6 +59,17 @@ class Einrichtung(TimeStampedModel):
                 {'titel': self._meta.get_field('titel').help_text},
                 code='title_zu_lang'
             )
+        if self.pers_bkz:
+            for schueler in self.schueler.all():
+                if schueler and not schueler.aktenzeichen:
+                    msg = (
+                        "Es existieren Schüler in dieser Einrichtung, "
+                        "die noch kein Aktenzeichen besitzen. "
+                        "Eine Einrichtung , die persönlichen Buchungskennzeichen verwendet, "
+                        "darf nur Schüler beinhalten, für die ein Aktenzeichen eingtragen ist."
+                    )
+                    raise ValidationError(msg)
+
 
     def hat_ferien(self, datum):
         """
@@ -124,7 +137,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
         ", muss wie folgt vorgegangen werden:<br><br>"
         "1. Das Austrittsdatum des aktuellen Datensatzes auf den letzten Tag für das alte Sozialamt setzen.<br>"
         "2. Das Sozialamt am Datensatz des Schülers ändern.<br>"
-        "3. Den Schüler für den neuen Zeitraum der gleichen Einrichtung hinzufügen.<br><br>"
+        "3. Einen neuen Schüler-in-Einrichtung-Datensatz für den neuen Zeitraum für den gleichen Schüler der gleichen Einrichtung hinzufügen.<br><br>"
         "</span>"
     )
     eintritt = models.DateField("Eintritt")
@@ -183,6 +196,13 @@ class SchuelerInEinrichtung(TimeStampedModel):
         return self.get_pers_pflegesatz(datum) or self.einrichtung.get_pflegesatz(datum)
 
     def clean(self):
+        if not self.schueler.aktenzeichen and self.einrichtung.pers_bkz:
+            msg = (
+                "Dieser Schüler soll einer Einrichtung mit persönlichen Buchungskennzeichen hinzugefügt werden."
+                " Bitte vergeben Sie für diesen Schüler zuerst ein Aktenzeichen,"
+                " das als persönliches Buchungskennzeichen genutzt werden kann."
+            )
+            raise ValidationError(msg)
         if self.eintritt and self.austritt:
             if self.eintritt > self.austritt:
                 raise ValidationError(
@@ -230,10 +250,12 @@ class SchuelerInEinrichtung(TimeStampedModel):
 class EinrichtungHatPflegesatz(TimeStampedModel):
 
     einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
-    pflegesatz = models.DecimalField(max_digits=5, decimal_places=2)
-    pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2)
-    pflegesatz_startdatum = models.DateField()
-    pflegesatz_enddatum = models.DateField()
+    pflegesatz = models.DecimalField("Pflegesatz", max_digits=5, decimal_places=2)
+    pflegesatz_ferien = models.DecimalField("Pflegesatz Ferien", max_digits=5, decimal_places=2)
+    pflegesatz_startdatum = models.DateField("Startdatum")
+    pflegesatz_enddatum = models.DateField("Enddatum")
+
+    objects = managers.EinrichtungHatPflegesatzQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Pflegesatz einer Einrichtung"
@@ -293,10 +315,17 @@ class Bettengeldsatz(TimeStampedModel):
         "Enddatum",
         help_text="Das Enddatum muss nach dem Startdatum liegen."
     )
-    satz = models.DecimalField("Satz", max_digits=8, decimal_places=2)
-    satz_vermindert = models.DecimalField(
-        "Verminderter Satz", max_digits=8, decimal_places=2, default=0
+    satz = models.DecimalField(
+        "Satz", max_digits=8, decimal_places=2,
+        help_text=(
+            "<p>Dieses ist Feld ist doppelt belegt:<br><ol>"
+            "<li>Für 280-Tages-Einrichtungen ist dieses Feld der Abwesenheitsvergütungssatz.</li>"
+            "<li>Für 365-Tages-Einrichtungen ist dieses Feld der Bettengeldsatz.</li>"
+            "<ol></p>"
+        )
     )
+
+    objects = managers.BettengeldsatzQuerySet.as_manager()
 
     class Meta:
         unique_together = ('einrichtung', 'startdatum', 'enddatum')
@@ -307,7 +336,7 @@ class Bettengeldsatz(TimeStampedModel):
         return "Bettengeldsatz {s.satz} € für {s.einrichtung}".format(s=self)
 
     def clean(self):
-        if self.startdatum > self.enddatum:
+        if self.startdatum and self.enddatum and self.startdatum > self.enddatum:
             raise ValidationError(
                 {'enddatum': "Das Enddatum muss nach dem Startdatum liegen."},
                 code='enddatum_nach_startdatum'

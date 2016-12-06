@@ -61,13 +61,21 @@
           <tr>
             <td style="border: 0;">
               <p>
+                <b>Typ der Einrichtung: </b>
+                {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 250 %}
+                  250-Tages-Einrichtung
+                {% elif einrichtungsrechnung.einrichtung.konfiguration.tage == 280 %}
+                  280-Tages-Einrichtung
+                {% elif einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+                  365-Tages-Einrichtung
+                {% endif %}
+                <br>
                 <b>Abrechnungszeitraum:</b>
                 {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
                 -
                 {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}
                 <br>
                 <b>Schließtage:</b>
-                {# TODO umbauen auf Zeitraumauswahl fuer vorliegende Rechnung #}
                 {% for schliesstag in einrichtungsrechnung.schliesstage %}
                   {{ schliesstag.datum|date:"SHORT_DATE_FORMAT" }}{% if not forloop.last %},{% endif %}
                 {% empty %}
@@ -83,13 +91,21 @@
             </td>
             <td style="border: 0;">
               <p>
-                  Fälligkeitsdatum: {{ einrichtungsrechnung.datum_faellig|date:"SHORT_DATE_FORMAT" }}<br>
+                  <b>Fälligkeitsdatum:</b> {{ einrichtungsrechnung.datum_faellig|date:"SHORT_DATE_FORMAT" }}<br>
                   <br>
-                  Buchungskennzeichen: {{ einrichtungsrechnung.buchungskennzeichen }}<br>
+
+                  <b>Buchungskennzeichen: </b>
+                    {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                      Bitte persönliche Aktenzeichen der Schüler verwenden<br>
+                    {% else %}
+                      {{ einrichtungsrechnung.buchungskennzeichen }}<br>
+                    {% endif %}
+
                   <br>
                   <b> Das Buchungskennzeichen bitte unbedingt<br>
                   bei der Überweisung angeben!</b><br>
                   <br>
+
                 <h4><b>Aufwendungen Gesamt: {{ einrichtungsrechnung.summe }} € </b></h4><br><br>
               </p>
             </td>
@@ -105,16 +121,47 @@
         <thead style="display: table-row-group">
            <tr>
             <th>Pos.</th>
+
             <th>Name</th>
-            <th>Aktenzeichen</th>
+
+            {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+              <th>Aktenzeichen</th>
+            {% endif %}
+
             <th>Geburtsdatum</th>
-            <th>Maximale Fehltage</th>
+
+            {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+              <th>Maximale Fehltage</th>
+            {% endif %}
+
             <th>Anzahl Tage anwesend</th>
+
+            {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+              <th>Betrag Anwesenheit</th>
+            {% endif %}
+
             <th>Fehltage im Abrechnungs-zeitraum</th>
-            <th>Übertrag Fehltage</th>
-            <th>Fehltage Gesamt</th>
-            <th>Fehltage zur Anrechnung</th>
+
+            {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+              <th>Betrag Abwesenheit</th>
+            {% endif %}
+
+            {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+              <th>Übertrag Fehltage</th>
+              <th>Fehltage Gesamt</th>
+              <th>Fehltage zur Anrechnung</th>
+            {% endif %}
+
             <th>Zahltage dieser Rechnung</th>
+
+            {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
+              <th>Barbetrag</th>
+            {% endif %}
+
+            {% if einrichtungsrechnung.einrichtung.konfiguration.bekleidungsgeld %}
+              <th>Bekleidungsgeld</th>
+            {% endif %}
+
             <th>Gesamtbetrag in Euro</th>
           </tr>
         </thead>
@@ -122,16 +169,47 @@
           {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
             <tr>
               <td>{{ forloop.counter }}</td>
+
               <td>{{ einrichtungsposition.name_schueler }}</td>
-              <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+
+              {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+              {% endif %}
+
               <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"SHORT_DATE_FORMAT" }}</td>
-              <td>{{ einrichtungsposition.fehltage_max }}</td>
+
+              {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                <td>{{ einrichtungsposition.fehltage_max }}</td>
+              {% endif %}
+
               <td>{{ einrichtungsposition.anwesend }}</td>
+
+              {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                <td>{{ einrichtungsposition.anwesenheitssumme }}</td>
+              {% endif %}
+
               <td>{{ einrichtungsposition.fehltage }}</td>
-              <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
-              <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
-              <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
+
+              {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                <td>{{ einrichtungsposition.abwesenheitssumme }}</td>
+              {% endif %}
+
+              {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
+                <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
+                <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
+              {% endif %}
+
               <td>{{ einrichtungsposition.zahltage }}</td>
+
+              {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
+                <td>{{ einrichtungsposition.bargeldbetrag }}</td>
+              {% endif %}
+
+              {% if einrichtungsrechnung.einrichtung.konfiguration.bekleidungsgeld %}
+                <td>{{ einrichtungsposition.bekleidungsgeld }}</td>
+              {% endif %}
+
               <td>{{ einrichtungsposition.summe }}</td>
             </tr>
           {% endfor %}
@@ -143,6 +221,12 @@
       {# BEGINN SCHUELERPOSITIONEN #}
 
       <div style="page-break-before:always;"></div>
+
+        {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+          <h4> PLATZHALTER ANWESENHEITSLISTE MIT -3 und +3 Tagen </h4>
+        {% endif %}
+
+        <div style="page-break-before:always;"></div>
 
         {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
 
@@ -159,31 +243,91 @@
           <table class="table table-striped">
             <thead style="display: table-row-group">
               <tr>
-                <th>Aktenzeichen</th>
+
+                {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                  <th>Aktenzeichen</th>
+                {% endif %}
+
                 <th>Geburtsdatum</th>
-                <th>Maximale Fehltage</th>
+
+                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                  <th>Maximale Fehltage</th>
+                {% endif %}
+
                 <th>Anzahl Tage anwesend</th>
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                  <th>Betrag Anwesenheit</th>
+                {% endif %}
+
                 <th>Fehltage im Abrechnungs-zeitraum</th>
-                <th>Übertrag abgerechnete Fehltage</th>
-                <th>Fehltage Gesamt</th>
-                <th>Fehltage zur Abrechnung</th>
-                <th>davon Fehltage nachträglich zur Abrechnung</th>
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                  <th>Betrag Abwesenheit</th>
+                {% endif %}
+
+                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                  <th>Übertrag abgerechnete Fehltage</th>
+                  <th>Fehltage Gesamt</th>
+                  <th>Fehltage zur Abrechnung</th>
+                  <th>davon Fehltage nachträglich zur Abrechnung</th>
+                {% endif %}
+
                 <th>Zahltage dieser Rechnung</th>
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
+                  <th>Barbetrag</th>
+                {% endif %}
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.bekleidungsgeld %}
+                  <th>Bekleidungsgeld</th>
+                {% endif %}
+
                 <th>Gesamtbetrag in Euro</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+
+                {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                  <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+                {% endif %}
+
                 <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"SHORT_DATE_FORMAT" }}</td>
-                <td>{{ einrichtungsposition.fehltage_max }}</td>
+
+                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                  <td>{{ einrichtungsposition.fehltage_max }}</td>
+                {% endif %}
+
                 <td>{{ einrichtungsposition.anwesend }}</td>
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                  <td>{{ einrichtungsposition.anwesenheitssumme }}</td>
+                {% endif %}
+
                 <td>{{ einrichtungsposition.fehltage }}</td>
-                <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
-                <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
-                <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
-                <td>{{ einrichtungsposition.fehltage_anderer_zeitraum }}</td>
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                  <td>{{ einrichtungsposition.abwesenheitssumme }}</td>
+                {% endif %}
+
+                {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+                  <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
+                  <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
+                  <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
+                  <td>{{ einrichtungsposition.fehltage_anderer_zeitraum }}</td>
+                {% endif %}
+
                 <td>{{ einrichtungsposition.zahltage }}</td>
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
+                  <td>{{ einrichtungsposition.bargeldbetrag }}</td>
+                {% endif %}
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.bekleidungsgeld %}
+                  <td>{{ einrichtungsposition.bekleidungsgeld }}</td>
+                {% endif %}
+
                 <td>{{ einrichtungsposition.summe }}</td>
               </tr>
             </tbody>
@@ -191,6 +335,7 @@
         {# ENDE KOPF DER SCHUELERPOSITIONEN #}
 
         {# BEGINN ANWESENHEITSAUFLISTUNG #}
+
           <h4> - Abgerechnete Tage - </h4>
           <table class="table table-striped">
             <thead style="display: table-row-group">
@@ -198,7 +343,17 @@
                 <th>Datum</th>
                 <th>Tagart</th>
                 <th>Anwesenheit</th>
-                <th>Pflegesatz</th>
+
+                {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+                  <th>Bettengeldsatz</th>
+                {% endif %}
+
+                <th>
+                  Angewendete(r) Pflegesatz
+                  {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 280 %} / Abwesenheitsvergütung{% endif %}
+                  {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %} / (Vermindertes) Bettengeld{% endif %}
+                </th>
+
               </tr>
             </thead>
             <tbody>
@@ -206,20 +361,28 @@
                 <tr>
                   <td>{{ schuelerposition.datum|date:"SHORT_DATE_FORMAT" }} </td>
                   <td>{{ schuelerposition.tag_art }}</td>
-                  <td>{% if schuelerposition.abwesend %}Fehltag
+                  <td>
+                    {% if schuelerposition.abwesend %}Fehltag
                     {% else %}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{% endif %}</td>
+
+                  {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+                    <td>
+                      {% if schuelerposition.abwesend %}
+                        {{ schuelerposition.vermindert|yesno:"vermindert,normal" }}
+                      {% endif %}
+                  {% endif %}
+
                   <td>{{ schuelerposition.pflegesatz }}</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         {% endfor %}
+      {% endfor %}
 
     {# ENDE DER ANWESENHEITSAUFLISTUNG #}
 
     {#ENDE EINRICHTUNGSRECHNUNG #}
-    {% endfor %}
-
 
     <br><br><br><br>
     <hr>

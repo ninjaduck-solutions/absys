@@ -110,50 +110,46 @@ class RechnungSozialamt(TimeStampedModel):
                 {'startdatum': "Für den ausgewählten Zeitraum existiert schon eine Rechnung."},
                 code='startdatum_exitiert_schon'
             )
+        qs = self.sozialamt.anmeldungen.zeitraum(self.startdatum, self.enddatum)
+        for schueler_in_einrichtung in qs:
+            einrichtung = schueler_in_einrichtung.einrichtung
+            fehltage_immer_abrechnen = einrichtung.konfiguration.fehltage_immer_abrechnen
+            bettengeldsaetze = einrichtung.bettengeldsaetze.zeitraum(
+                self.startdatum, self.enddatum
+            )
+            if fehltage_immer_abrechnen and bettengeldsaetze.count() == 0:
+                raise ValidationError(
+                    ("Der Einrichtung {0} wurde für den Abrechnungszeitraum kein"
+                        " Bettengeldsatz zugewiesen.").format(einrichtung),
+                    code='einrichtung_ohne_bettengeld'
+                )
+            pflegesaetze = einrichtung.pflegesaetze.zeitraum(self.startdatum, self.enddatum)
+            if pflegesaetze.count() == 0:
+                raise ValidationError(
+                    ("Der Einrichtung {0} wurde für den Abrechnungszeitraum kein"
+                        " Pflegesatz zugewiesen.").format(einrichtung),
+                    code='einrichtung_ohne_pflegesatz'
+                )
 
     @property
     def nummer(self):
         return "S{:06d}".format(self.pk)
 
     def fehltage_abrechnen(self, schueler_in_einrichtung):
-        """
-        Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
-
-        Das ``limit`` ist die Anzahl der erlaubten Fehltage minus der bisher abgerechneten Fehltage.
-        """
+        """Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen."""
         qs = RechnungsPositionSchueler.objects.nicht_abgerechnet(
             schueler_in_einrichtung, self.enddatum
         )
-        fehltage_abgerechnet = RechnungsPositionSchueler.objects.fehltage_abgerechnet(
-            schueler_in_einrichtung,
-            self.enddatum
-        ).count()
-        limit = schueler_in_einrichtung.fehltage_erlaubt - fehltage_abgerechnet
-        if limit < 0:
-            limit = 0
-        for rechnung_pos in qs[:limit]:
-            rechnung_pos.abgerechnet = True
-            rechnung_pos.rechnung_sozialamt = self
-            rechnung_pos.save()
-
-    @cached_property
-    def mittelwert_einrichtungssummen(self):
-        """
-        Ermittelt den Mittelwert aus den Summen aller zugehörigen Einrichtungsrechnungen.
-
-        Anschließend werden die beiden Nachkommastellen werden auf "00" abgerundet.
-        """
-        return int(self.rechnungen_einrichtungen.aggregate(models.Avg('summe'))['summe__avg'])
-
-    @cached_property
-    def mittelwert_titel(self):
-        return (self.rechnungen_einrichtungen.aggregate(models.Avg(
-            'einrichtung__titel',
-            output_field=models.DecimalField()
-        ))['einrichtung__titel__avg'])
+        schueler_in_einrichtung.einrichtung.konfiguration.fehltage_abrechnen(
+            qs, schueler_in_einrichtung
+        )
 
     @cached_property
     def mittelwert_kapitel(self):
+        """
+        Da jede Schule nur ein Kapitel hat, ist der Mittelwert aller Kapitel im gleich dem
+        gesetzten Kapitel.
+        """
         return settings.ABSYS_SAX_KAPITEL
 
 
@@ -172,6 +168,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     - Name der Einrichtung (String)
     - Schul- oder Ferientag
     - Abwesenheit
+    - Verminderter Pflegesatz (Bettengeldsatz)
     - Pflegesatz
 
     Rechnungsposition für einen Schüler verändern ihren Zustand abhängig von
@@ -198,7 +195,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     name_einrichtung = models.CharField("Einrichtung", max_length=20)
     tag_art = models.CharField("Schul- oder Ferientag", choices=TAG_ART, default=TAG_ART.schule, max_length=20)
     abwesend = models.BooleanField("Abwesenheit", default=False)
-    vermindert = models.BooleanField("Verminderter Bettengeldsatz", default=False)
+    vermindert = models.BooleanField("Verminderter Pflegesatz (Bettengeldsatz)", default=False)
     pflegesatz = models.DecimalField("Pflegesatz", max_digits=5, decimal_places=2)
 
     objects = managers.RechnungsPositionSchuelerManager.from_queryset(
@@ -282,37 +279,41 @@ class RechnungEinrichtung(TimeStampedModel):
         return "ER{:06d}".format(self.pk)
 
     def abrechnen(self, schueler, eintritt, tage, tage_abwesend, bargeldbetrag, bekleidungsgeld=None):
-        """Erstellt für jeden Schüler eine Rechnungsposition.
+        """Erstellt für den Schüler eine Rechnungsposition.
 
         Die Abrechnung erfolgt für die übergebenen Anwesenheits- und
         Abwesenheitstage.
         """
-        fehltage_max = self.einrichtung.anmeldungen.filter(schueler=schueler).war_angemeldet(
-            tage[0]
-        ).get().fehltage_erlaubt
-        fehltage = len(tage_abwesend)
-        fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
-            tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
-        )
-        if bekleidungsgeld is None:
-            bekleidungsgeld = decimal.Decimal()
-        summen = schueler.positionen_schueler.filter(
-            rechnung_sozialamt=self.rechnung_sozialamt
-        ).summen()
-        return self.positionen.create(
-            schueler=schueler,
-            name_schueler=schueler.voller_name,
-            fehltage_max=fehltage_max,
-            anwesend=len(tage) - fehltage,
-            fehltage=fehltage,
-            fehltage_uebertrag=fehltage_uebertrag,
-            fehltage_gesamt=fehltage + fehltage_uebertrag,
-            fehltage_abrechnung=summen['fehltage'],
-            zahltage=summen['zahltage'],
-            bargeldbetrag=bargeldbetrag,
-            bekleidungsgeld=bekleidungsgeld,
-            summe=summen['aufwaende'] + bargeldbetrag + bekleidungsgeld
-        )
+        if len(tage):
+            fehltage_max = self.einrichtung.anmeldungen.filter(schueler=schueler).war_angemeldet(
+                tage[0]
+            ).get().fehltage_erlaubt
+            fehltage = len(tage_abwesend)
+            fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
+                tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
+            )
+            if bekleidungsgeld is None:
+                bekleidungsgeld = decimal.Decimal()
+            summen = schueler.positionen_schueler.filter(
+                rechnung_sozialamt=self.rechnung_sozialamt,
+                einrichtung=self.einrichtung,
+                abgerechnet=True
+            ).summen()
+            return self.positionen.create(
+                schueler=schueler,
+                name_schueler=schueler.voller_name,
+                fehltage_max=fehltage_max,
+                anwesend=len(tage) - fehltage,
+                fehltage=fehltage,
+                fehltage_uebertrag=fehltage_uebertrag,
+                fehltage_gesamt=fehltage + fehltage_uebertrag,
+                fehltage_abrechnung=summen['fehltage'],
+                zahltage=summen['zahltage'],
+                bargeldbetrag=bargeldbetrag,
+                bekleidungsgeld=bekleidungsgeld,
+                summe=summen['aufwaende'] + bargeldbetrag + bekleidungsgeld
+            )
+        return None
 
     def abschliessen(self):
         """Rechnung abschließen."""
@@ -431,3 +432,17 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
                 self.rechnung_einrichtung.rechnung_sozialamt.startdatum,
                 self.rechnung_einrichtung.rechnung_sozialamt.enddatum)
         ).count()
+
+    @cached_property
+    def anwesenheitssumme(self):
+        """Betrag Anwesenheit."""
+        return self.detailabrechnung.filter(
+            abgerechnet=True, abwesend=False
+        ).aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']
+
+    @cached_property
+    def abwesenheitssumme(self):
+        """Betrag Abwesenheit."""
+        return self.detailabrechnung.filter(
+            abgerechnet=True, abwesend=True
+        ).aggregate(models.Sum('pflegesatz'))['pflegesatz__sum']

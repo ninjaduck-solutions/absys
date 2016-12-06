@@ -111,17 +111,18 @@ class RechnungSozialamtManager(models.Manager):
             bekleidungsgeld = {}
         rechnung_sozialamt = self.vorbereiten(sozialamt, enddatum)
         rechnung_sozialamt.save()
-        rechnung_einrichtung = None
+        einrichtungs_rechnungen = {}
         betreuungstage = rechnung_sozialamt.sozialamt.anmeldungen.get_betreuungstage(
             rechnung_sozialamt.startdatum,
             rechnung_sozialamt.enddatum
         )
         for schueler_in_einrichtung, tage in betreuungstage.items():
-            tage_abwesend = schueler_in_einrichtung.war_abwesend(tage)
-            tage_abwesend_datetime = tage_abwesend.values_list('datum', flat=True)
+            tage_abwesend = schueler_in_einrichtung.war_abwesend(tage).values_list(
+                'datum', flat=True
+            )
             RechnungsPositionSchueler.objects.erstelle_fuer_tage(
                 tage,
-                tage_abwesend_datetime,
+                tage_abwesend,
                 schueler_in_einrichtung,
                 rechnung_sozialamt
             )
@@ -129,17 +130,19 @@ class RechnungSozialamtManager(models.Manager):
             rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
                 rechnung_sozialamt, schueler_in_einrichtung.einrichtung
             )
+            if rechnung_einrichtung.pk not in einrichtungs_rechnungen:
+                einrichtungs_rechnungen[schueler_in_einrichtung.einrichtung.pk] = rechnung_einrichtung
             rechnung_einrichtung.abrechnen(
                 schueler_in_einrichtung.schueler,
                 schueler_in_einrichtung.eintritt,
                 tage,
-                tage_abwesend_datetime,
+                tage_abwesend,
                 schueler_in_einrichtung.bargeldbetrag(
                     rechnung_sozialamt.startdatum, rechnung_sozialamt.enddatum
                 ),
                 bekleidungsgeld.get(schueler_in_einrichtung.pk)
             )
-        if rechnung_einrichtung is not None:
+        for rechnung_einrichtung in einrichtungs_rechnungen.values():
             rechnung_einrichtung.abschliessen()
         return rechnung_sozialamt
 
@@ -182,7 +185,7 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
         return self.aggregate(
             fehltage=models.Count(
                 models.Case(
-                    models.When(abgerechnet=True, abwesend=True, then=1),
+                    models.When(abwesend=True, then=1),
                     output_field=models.IntegerField()
                 )
             ),

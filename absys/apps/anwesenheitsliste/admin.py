@@ -10,7 +10,7 @@ class AnwesenheitAdmin(ImportExportActionModelAdmin, admin.ModelAdmin):
     list_display = ('schueler', 'datum', 'abwesend')
     list_display_links = ('schueler',)
     list_editable = ['abwesend']
-    list_filter = ('datum', 'schueler')
+    list_filter = ('datum', 'schueler__gruppe__name', 'schueler',  )
     search_fields = ['schueler__nachname', 'schueler__vorname']
 
     resource_class = resources.AnwesenheitenResource

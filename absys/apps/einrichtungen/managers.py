@@ -48,7 +48,9 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         Anzahl der Tage entsprechen, an denen der Schüler in der Einrichtung
         angemeldet war.
 
-        Alle Samstage, Sonntage und Schließ­tage werden entfernt.
+        Alle Samstage, Sonntage und Schließ­tage werden entfernt. Ob Samstage
+        oder Sonntage entfernt werden, richtet sich nach der Konfiguration der
+        Einrichtung.
         """
         betreuungstage = {}
         for schueler_in_einrichtung in self.zeitraum(startdatum, enddatum):
@@ -76,6 +78,20 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
                 models.Q(austritt__gt=austritt)
             )
         )
+
+
+class EinrichtungHatPflegesatzQuerySet(models.QuerySet):
+
+    def zeitraum(self, startdatum, enddatum):
+        return self.filter(
+            pflegesatz_startdatum__lte=startdatum, pflegesatz_enddatum__gte=enddatum
+        )
+
+
+class BettengeldsatzQuerySet(models.QuerySet):
+
+    def zeitraum(self, startdatum, enddatum):
+        return self.filter(startdatum__lte=startdatum, enddatum__gte=enddatum)
 
 
 class BargeldsatzManager(models.Manager):
