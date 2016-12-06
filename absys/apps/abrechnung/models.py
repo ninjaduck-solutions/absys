@@ -145,23 +145,11 @@ class RechnungSozialamt(TimeStampedModel):
         )
 
     @cached_property
-    def mittelwert_einrichtungssummen(self):
-        """
-        Ermittelt den Mittelwert aus den Summen aller zugehörigen Einrichtungsrechnungen.
-
-        Anschließend werden die beiden Nachkommastellen werden auf "00" abgerundet.
-        """
-        return int(self.rechnungen_einrichtungen.aggregate(models.Avg('summe'))['summe__avg'])
-
-    @cached_property
-    def mittelwert_titel(self):
-        return (self.rechnungen_einrichtungen.aggregate(models.Avg(
-            'einrichtung__titel',
-            output_field=models.DecimalField()
-        ))['einrichtung__titel__avg'])
-
-    @cached_property
     def mittelwert_kapitel(self):
+        """
+        Da jede Schule nur ein Kapitel hat, ist der Mittelwert aller Kapitel im gleich dem
+        gesetzten Kapitel.
+        """
         return settings.ABSYS_SAX_KAPITEL
 
 
