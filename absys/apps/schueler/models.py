@@ -8,7 +8,7 @@ from . import validators
 
 class Gruppe(TimeStampedModel):
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name="Gruppe")
     bemerkungen = models.TextField(blank=True)
 
     class Meta:
@@ -45,7 +45,7 @@ class Schueler(TimeStampedModel):
         validators=[validators.validate_geburtsdatum_in_vergangenheit]
     )
     bemerkungen = models.TextField(blank=True)
-    aktenzeichen = models.CharField("Aktenzeichen", max_length=30)
+    aktenzeichen = models.CharField("Aktenzeichen", max_length=12, blank=True)
     gruppe = models.ForeignKey(Gruppe, related_name='schueler')
     sozialamt = models.ForeignKey(Sozialamt, related_name='schueler')
 

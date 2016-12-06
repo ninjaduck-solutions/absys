@@ -29,7 +29,8 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
     def dispatch(self, request, *args, **kwargs):
         if not self.ist_datum_erlaubt(self.datum):
             raise PermissionDenied(
-                "Sie haben nicht die Berechtigung, für diesen Tag die Anwesenheiten zu ändern."
+                'Sie haben nicht die Berechtigung, für diesen Tag die Anwesenheiten zu ändern.'
+                'Nutzen Sie die "Zurück"-Taste ihre Browsers, um zur Anweseneheitsliste zurückzukehren.'
             )
         return super().dispatch(request, *args, **kwargs)
 
