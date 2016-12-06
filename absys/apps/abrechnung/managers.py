@@ -183,7 +183,7 @@ class RechnungsPositionSchuelerQuerySet(models.QuerySet):
         return self.aggregate(
             fehltage=models.Count(
                 models.Case(
-                    models.When(abgerechnet=True, abwesend=True, then=1),
+                    models.When(abwesend=True, then=1),
                     output_field=models.IntegerField()
                 )
             ),

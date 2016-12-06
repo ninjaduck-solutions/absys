@@ -308,7 +308,8 @@ class RechnungEinrichtung(TimeStampedModel):
                 bekleidungsgeld = decimal.Decimal()
             summen = schueler.positionen_schueler.filter(
                 rechnung_sozialamt=self.rechnung_sozialamt,
-                einrichtung=self.einrichtung
+                einrichtung=self.einrichtung,
+                abgerechnet=True
             ).summen()
             return self.positionen.create(
                 schueler=schueler,
