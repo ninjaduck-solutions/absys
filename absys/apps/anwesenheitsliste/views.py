@@ -102,10 +102,7 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     @cached_property
     def aktueller_monat_anfang(self):
-        anfang = date.today().replace(day = 1)
-        if self.ist_datum_erlaubt(anfang):
-            return anfang
-        return None
+        return date.today().replace(day = 1)
 
     @cached_property
     def vormonat_anfang(self):

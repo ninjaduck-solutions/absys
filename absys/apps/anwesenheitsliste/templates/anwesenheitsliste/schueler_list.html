@@ -34,13 +34,11 @@
             </button>
           </a>
         {% endif %}
-        {% if view.aktueller_monat_anfang %}
-          <a href ="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.aktueller_monat_anfang %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
-            <button type="button" class="btn btn-primary" aria-label="Left Align">
-              <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
-            </button>
-          </a>
-        {% endif %}
+        <a href ="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.aktueller_monat_anfang %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
+          <button type="button" class="btn btn-primary" aria-label="Left Align">
+            <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+          </button>
+        </a>
         {% if view.gestern %}
           <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.gestern %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
             <button type="button" class="btn btn-primary" aria-label="Left Align">
@@ -58,7 +56,7 @@
         {% endif %}
         <a href ="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.heute %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
           <button type="button" class="btn btn-primary" aria-label="Left Align">
-            <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
           </button>
         </a>
       </h3>
