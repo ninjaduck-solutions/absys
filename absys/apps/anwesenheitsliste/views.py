@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, date
 
 from braces.views import LoginRequiredMixin
 from dateutil.parser import parse
@@ -83,6 +83,10 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
         return timezone.make_aware(parse(self.kwargs['datum'])).date()
 
     @cached_property
+    def heute(self):
+        return date.today()
+
+    @cached_property
     def gestern(self):
         gestern = self.datum + timedelta(-1)
         if self.ist_datum_erlaubt(gestern):
@@ -94,6 +98,20 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
         morgen = self.datum + timedelta(1)
         if self.ist_datum_erlaubt(morgen):
             return morgen
+        return None
+
+    @cached_property
+    def aktueller_monat_anfang(self):
+        anfang = date.today().replace(day = 1)
+        if self.ist_datum_erlaubt(anfang):
+            return anfang
+        return None
+
+    @cached_property
+    def vormonat_anfang(self):
+        anfang = date.today().replace(month = date.today().month - 1, day = 1)
+        if self.ist_datum_erlaubt(anfang):
+            return anfang
         return None
 
     @cached_property
