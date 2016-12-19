@@ -10,8 +10,8 @@ Voraussetzungen
 Zum Erstellen einer Entwicklungsumgebung muss die folgende Software installiert sein:
 
 - Git
-- `Vagrant <https://www.vagrantup.com/>`_
-- `VirtualBox <https://www.virtualbox.org/>`_
+- `Vagrant 1.8 <https://www.vagrantup.com/>`_
+- `VirtualBox 5.0 <https://www.virtualbox.org/>`_
 
 Die benötigte Software wird via `SaltStack
 <https://docs.saltstack.com/en/latest/>`_ innerhalb der Vagrant Box
