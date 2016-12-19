@@ -77,7 +77,7 @@ coverage-html: coverage
 	python -c "import os, webbrowser; webbrowser.open('file://{}/htmlcov/index.html'.format(os.getcwd()))"
 
 create-db:
-	sudo -u postgres createdb -l en_US.utf-8 -E utf-8 -O absys -T template0 -e absys
+	sudo -u postgres createdb -l en_US.UTF-8 -E UTF8 -O absys -T template0 -e absys
 
 create-db-user:
 	sudo -u postgres psql -d postgres -c "CREATE USER \"absys\" WITH PASSWORD 'absys' CREATEDB;"
