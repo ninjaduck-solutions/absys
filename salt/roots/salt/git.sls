@@ -8,8 +8,10 @@ git-flow:
 
 git-flow-init:
   cmd.run:
-    - name: git-flow init -d
+    - name: git flow init -d
     - runas: {{ pillar['project']['user'] }}
+    - cwd: /vagrant
+    - unless: grep "^\[gitflow" /vagrant/.git/config >/dev/null
     - require:
       - pkg: git-flow
 
