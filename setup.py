@@ -28,7 +28,7 @@ requires = [
     'django-model-utils==2.5.1',
     'docutils==0.12',
     'envdir==0.7',
-    'fake-factory==0.6.0',
+    'Faker==0.7.6',
     'psycopg2==2.6.2',
     'pytz==2016.6.1',
     'django-import-export==0.5.1',

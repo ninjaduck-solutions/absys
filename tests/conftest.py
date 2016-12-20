@@ -60,7 +60,7 @@ def pytest_runtest_setup(item):
     each test that uses Faker will use the same fake data between test runs,
     regardless of test order.
 
-    Requires fake-factory 0.5.3 or newer.
+    Requires Faker 0.5.3 or newer.
     """
     Faker().seed(item.nodeid)
 
