@@ -1,4 +1,5 @@
-from braces.views import LoginRequiredMixin, MessageMixin
+from braces.views import (LoginRequiredMixin, PermissionRequiredMixin,
+                          MultiplePermissionsRequiredMixin, MessageMixin)
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -16,7 +17,8 @@ from absys.apps.schueler.models import Sozialamt
 from . import forms, models, responses
 
 
-class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormView):
+class RechnungSozialamtFormView(LoginRequiredMixin, PermissionRequiredMixin,
+        MultipleObjectMixin, FormView):
     """
     Daten zur Erstellung von :model:`abrechnung.RechnungSozialamt`-Instanzen sammeln.
 
@@ -35,6 +37,8 @@ class RechnungSozialamtFormView(LoginRequiredMixin, MultipleObjectMixin, FormVie
     success_url = reverse_lazy('abrechnung_erfassung_bekleidungsgeld_form')
     template_name = 'abrechnung/rechnung_sozialamt_form.html'
     model = models.RechnungSozialamt
+    permission_required = 'abrechnung.add_rechnungsozialamt'
+    raise_exception = True
 
     def form_valid(self, form):
         for sozialamt in form.cleaned_data['sozialaemter']:
@@ -85,6 +89,8 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, MessageMixin, FormSet
     extra = 0
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
     template_name = 'abrechnung/erfassung_bekleidungsgeld.html'
+    permission_required = 'abrechnung.add_rechnungsozialamt'
+    raise_exception = True
 
     def get_initial(self):
         """
@@ -150,11 +156,17 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, MessageMixin, FormSet
         return forms.ErfassungBekleidungsgeldFormHelper(bool(len(self.initial)))
 
 
-class AbrechnungPDFView(LoginRequiredMixin, BaseDetailView, PDFTemplateView):
+class AbrechnungPDFView(LoginRequiredMixin, MultiplePermissionsRequiredMixin, BaseDetailView,
+        PDFTemplateView):
 
     # TODO: prefetch_related() nutzen
     model = models.RechnungSozialamt
     template_name = 'abrechnung/pdf.html'
+    permissions = {"any": ('abrechnung.add_rechnungsozialamt',
+                           'abrechnung.change_rechnungsozialamt',
+                           'abrechnung.delete_rechnungsozialamt')
+                   }
+    raise_exception = True
     cmd_options = {
         'orientation': 'Landscape',
     }
@@ -187,12 +199,14 @@ class RechnungEinrichtungInline(InlineFormSet):
     extra = 0
 
 
-class RechnungSozialamtUpdateView(LoginRequiredMixin, UpdateWithInlinesView):
+class RechnungSozialamtUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateWithInlinesView):
 
     model = models.RechnungSozialamt
     fields = ('name_sozialamt', 'anschrift_sozialamt')
     inlines = [RechnungEinrichtungInline]
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
+    permission_required = 'abrechnung.change_rechnungsozialamt'
+    raise_exception = True
 
     @property
     def helper_sozialamt(self):
@@ -203,18 +217,26 @@ class RechnungSozialamtUpdateView(LoginRequiredMixin, UpdateWithInlinesView):
         return forms.RechnungEinrichtungUpdateFormHelper()
 
 
-class RechnungSozialamtDeleteView(LoginRequiredMixin, DeleteView):
+class RechnungSozialamtDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 
     model = models.RechnungSozialamt
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
+    permission_required = 'abrechnung.delete_rechnungsozialamt'
+    raise_exception = True
 
     def kandidaten(self):
         return models.RechnungSozialamt.objects.seit(self.object.startdatum)
 
 
-class SaxmbsView(LoginRequiredMixin, MessageMixin, BaseDetailView):
+class SaxmbsView(LoginRequiredMixin, MultiplePermissionsRequiredMixin, MessageMixin,
+        BaseDetailView):
 
     model = models.RechnungSozialamt
+    permissions = {"any": ('abrechnung.add_rechnungsozialamt',
+                           'abrechnung.change_rechnungsozialamt',
+                           'abrechnung.delete_rechnungsozialamt')
+                   }
+    raise_exception = True
 
     def render_to_response(self, context):
         bkz = self.object.rechnungen_einrichtungen.values_list('buchungskennzeichen', flat=True)
