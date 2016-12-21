@@ -49,7 +49,9 @@
               </li>
               <li><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}">Anwesenheiten</a>
               </li>
+              {% if user.is_staff %}
               <li><a href="{% url 'admin:index' %}">Verwaltung</a>
+              {% endif %}
               </li>
               <li><a href="{% url 'admin:password_change' %}">Passwort ändern</a>
               </li>
