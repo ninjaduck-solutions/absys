@@ -19,9 +19,11 @@
       </div>
     {% endif %}
 
+    {% if perms.anwesenheitsliste.add_anwesenheit and perms.anwesenheitsliste.change_anwesenheit %}
     <div class="panel panel-default col-md-3" style="background-color: Tomato; margin: 4%">
         <div class="panel-body" style="background-color: Tomato"><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}"><h3>Anwesenheiten</h3></a></div>
     </div>
+    {% endif %}
 
     {% if user.is_staff %}
     <div class="panel panel-default col-md-3" style="background-color: LightSkyBlue; margin: 4%">
