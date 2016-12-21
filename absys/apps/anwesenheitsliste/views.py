@@ -1,6 +1,6 @@
 from datetime import timedelta, date
 
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, MultiplePermissionsRequiredMixin
 from dateutil.parser import parse
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -16,15 +16,17 @@ from . import forms
 from .models import Anwesenheit
 
 
-class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
+class AnwesenheitslisteFormSetView(LoginRequiredMixin, MultiplePermissionsRequiredMixin,
+        extra_views.FormSetView):
 
     form_class = forms.AnwesenheitForm
     extra = 0
     template_name = 'anwesenheitsliste/schueler_list.html'
 
-    login_url = "/anmeldung/"
-    redirect_field_name = "anmeldung"
-    raise_exception = False
+    permissions = {"all": ('anwesenheitsliste.add_anwesenheit',
+                           'anwesenheitsliste.change_anwesenheit')
+                   }
+    raise_exception = True
 
     def dispatch(self, request, *args, **kwargs):
         if not self.ist_datum_erlaubt(self.datum):
