@@ -5,7 +5,7 @@ SPHINXOPTS =
 
 .PHONY: help clean clean-build clean-docs clean-pyc clean-test coverage coverage-html \
     create-db develop docs isort migrate serve-docs runserver shell startapp test \
-    test-all glances fixtures reset-db test-fixtures modelgraph test-fresh
+    test-all glances fixtures reset-db test-fixtures modelgraph test-fresh wheelhouse
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
@@ -33,6 +33,7 @@ help:
 	@echo "  reset-db                 to reset the PostgreSQL database"
 	@echo "  runserver                to start Django's development Web server"
 	@echo "  serve-docs               to serve the project documentation in the default browser"
+	@echo "  wheelhouse               to populate the wheelhouse with all production wheels"
 	@echo "  shell                    to start a Python interactive interpreter"
 	@echo "  startapp                 to create a new Django app"
 	@echo "  glances                  to start the Glances monitoring tool in web server mode"
@@ -93,12 +94,20 @@ drop-db-user:
 
 develop:
 	pip install -U pip setuptools wheel
-	pip install -U -c requirements/constraints.pip -e .
 	pip install -U -c requirements/constraints.pip -r requirements/dev.pip
+	pip install -U -c requirements/constraints.pip -e .
 
 dist: clean
-	python setup.py sdist bdist_wheel
-	ls -l dist
+	python setup.py bdist_wheel
+	@echo
+	ls -1 dist/
+
+make wheelhouse:
+	rm -fr wheelhouse/
+	mkdir wheelhouse/
+	pip wheel --constraint requirements/constraints.pip --wheel-dir wheelhouse/ dist/absys-*.whl
+	@echo
+	ls -1 wheelhouse/
 
 docs:
 	$(MAKE) -C docs html BUILDDIR=$(BUILDDIR) SPHINXOPTS='$(SPHINXOPTS)'

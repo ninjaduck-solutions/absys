@@ -228,25 +228,37 @@ Tipps
 		>>> import imp
 		>>> imp.reload(<Datei-/Modulname>)
 
-Einrichten der Deployment Vagrant Box
-=====================================
+Setup-Paket erstellen
+=====================
+
+Das Setup-Paket wird für Installation/Upgrade der Staging- und Production-
+Server benötigt.
 
 Um die Deployment Vagrant Box zu benutzen, muss vorher das ``absys`` Paket
-erstellt werden. Dazu wie folgt vorgehen:
+innnerhalb der dev Vagrant Box erstellt werden. Außerdem müssen alle Python
+Wheels, die auf dem Server installiert werden sollen, erstellt und gesammelt
+werden. Dazu wie folgt vorgehen:
 
 ::
 
     (pyvenv) vagrant@absys-dev:/vagrant$ make dist
+    (pyvenv) vagrant@absys-dev:/vagrant$ make wheelhouse
 
 .. note::
 
     Das ``absys`` Paket sollte am besten aus einem Release erstellt werden.
+    Dieser kann mit ``git checkout 1.0.0`` wiederhergestellt werden, wobei
+    "1.0.0" mit der gewünschten Version zu ersetzen ist. Nach dem Erstellen der
+    Python Wheels wieder den Entwicklungsbranch mit ``git checkout develop``
+    herstellen.
 
-Danach folgende Befehle in einem neuen Terminal ausführen, um die Deployment
-Vagrant Box zu starten:
+Danach die Deployment Vagrant Box erstellen. Um sicherzustellen, dass eine
+saubere Umgebung vorliegt, wird die deployment Vagrant Box jedes mal komplett
+neu erstellt. Dazu die folgenden Befehle in einem neuen Terminal ausführen:
 
 ::
 
+    > vagrant destroy -f deployment
     > vagrant up deployment
     > vagrant ssh deployment
     vagrant@absys-deployment:~$ /vagrant/setup/install.sh
@@ -259,24 +271,20 @@ Vagrant Box zu starten:
 
 Nach der Installation testen, ob der Webserver unter https://127.0.0.1:8080
 erreichbar ist. Da ein selbst-signiertes SSL Zertifikat benutzt wird, muss erst
-eine Ausnahme hinzugefügt werden.
+eine Ausnahme für dieses hinzugefügt werden.
 
-Zum Extrahieren der Konfiguration für Staging- und Production-Server folgenden
+Nun zum Extrahieren der Konfiguration in der deployment Vagrant Box folgenden
 Befehl ausführen:
 
 ::
 
     vagrant@absys-deployment:~$ /vagrant/bin/extract.sh
 
-.. note::
+Alle folgenden Befehle müssen auf der dev Vagrant Box ausgeführt werden, da nur
+dort ``git`` installiert ist. Da beide Vagrant Boxen das gleiche Verzeichnis
+als Netzlaufwerk haben, ist das ohne Probleme möglich.
 
-    Das Skript ``extract.sh`` erstellt aus den Dateien im Verzeichnis ``setup``
-    automatisch ein tar Archiv ``setup.tar.gz`` und legt dieses im
-    Stammverzeichnis des Projekts ab. Diese Datei kann an den Dienstleister
-    übergeben werden. Sie soll nicht Teil des Git Repositories werden und wird
-    daher bei Commits ignoriert.
-
-Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit machen:
+Das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit machen:
 
 ::
 
@@ -284,8 +292,8 @@ Nun das Verzeichnis ``setup`` auf Änderungen prüfen und ggf. einen Commit mach
     (pyvenv) vagrant@absys-dev:/vagrant$ git add setup
     (pyvenv) vagrant@absys-dev:/vagrant$ git commit
 
-.. note::
-
-    Da ``git`` nur auf ``absys-dev`` installiert ist, muss dort der Commit
-    gemacht werden. Da beide Vagrant Boxen das gleiche Verzeichnis als
-    Netzlaufwerk haben, ist das ohne Probleme möglich.
+Das Skript ``extract.sh`` erstellt aus den Dateien im Verzeichnis ``setup`` und
+dem kompletten Verzeichnis ``wheelhouse`` automatisch ein tar Archiv
+``setup.tar.gz`` und legt dieses im Stammverzeichnis des Projekts ab. Dieses
+Archiv kann an den Dienstleister übergeben werden. Es soll nicht Teil des Git
+Repositories werden und wird daher bei Commits ignoriert.

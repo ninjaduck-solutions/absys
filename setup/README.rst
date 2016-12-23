@@ -29,9 +29,9 @@ Servern nötig:
 
     $ sudo sudo a2enconf wsgi
 
-7. Das AbSys Python Paket (``absys-*.whl``) in den in ``install.sh`` in der
-   Variable ``PACKAGE_PATH`` definierten Pfad kopieren. Falls nötig den in
-   ``PACKAGE_PATH`` definierten Pfad ändern.
+7. Die in ``install.sh`` definierte Variable ``PACKAGE_PATH`` muss den Pfad zum
+   Verzeichnis ``wheelhouse`` enthalten. Dieses Verzeichnis enthält alle zur
+   Installation benötigten Python Pakete als Wheels.
 8. Konfiguration in ``install.sh`` anpassen, dann Skript starten. Das Python
    Virtual Environment wird automatisch aktiviert.
 9. Fertig! :-)
