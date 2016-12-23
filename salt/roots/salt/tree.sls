@@ -1,3 +1,3 @@
 tree:
   pkg.installed:
-    - version: 1.7.0-3
+    - version: 1.7.0*
