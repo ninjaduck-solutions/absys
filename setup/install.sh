@@ -129,7 +129,7 @@ ${VENV_PATH}/bin/pip install ${PIP_DEFAULT_OPTIONS} --find-links ${PACKAGE_PATH}
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py check --deploy
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py migrate
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py collectstatic --noinput
-sudo service apache2 reload
+sudo systemctl reload apache2.service
 
 set +o verbose
 

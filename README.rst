@@ -257,6 +257,10 @@ Vagrant Box zu starten:
     Windows finden sich weiter oben unter der Überschrift "Einrichten der
     Entwicklungsumgebung".
 
+Nach der Installation testen, ob der Webserver unter https://127.0.0.1:8080
+erreichbar ist. Da ein selbst-signiertes SSL Zertifikat benutzt wird, muss erst
+eine Ausnahme hinzugefügt werden.
+
 Zum Extrahieren der Konfiguration für Staging- und Production-Server folgenden
 Befehl ausführen:
 

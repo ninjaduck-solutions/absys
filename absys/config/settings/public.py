@@ -3,22 +3,6 @@ from configurations import values
 from . import common, databases, email, lockdown
 
 
-class Public(email.Email, databases.Databases, lockdown.Lockdown, common.Common):
-    """General settings for all public servers."""
-
-    CSRF_COOKIE_HTTPONLY = True
-
-    SECRET_KEY = values.SecretValue()
-
-    SECURE_BROWSER_XSS_FILTER = True
-
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-
-    SILENCED_SYSTEM_CHECKS = values.ListValue([])
-
-    X_FRAME_OPTIONS = 'DENY'
-
-
 class SSL(object):
     """Default settings for SSL-enabled servers.
 
@@ -44,13 +28,29 @@ class SSL(object):
     SESSION_COOKIE_SECURE = values.BooleanValue(True)
 
 
+class Public(email.Email, databases.Databases, lockdown.Lockdown, SSL, common.Common):
+    """General settings for all public servers."""
+
+    CSRF_COOKIE_HTTPONLY = True
+
+    SECRET_KEY = values.SecretValue()
+
+    SECURE_BROWSER_XSS_FILTER = True
+
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    SILENCED_SYSTEM_CHECKS = values.ListValue([])
+
+    X_FRAME_OPTIONS = 'DENY'
+
+
 class Staging(Public):
     """Settings for staging servers."""
 
     pass
 
 
-class Production(Public, SSL):
+class Production(Public):
     """Settings for production servers."""
 
     pass
