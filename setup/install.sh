@@ -125,7 +125,7 @@ sudo chgrp -R www-data /var/envdir/absys && sudo chmod -R g=rX,o= /var/envdir/ab
 ${VENV_PATH}/bin/pip install ${PIP_DEFAULT_OPTIONS} --upgrade pip setuptools wheel
 ${VENV_PATH}/bin/pip install ${PIP_DEFAULT_OPTIONS} --find-links ${PACKAGE_PATH} --upgrade absys
 
-# Deployment Check, Datenbank Migration und Sammeln der statischen Dateien
+# Deployment Check, Datenbank Migration und Sammeln der statischen Dateien.
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py check --deploy
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py migrate
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py collectstatic --noinput
