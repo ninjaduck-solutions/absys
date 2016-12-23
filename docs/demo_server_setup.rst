@@ -42,9 +42,10 @@ Backup erstellen
 ::
 
     $ ssh root@absys-demo
+    root:~$ mkdir -p /var/backups/pg_dump
+    root:~$ chown --verbose postgres: /var/backups/pg_dump
     root:~$ sudo --user postgres --login
-    postgres:~$ mkdir -p dumps
-    postgres:~$ pg_dump --format=custom --username=absys absys > dumps/absys_$(date --iso-8601=seconds).dump
+    postgres:~$ pg_dump --format=custom --username=absys absys > /var/backups/pg_dump/absys_$(date --iso-8601=seconds).dump
     postgres:~$ exit
     root:~$ exit
 
@@ -57,7 +58,7 @@ Backup wiederherstellen
     root:~$ systemctl stop apache2.service
     root:~$ sudo --user postgres --login
     postgres:~$ dropdb absys
-    postgres:~$ pg_restore --create --dbname=postgres dumps/absys_[ISO-DATE].dump
+    postgres:~$ pg_restore --create --dbname=postgres /var/backups/pg_dump/absys_[ISO-DATE].dump
     postgres:~$ exit
     root:~$ systemctl start apache2.service
     root:~$ exit
