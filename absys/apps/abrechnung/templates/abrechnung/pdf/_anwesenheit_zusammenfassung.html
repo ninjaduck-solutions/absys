@@ -1,0 +1,40 @@
+{% load abrechnung_tags %}
+
+{% with darstellungszeitraeume=einrichtungsrechnung|get_darstellungszeitraeume  schuelerdaten=einrichtungsrechnung|get_schuelerdaten %}
+{% for zeitraum in darstellungszeitraeume %}
+<table class="table">
+  <thead>
+    <tr>
+      <th></th>
+      {% with monate=zeitraum|monatsueberschriften %}
+      {% for monat, zellen in monate.items %}
+      <th colspan="{{ zellen }}">{{ monat|monatsname}}</th>
+      {% endfor %}
+      {% endwith %}
+    </tr>
+    <tr>
+      <th>Schüler</th>
+      {% for tag, kontext in zeitraum %}
+      <th class="{% if kontext %}zeitraum-kontext{% elif tag|ist_wochenende %}weekend{% endif %}">{{ tag.day }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for schueler, daten in schuelerdaten.items %}
+    <tr>
+      <td>{{ schueler }}</td>
+      {% for tag, kontext in zeitraum %}
+        {% with position=daten|get_item:tag %}
+        <td class="{% if kontext %}zeitraum-kontext{% elif position.vermindert %}vermindert{% elif tag|ist_wochenende %}weekend{% endif %}">
+          {% if not position %}--{% elif position.abwesend %}K{% else %}A{% endif %}
+        </td>
+        {% endwith %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div style="page-break-before:always;"></div>
+{% endfor %}
+{% endwith %}

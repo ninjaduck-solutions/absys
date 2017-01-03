@@ -1,0 +1,21 @@
+{# Hauptsnippet welches für die Darstellung einer 'Einrichtungsrechnung' verantwortlich ist. #}
+
+<div style="page-break-before:always;"></div>
+
+{% include 'abrechnung/pdf/_einrichtung_kopf.html' %}
+<hr>
+{% include 'abrechnung/pdf/_einrichtung_uebersicht.html' %}
+
+
+<div style="page-break-before:always;"></div>
+
+{% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+  {% include 'abrechnung/pdf/_anwesenheit_zusammenfassung.html' %}
+{% endif %}
+
+<div style="page-break-before:always;"></div>
+
+{% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
+  {% include 'abrechnung/pdf/_schuelerposition_kopf.html' %}
+  {% include 'abrechnung/pdf/_schuelerposition_liste.html' %}
+{% endfor %}

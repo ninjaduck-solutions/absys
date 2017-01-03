@@ -1,0 +1,100 @@
+{# Snippet welches eine tabelle mit jeden Schülerposten in einer Zeile zusammenfasst. #}
+<table class="table table-striped">
+  <thead style="display: table-row-group">
+      <tr>
+      <th>Pos.</th>
+
+      <th>Name</th>
+
+      {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+        <th>Aktenzeichen</th>
+      {% endif %}
+
+      <th>Geburtsdatum</th>
+
+      {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+        <th>Maximale Fehltage</th>
+      {% endif %}
+
+      <th>Anzahl Tage anwesend</th>
+
+      {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+        <th>Betrag Anwesenheit</th>
+      {% endif %}
+
+      <th>Fehltage im Abrechnungs-zeitraum</th>
+
+      {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+        <th>Betrag Abwesenheit</th>
+      {% endif %}
+
+      {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+        <th>Übertrag Fehltage</th>
+        <th>Fehltage Gesamt</th>
+        <th>Fehltage zur Anrechnung</th>
+      {% endif %}
+
+      <th>Zahltage dieser Rechnung</th>
+
+      {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
+        <th>Barbetrag</th>
+      {% endif %}
+
+      {% if einrichtungsrechnung.einrichtung.konfiguration.bekleidungsgeld %}
+        <th>Bekleidungsgeld</th>
+      {% endif %}
+
+      <th>Gesamtbetrag in Euro</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+
+        <td>{{ einrichtungsposition.name_schueler }}</td>
+
+        {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+          <td>{{ einrichtungsposition.schueler.aktenzeichen }}</td>
+        {% endif %}
+
+        <td>{{ einrichtungsposition.schueler.geburtsdatum|date:"SHORT_DATE_FORMAT" }}</td>
+
+        {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+          <td>{{ einrichtungsposition.fehltage_max }}</td>
+        {% endif %}
+
+        <td>{{ einrichtungsposition.anwesend }}</td>
+
+        {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+          <td>{{ einrichtungsposition.anwesenheitssumme }}</td>
+        {% endif %}
+
+        <td>{{ einrichtungsposition.fehltage }}</td>
+
+        {% if einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+          <td>{{ einrichtungsposition.abwesenheitssumme }}</td>
+        {% endif %}
+
+        {% if not einrichtungsrechnung.einrichtung.konfiguration.fehltage_immer_abrechnen %}
+          <td>{{ einrichtungsposition.fehltage_uebertrag }}</td>
+          <td>{{ einrichtungsposition.fehltage_gesamt }}</td>
+          <td>{{ einrichtungsposition.fehltage_abrechnung }}</td>
+        {% endif %}
+
+        <td>{{ einrichtungsposition.zahltage }}</td>
+
+        {% if einrichtungsrechnung.einrichtung.konfiguration.bargeldauszahlung %}
+          <td>{{ einrichtungsposition.bargeldbetrag }}</td>
+        {% endif %}
+
+        {% if einrichtungsrechnung.einrichtung.konfiguration.bekleidungsgeld %}
+          <td>{{ einrichtungsposition.bekleidungsgeld }}</td>
+        {% endif %}
+
+        <td>{{ einrichtungsposition.summe }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
