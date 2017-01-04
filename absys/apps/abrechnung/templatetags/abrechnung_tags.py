@@ -41,6 +41,32 @@ def monatsname(number):
 
 
 @register.filter
+def zeitraum_anfang_ende(zeitraum):
+    """
+    Liefert das Anfangs- und Enddatum eines Zeitraums.abs
+
+    Zu beachten ist hier das evtl. vorhandene "Kontext" Daten *nicht* berücksichtigt werden da
+    sie im Sinne unserer Definition nicht zum 'Darstellungszeitraum' gehören.
+
+    Returns:
+        tuple: (Begin, Ende)
+    """
+    def get_start(zeitraum):
+        i = 0
+        while zeitraum[i][1] is True:
+            i += 1
+        return zeitraum[i][0]
+
+    def get_ende(zeitraum):
+        i = -1
+        while zeitraum[i][1] is True:
+            i -= 1
+        return zeitraum[i][0]
+
+    return (get_start(zeitraum), get_ende(zeitraum))
+
+
+@register.filter
 def ist_wochenende(datum):
     """Liefere ``True`` wenn das datum ein Wochenendstag ist."""
     return datum.weekday() in (5, 6)
