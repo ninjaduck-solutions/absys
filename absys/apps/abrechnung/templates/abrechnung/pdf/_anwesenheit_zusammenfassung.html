@@ -29,10 +29,16 @@
     <tr>
       <td>{{ schueler }}</td>
       {% for tag, kontext in zeitraum %}
-        {% with position=daten|get_item:tag %}
-        <td class="{% if kontext %}zeitraum-kontext{% elif position.vermindert %}vermindert{% elif tag|ist_wochenende %}weekend{% endif %}">
-          {% if not position %}--{% elif position.abwesend %}K{% else %}A{% endif %}
-        </td>
+        {% with position=daten.0|get_item:tag anwesenheit=daten.1|get_item:tag %}
+        {% if kontext %}
+          <td class="zeitraum-kontext">
+            {% if anwesenheit and not anwesenheit.anwesend %}K{% else %}A{% endif %}
+          </td>
+        {% else %}
+          <td class="{% if position.vermindert %}vermindert{% elif tag|ist_wochenende %}weekend{% endif %}">
+            {% if not position %}--{% elif position.abwesend %}K{% else %}A{% endif %}
+          </td>
+        {% endif %}
         {% endwith %}
       {% endfor %}
     </tr>

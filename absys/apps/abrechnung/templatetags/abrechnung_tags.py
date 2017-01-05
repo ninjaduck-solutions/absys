@@ -139,16 +139,37 @@ def get_schuelerdaten(rechnung):
         rechnung (RechnungEinrichtung): Einrichtungsrechnung die zusammengefasst werden soll.
 
     Returns:
-        dict: {Schüler: {Tag, [schuelerpositionen]}}
+        dict: {Schüler: ({Tag: Schuelerposition}, {Tag: Anwesenheit}}
     """
-    schuelerdaten = {}
-    for position in rechnung.positionen.all():
-        tagesdaten = {}
-        for schuelerposition in position.detailabrechnung:
-            tagesdaten[schuelerposition.datum] = schuelerposition
-        schuelerdaten[position.schueler] = tagesdaten
-    return schuelerdaten
+    def get_anwesenheit(position):
+        """
+        Liefere alle bekannten Anwesenheiten eines Schuelers in einem Zeitfenster.
 
+        Der berücksichtigte Zeitraum beginnt/endet 30 Tage vor/nach dem
+        Rechnungszeitraum.
+
+        Args:
+            RechnungsPositionEinrichtung: Schüler spezifische Rechnungsposten.
+
+        Returns:
+            dict: {datetime.date: bool}, wobei ``bool`` der Anwesenheitsstatus ist.
+        """
+        # Der Grund hierfür ist das so die Anwesenheiten für die "Kontextage"
+        # zur Verfügung stehen. Dafür können wir leider nicht auf die
+        # ``RechnungsPositionSchueler`` zurückgreifen. Leider erhöht dies die
+        # Zahl unserer Queries beachtlich.
+
+        start = rechnung.rechnung_sozialamt.startdatum - datetime.timedelta(days=30)
+        ende = rechnung.rechnung_sozialamt.enddatum + datetime.timedelta(days=30)
+        anwesenheiten = position.schueler.anwesenheit.filter(datum__gte=start, datum__lte=ende)
+
+        return {anwesenheit.datum: anwesenheit.abwesend for anwesenheit in anwesenheiten}
+
+    def get_tagesdaten(position):
+        return {sposition.datum: sposition for sposition in position.detailabrechnung}
+
+    positionen = rechnung.positionen.all()
+    return {p.schueler: (get_tagesdaten(p), get_anwesenheit(p)) for p  in positionen}
 
 @register.filter
 def monatsueberschriften(zeitraum):
