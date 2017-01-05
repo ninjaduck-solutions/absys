@@ -106,7 +106,14 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
 
     @cached_property
     def vormonat_anfang(self):
-        anfang = date.today().replace(month = date.today().month - 1, day = 1)
+        """
+        Liefere den den 1ten des Monats vor 'heute'
+
+        Returns:
+            date: Datum des ersten Tages des Vormonats relativ zu 'heute'.
+                Liefert ``None`` falls dieses Datum 'nicht erlaubt' ist.
+        """
+        anfang = (date.today().replace(day=1) - timedelta(days=1)).replace(day=1)
         if self.ist_datum_erlaubt(anfang):
             return anfang
         return None
