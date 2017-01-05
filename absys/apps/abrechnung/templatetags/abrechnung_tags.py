@@ -99,8 +99,8 @@ def get_darstellungszeitraeume(rechnung):
         end = rechnung.rechnung_sozialamt.enddatum
         delta = end - start
         result = []
-        for i in range(delta.days):
-            tag = start + datetime.timedelta(i + 1)
+        for i in range(delta.days + 1):
+            tag = start + datetime.timedelta(i)
             result.append((tag, False))
         return result
 
@@ -170,6 +170,7 @@ def get_schuelerdaten(rechnung):
 
     positionen = rechnung.positionen.all()
     return {p.schueler: (get_tagesdaten(p), get_anwesenheit(p)) for p  in positionen}
+
 
 @register.filter
 def monatsueberschriften(zeitraum):
