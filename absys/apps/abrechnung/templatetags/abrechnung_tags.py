@@ -1,6 +1,6 @@
 from django import template
 import datetime
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date as date_filter
 from collections import deque, OrderedDict
 
 register = template.Library()
@@ -37,7 +37,7 @@ def monatsname(number):
     ``datetime.date`` welches wir dann an den built-in ``date`` filter
     weiterreichen können.
     """
-    return date(datetime.date(2016, number, 1), 'F')
+    return date_filter(datetime.date(2016, number, 1), 'F')
 
 
 @register.filter
