@@ -1,0 +1,77 @@
+{# Snippet welches metainformationen zu einer Einrichung darstellt #}
+
+<h2> Einrichtung: {{ einrichtungsrechnung.name_einrichtung }} </h2>
+<table class="table" style="border: 0;">
+  <tbody style="display: table-row-group">
+    <tr>
+      <td style="border: 0;">
+        <p>
+          <b>Anschrift:</b>
+          {{ einrichtungsrechnung.einrichtung.standort.anschrift|linebreaks }}
+        </p>
+      </td>
+      <td style="border: 0;">
+        <p>
+          <b>Zahlungsdaten:</b><br>
+          <p>
+            BIC: {{ einrichtungsrechnung.einrichtung.standort.konto_bic }}<br>
+            Institut: {{ einrichtungsrechnung.einrichtung.standort.konto_institut }}<br>
+            IBAN: {{ einrichtungsrechnung.einrichtung.standort.konto_iban }}<br>
+          </p>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="border: 0;">
+        <p>
+          <b>Typ der Einrichtung: </b>
+          {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 250 %}
+            250-Tages-Einrichtung
+          {% elif einrichtungsrechnung.einrichtung.konfiguration.tage == 280 %}
+            280-Tages-Einrichtung
+          {% elif einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+            365-Tages-Einrichtung
+          {% endif %}
+          <br>
+          <b>Abrechnungszeitraum:</b>
+          {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
+          -
+          {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}
+          <br>
+          <b>Schließtage:</b>
+          {% for schliesstag in einrichtungsrechnung.schliesstage %}
+            {{ schliesstag.datum|date:"SHORT_DATE_FORMAT" }}{% if not forloop.last %},{% endif %}
+          {% empty %}
+            keine Schließtage in diesem Zeitraum definiert
+          {% endfor %}
+          <br>
+          <b>Betreuungstage:</b> {{ einrichtungsrechnung.betreuungstage }} <br><br>
+          <b>gegenüber:</b>
+          <br>
+          {{ rechnungsozialamt.sozialamt }} <br>
+          {{ rechnungsozialamt.anschrift_sozialamt|linebreaksbr }}
+        </p>
+      </td>
+      <td style="border: 0;">
+        <p>
+            <b>Fälligkeitsdatum:</b> {{ einrichtungsrechnung.datum_faellig|date:"SHORT_DATE_FORMAT" }}<br>
+            <br>
+
+            <b>Buchungskennzeichen: </b>
+              {% if einrichtungsrechnung.einrichtung.pers_bkz %}
+                Bitte persönliche Aktenzeichen der Schüler verwenden<br>
+              {% else %}
+                {{ einrichtungsrechnung.buchungskennzeichen }}<br>
+              {% endif %}
+
+            <br>
+            <b> Das Buchungskennzeichen bitte unbedingt<br>
+            bei der Überweisung angeben!</b><br>
+            <br>
+
+          <h4><b>Aufwendungen Gesamt: {{ einrichtungsrechnung.summe }} € </b></h4><br><br>
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>

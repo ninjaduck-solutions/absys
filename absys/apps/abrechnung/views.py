@@ -164,6 +164,13 @@ class AbrechnungPDFView(LoginRequiredMixin, BaseDetailView, PDFTemplateView):
         return settings.ABSYS_ADRESSE_SCHULE
 
     @property
+    def zusammenfassung(self):
+        print('FOOOOO')
+        print(self.object)
+
+
+
+    @property
     def filename(self):
         return '{}-{}_{}-{}.pdf'.format(
             self.object.startdatum,
