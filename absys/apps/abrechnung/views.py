@@ -167,8 +167,7 @@ class AbrechnungPDFView(LoginRequiredMixin, BaseDetailView, PDFTemplateView):
     def zusammenfassung(self):
         print('FOOOOO')
         print(self.object)
-
-
+    # REVIEW Sieht nach einer ungenutzen property aus
 
     @property
     def filename(self):

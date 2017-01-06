@@ -103,6 +103,20 @@ def get_darstellungszeitraeume(rechnung):
             tag = start + datetime.timedelta(i)
             result.append((tag, False))
         return result
+        # REVIEW Wir benutzen arrow schon in den Tests. Wenn arrow in die
+        # setup.py eingetragen werden würde, könnte es auch hier benutzt
+        # werden:
+        #
+        # tage = arrow.Arrow.range(
+        #     'day',
+        #     arrow.get(rechnung.rechnung_sozialamt.startdatum),
+        #     arrow.get(rechnung.rechnung_sozialamt.enddatum)
+        # )
+        # return list(zip([t.date() for t in tage], [False] * len(tage)))
+        #
+        # Natürlich liefern beide Möglichkeiten das gleiche Ergebnis. IMHO ist
+        # die Lesbarkeit mit arrow besser, vor allem bei den beiden folgenden
+        # Beispielen, die replace() nutzen.
 
     def add_prefix(zeitraum):
         """Erweitere einen Zeitraum um 3 vorhergehende Tage."""
@@ -110,6 +124,14 @@ def get_darstellungszeitraeume(rechnung):
         start = rechnung.rechnung_sozialamt.startdatum - datetime.timedelta(offset)
         prefix = [(start + datetime.timedelta(i), True) for i in range(offset)]
         zeitraum.extendleft(sorted(prefix, reverse=True))
+        # REVIEW Hier könnte auch arrow genutzt werden:
+        #
+        # tage = arrow.Arrow.range(
+        #     'day',
+        #     arrow.get(rechnung.rechnung_sozialamt.startdatum).replace(days=-3),
+        #     limit=3
+        # )
+        # zeitraum.extendleft(zip(reversed([t.date() for t in tage]), [True] * len(tage)))
 
     def add_suffix(zeitraum):
         """Erweitere einen Zeitraum um 3 nachfolgende Tage."""
@@ -117,6 +139,14 @@ def get_darstellungszeitraeume(rechnung):
         end = rechnung.rechnung_sozialamt.enddatum
         suffix = [(end + datetime.timedelta(i), True) for i in range(1, 1 + offset)]
         zeitraum.extend(suffix)
+        # REVIEW Hier könnte auch arrow genutzt werden:
+        #
+        # tage = arrow.Arrow.range(
+        #     'day',
+        #     arrow.get(rechnung.rechnung_sozialamt.enddatum).replace(days=+1),
+        #     limit=3
+        # )
+        # zeitraum.extend(zip([t.date() for t in tage]), [True] * len(tage))
 
     tage = get_tage()
     result = []
@@ -161,7 +191,33 @@ def get_schuelerdaten(rechnung):
 
         start = rechnung.rechnung_sozialamt.startdatum - datetime.timedelta(days=30)
         ende = rechnung.rechnung_sozialamt.enddatum + datetime.timedelta(days=30)
+        # REVIEW Warum wird 30 Tage vor und nach dem Rechnungszeitraum nach
+        # Anwesenheiten gesucht? Für Randtage werden doch nur jeweils drei Tage
+        # berücksichtigt. Würde es nicht ausreichen nur diese drei Tage zu
+        # betrachten?
         anwesenheiten = position.schueler.anwesenheit.filter(datum__gte=start, datum__lte=ende)
+        # REVIEW Hier dürfen nicht in jedem Fall die Anwesenheiten (aus
+        # absys.apps.anwesenheitsliste) abgefragt werden. Die
+        # Anwesenheitensdaten werden schon während des Rechnungslaufs erfasst
+        # und an RechnungsPositionSchueler gespeichert. Der Grund dafür ist,
+        # dass Anwesenheitensdaten im Admin geändert werden können. Die
+        # Rechnungsdaten können aber nicht bearbeitet werden und bleiben so
+        # konsistent. Daher dürfen in einer Rechnung nie Daten aus
+        # absys.apps.anwesenheitsliste benutzt werden, wenn diese auch in
+        # absys.apps.abrechnung zur Verfügung stehen. Sonst kann die
+        # Darstellung inkonsistent sein, wenn die Anwesenheitensdaten
+        # nachträglich verändert wurden.
+        #
+        # Hier muss ähnlich wie in
+        # absys.apps.einrichtungen.configurations.EinrichtungKonfiguration365
+        # verfahren werden:
+        #
+        # - Für Randtage, die vor den abgerechneten Tagen liegen, muss die
+        #   vorhergehende Rechnung benutzt werden, sofern diese existiert.
+        #
+        # - Für Randtage, die nach den abgerechneten Tagen liegen, muss die
+        #   Anwesenheitsliste benutzt werden. Dies ist dann aber nur eine
+        #   Prognose.
 
         return {anwesenheit.datum: anwesenheit.abwesend for anwesenheit in anwesenheiten}
 
