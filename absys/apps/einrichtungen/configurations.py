@@ -209,9 +209,13 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
                 break
         return anzahl
 
-    def fehltage_letzte_rechnung(self, schueler):
+    def fehltage_letzte_rechnung(self, schueler, einrichtung, startdatum):
         """Fehltage der letzten Rechnung zurückgeben."""
-        return self.fehltage_zaehlen(schueler.positionen_schueler.order_by('-datum')[:3])
+        return self.fehltage_zaehlen(
+            schueler.positionen_schueler.filter(
+                datum__lt=startdatum, einrichtung=einrichtung
+            ).order_by('-datum')[:3]
+        )
 
     def fehltage_folgezeitraum(self, schueler, enddatum):
         """Fehltage für den Folgezeitraum zurückgeben."""
@@ -233,7 +237,11 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
             anzahl_fehltage = len(rechnung_pos_gruppe)
             rechnung_sozialamt = rechnung_pos_gruppe[0].rechnung_sozialamt
             if rechnung_pos_gruppe[0].datum == rechnung_sozialamt.startdatum:
-                anzahl_fehltage += self.fehltage_letzte_rechnung(schueler_in_einrichtung.schueler)
+                anzahl_fehltage += self.fehltage_letzte_rechnung(
+                    schueler_in_einrichtung.schueler,
+                    schueler_in_einrichtung.einrichtung,
+                    rechnung_sozialamt.startdatum
+                )
             if rechnung_pos_gruppe[-1].datum == rechnung_sozialamt.enddatum:
                 anzahl_fehltage += self.fehltage_folgezeitraum(
                     schueler_in_einrichtung.schueler, rechnung_sozialamt.enddatum
