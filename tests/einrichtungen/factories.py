@@ -56,6 +56,18 @@ class EinrichtungFactory(factory.DjangoModelFactory):
         model = models.Einrichtung
 
 
+
+class BettengeldsatzFactory(factory.DjangoModelFactory):
+
+    einrichtung = factory.SubFactory(EinrichtungFactory)
+    startdatum = factory.LazyAttribute(lambda obj: now().date() - datetime.timedelta(2))
+    enddatum = factory.LazyAttribute(lambda obj: now().date() + datetime.timedelta(2))
+    satz = 12
+
+    class Meta:
+        model = models.Bettengeldsatz
+
+
 class EinrichtungHatPflegesatzFactory(factory.DjangoModelFactory):
 
     einrichtung = factory.SubFactory(EinrichtungFactory)
