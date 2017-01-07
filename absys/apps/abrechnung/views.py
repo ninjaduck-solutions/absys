@@ -176,12 +176,6 @@ class AbrechnungPDFView(LoginRequiredMixin, MultiplePermissionsRequiredMixin, Ba
         return settings.ABSYS_ADRESSE_SCHULE
 
     @property
-    def zusammenfassung(self):
-        print('FOOOOO')
-        print(self.object)
-    # REVIEW Sieht nach einer ungenutzen property aus
-
-    @property
     def filename(self):
         return '{}-{}_{}-{}.pdf'.format(
             self.object.startdatum,
