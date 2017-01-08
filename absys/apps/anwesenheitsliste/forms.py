@@ -19,7 +19,7 @@ class AnwesenheitFormHelper(FormHelper):
         self.layout = Layout(
             Div(
                 Div(
-                    Field('schueler',  disabled=''),
+                    Field('schueler', disabled=''),
                     css_class='col-md-8 dark'
                 ),
                 Div(
