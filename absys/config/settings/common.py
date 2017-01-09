@@ -173,6 +173,7 @@ class Common(Configuration):
     INSTALLED_APPS = (
         'django.contrib.auth',
         'django.contrib.contenttypes',
+        'django_filters',
         'django.contrib.sessions',
         'django.contrib.sites',
         'django.contrib.messages',

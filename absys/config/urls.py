@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^anwesenheitsliste/', include('absys.apps.anwesenheitsliste.urls')),
     url(r'^abrechnung/', include('absys.apps.abrechnung.urls')),
+    url(r'^benachrichtigungen/', include('absys.apps.benachrichtigungen.urls')),
     url(r'^login/$', auth_views.login, {'template_name': 'anmeldung/login.html'},
         name='absys_login'),
     url(r'^logout/$', auth_views.logout,

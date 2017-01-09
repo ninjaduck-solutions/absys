@@ -45,6 +45,9 @@
           {% endblock %}
           {% if user.is_authenticated %}
             <ul class="nav navbar-nav navbar-left">
+              {% if perms.change_benachrichtigung %}
+                <li><a href="{% url 'benachrichtigungen_benachrichtigung_list' %}">Benachrichtigungen</a>
+              {% endif %}
               <li><a href="{% url 'abrechnung_rechnungsozialamt_form' %}">Rechnungen</a>
               </li>
               <li><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}">Anwesenheiten</a>

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+  Benachrichtigungen
+{% endblock title %}
+
+{% block content %}
+<h2>Benachrichtigungen</h2>
+
+
+<form action="" method="GET">
+  {{ view.filter.form.as_p }}
+  <input type="submit" value="Filtern" value="Filtern" class="btn btn-success">
+</form>
+
+<hr>
+
+
+<form action="" method="POST">
+  {{ formset.management_form }}
+  <input type="submit" class="btn btn-success">
+  <div style="padding-top: 50px">
+  {% for form in formset %}
+    {% crispy form view.helper %}
+  {% endfor %}
+  </div>
+</form>
+
+
+{% endblock content %}
