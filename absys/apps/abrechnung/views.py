@@ -245,14 +245,21 @@ class SaxmbsView(LoginRequiredMixin, MultiplePermissionsRequiredMixin, MessageMi
                 'abrechnung_rechnungsozialamt_update',
                 kwargs={'pk': self.object.pk}
             )
+
+            if self.request.user.has_perm('abrechnung.change_rechnungsozialamt'):
+                update_text = """
+                    <p>Sie können die fehlenden Buchungskennzeichen hinzufügen, indem Sie die
+                    <a href="{}">Rechnung
+                    bearbeiten</a>.</p>
+                    """.format(update_url)
+            else:
+                update_text = ''
+
             self.messages.error(
                 """
                 <p>Für Rechnung Nr. {r.nummer} kann kein SaxMBS-Export erstellt werden, da eine der
-                Einrichtungs-Rechnungen kein Buchungskennzeichen enthält.</p>
-                <p>Sie können die fehlenden Buchungskennzeichen hinzufügen, indem Sie die
-                <a href="{update_url}">Rechnung
-                bearbeiten</a>.</p>
-                """.format(r=self.object, update_url=update_url)
+                Einrichtungs-Rechnungen kein Buchungskennzeichen enthält.</p>{update_text}
+                """.format(r=self.object, update_text=update_text)
             )
             return redirect('abrechnung_rechnungsozialamt_form')
         return responses.SaxMBSResponse(self.object)
