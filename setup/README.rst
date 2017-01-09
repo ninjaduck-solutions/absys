@@ -24,11 +24,11 @@ Servern nötig:
 
 4. Die Apache Site ``000-default.conf`` muss aktiviert werden:
 
-    $ sudo sudo a2ensite 000-default
+    $ sudo a2ensite 000-default
 
 6. Die Apache Konfiguration ``wsgi.conf`` muss aktiviert werden:
 
-    $ sudo sudo a2enconf wsgi
+    $ sudo a2enconf wsgi
 
 7. Die in ``install.sh`` definierte Variable ``PACKAGE_PATH`` muss den Pfad zum
    Verzeichnis ``wheelhouse`` enthalten. Dieses Verzeichnis enthält alle zur
