@@ -48,10 +48,12 @@
               {% if perms.change_benachrichtigung %}
                 <li><a href="{% url 'benachrichtigungen_benachrichtigung_list' %}">Benachrichtigungen</a>
               {% endif %}
-              <li><a href="{% url 'abrechnung_rechnungsozialamt_form' %}">Rechnungen</a>
-              </li>
-              <li><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}">Anwesenheiten</a>
-              </li>
+              {% if perms.abrechnung.add_rechnungsozialamt %}
+              <li><a href="{% url 'abrechnung_rechnungsozialamt_form' %}">Rechnungen</a></li>
+              {% endif %}
+              {% if perms.anwesenheitsliste.add_anwesenheit and perms.anwesenheitsliste.change_anwesenheit %}
+              <li><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}">Anwesenheiten</a></li>
+              {% endif %}
               {% if user.is_staff %}
               <li><a href="{% url 'admin:index' %}">Verwaltung</a>
               {% endif %}
