@@ -3,7 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-  - Anwesenheitsliste {{ view.datum|date:"SHORT_DATE_FORMAT" }}
+  Anwesenheitsliste {{ view.datum|date:"SHORT_DATE_FORMAT" }}
 {% endblock title %}
 
 {% block content %}
@@ -23,10 +23,22 @@
     {% endif %}
   </div>
 {% endif %}
-</div>
+<div></div>
   <div class="page-header row well well-sm">
-    <div class="col-md-4">
+    <div class="col-md-5">
       <h3 class="text-left">
+        {% if view.vormonat_anfang %}
+          <a href ="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.vormonat_anfang %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
+            <button type="button" class="btn btn-primary" aria-label="Left Align">
+              <span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span>
+            </button>
+          </a>
+        {% endif %}
+        <a href ="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.aktueller_monat_anfang %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
+          <button type="button" class="btn btn-primary" aria-label="Left Align">
+            <span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span>
+          </button>
+        </a>
         {% if view.gestern %}
           <a href="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.gestern %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
             <button type="button" class="btn btn-primary" aria-label="Left Align">
@@ -42,17 +54,22 @@
             </button>
           </a>
         {% endif %}
+        <a href ="{% url "anwesenheitsliste_anwesenheit_anwesenheitsliste" datum=view.heute %}{% if view.query_string %}?{{ view.query_string }}{% endif %}">
+          <button type="button" class="btn btn-primary" aria-label="Left Align">
+            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+          </button>
+        </a>
       </h3>
     </div>
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
+    <div class="col-md-2"></div>
+    <div class="col-md-5">
       {% if view.gruppen %}
         <h2 class="text-right">
         <form class="form-inline" id="anwesenheit_gruppe_formular">
           <select class="form-control" name="gruppe_id">
             <option value="0">Bitte auswählen</option>
             {% for gruppe in view.gruppen %}
-            <option value="{{ gruppe.id }}"{% if view.gruppe_id == gruppe.id %} selected{% endif %}>{{ gruppe.name }}</option>
+              <option value="{{ gruppe.id }}"{% if view.gruppe_id == gruppe.id %} selected{% endif %}>{{ gruppe.name }}</option>
             {% endfor %}
           </select>
           <button class="btn btn-success" type="submit">OK</button>
@@ -63,3 +80,4 @@
   </div>
  {% crispy formset view.helper %}
 {% endblock content %}
+</div>

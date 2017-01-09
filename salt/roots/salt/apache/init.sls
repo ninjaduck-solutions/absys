@@ -1,11 +1,17 @@
 apache2:
   pkg.installed:
-    - version: 2.4.18-2ubuntu3.1
+    - version: 2.4.18*
   service.running:
     - enable: True
     - watch:
       - file: /etc/apache2/conf-available/wsgi.conf
-      - file: /etc/apache2/sites-available/django.conf
+      - file: /etc/apache2/sites-available/000-default.conf
+
+enable-ssl-module:
+  apache_module.enable:
+    - name: ssl
+    - require:
+      - pkg: apache2
 
 enable-headers-module:
   apache_module.enable:
@@ -15,7 +21,7 @@ enable-headers-module:
 
 libapache2-mod-wsgi-py3:
   pkg.installed:
-    - version: 4.3.0-1.1build1
+    - version: 4.3.0*
     - require:
       - pkg: apache2
 
@@ -27,36 +33,20 @@ libapache2-mod-wsgi-py3:
     - source: salt://apache/wsgi.conf
     - require:
       - pkg: libapache2-mod-wsgi-py3
+  apache_conf.enabled:
+    - name: wsgi
 
-/etc/apache2/conf-enabled/wsgi.conf:
-  file.symlink:
-    - user: root
-    - group: root
-    - mode: 644
-    - target: /etc/apache2/conf-available/wsgi.conf
-    - force: True
-    - require:
-      - file: /etc/apache2/conf-available/wsgi.conf
-
-/etc/apache2/sites-available/django.conf:
+/etc/apache2/sites-available/000-default.conf:
   file.managed:
     - user: root
     - group: root
     - mode: 644
-    - source: salt://apache/django.conf
+    - source: salt://apache/000-default.conf
     - template: jinja
     - require:
       - pkg: libapache2-mod-wsgi-py3
-
-/etc/apache2/sites-enabled/000-default.conf:
-  file.symlink:
-    - user: root
-    - group: root
-    - mode: 644
-    - target: /etc/apache2/sites-available/django.conf
-    - force: True
-    - require:
-      - file: /etc/apache2/sites-available/django.conf
+  apache_site.enabled:
+    - name: 000-default
 
 media-directory:
   file.directory:

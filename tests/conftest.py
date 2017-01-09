@@ -7,17 +7,26 @@ import pytest
 from faker import Faker
 from pytest_factoryboy import register
 
+from .abrechnung.factories import RechnungSozialamtFactory, RechnungsPositionSchuelerFactory
 from .anwesenheitsliste.factories import AnwesenheitFactory
 from .buchungskennzeichen.factories import BuchungskennzeichenFactory
 from .einrichtungen.factories import (EinrichtungFactory, EinrichtungHatPflegesatzFactory,
-    FerienFactory, SchuelerAngemeldetInEinrichtungFactory, SchuelerInEinrichtungFactory,
-    StandortFactory)
+    FerienFactory, BettengeldsatzFactory, SchuelerAngemeldetInEinrichtungFactory, SchuelerInEinrichtungFactory,
+    StandortFactory, SchliesstagFactory)
 from .schueler.factories import GruppeFactory, SchuelerFactory, SozialamtFactory
+from .benachrichtigungen.factories import (BuchungskennzeichenBenachrichtigungFactory,
+                                           SchuelerInEinrichtungLaeuftAusBenachrichtigungFactory,
+                                           EinrichtungHatPflegesatzLaeuftAusBenachrichtigungFactory,
+                                           BettengeldsatzLaeuftAusBenachrichtigungFactory,
+                                           FerienBenachrichtigungFactory,
+                                           SchliesstageBenachrichtigungFactory)
 
-
+register(RechnungSozialamtFactory)
+register(RechnungsPositionSchuelerFactory)
 register(AnwesenheitFactory)
 register(BuchungskennzeichenFactory)
 register(EinrichtungFactory)
+register(BettengeldsatzFactory)
 register(EinrichtungHatPflegesatzFactory)
 register(FerienFactory)
 register(GruppeFactory)
@@ -26,6 +35,13 @@ register(SchuelerFactory)
 register(SchuelerInEinrichtungFactory)
 register(SozialamtFactory)
 register(StandortFactory)
+register(SchliesstagFactory)
+register(BuchungskennzeichenBenachrichtigungFactory)
+register(SchuelerInEinrichtungLaeuftAusBenachrichtigungFactory)
+register(EinrichtungHatPflegesatzLaeuftAusBenachrichtigungFactory)
+register(BettengeldsatzLaeuftAusBenachrichtigungFactory)
+register(FerienBenachrichtigungFactory)
+register(SchliesstageBenachrichtigungFactory)
 
 
 @pytest.fixture
@@ -60,7 +76,7 @@ def pytest_runtest_setup(item):
     each test that uses Faker will use the same fake data between test runs,
     regardless of test order.
 
-    Requires fake-factory 0.5.3 or newer.
+    Requires Faker 0.5.3 or newer.
     """
     Faker().seed(item.nodeid)
 

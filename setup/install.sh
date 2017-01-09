@@ -7,9 +7,9 @@ set -o pipefail
 set -o verbose
 
 # PACKAGE_PATH Variable anpassen. Dies kann entweder ein vollständiger Pfad
-# oder ein URL sein, an dem pip das absys Python Paket (.tar.gz oder .whl)
+# oder ein URL sein, an dem pip alle für die Installation nötigen Python Pakete
 # finden kann.
-PACKAGE_PATH=/vagrant/dist
+PACKAGE_PATH=/vagrant/wheelhouse
 
 # Pfad zum Python Virtual Environment, in das alle Python Pakete später
 # installiert werden. Falls nötig anpassen.
@@ -121,15 +121,15 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Berechtigungen korrigieren
 sudo chgrp -R www-data /var/envdir/absys && sudo chmod -R g=rX,o= /var/envdir/absys
 
-# Installation/Upgrade von pip, AbSys und den abhängigen Paketen
-${VENV_PATH}/bin/pip install ${PIP_DEFAULT_OPTIONS} --upgrade pip setuptools wheel
-${VENV_PATH}/bin/pip install ${PIP_DEFAULT_OPTIONS} --find-links ${PACKAGE_PATH} --upgrade absys
+# Installation/Upgrade AbSys und den abhängigen Paketen. Es werden nur Pakete
+# aus ${PACKAGE_PATH} installiert, es findet kein Download statt.
+${VENV_PATH}/bin/python -m pip install ${PIP_DEFAULT_OPTIONS} --force-reinstall --ignore-installed --no-index --find-links ${PACKAGE_PATH} --upgrade absys
 
-# Deployment Check, Datenbank Migration und Sammeln der statischen Dateien
+# Deployment Check, Datenbank Migration und Sammeln der statischen Dateien.
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py check --deploy
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py migrate
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py collectstatic --noinput
-sudo service apache2 reload
+sudo systemctl reload apache2.service
 
 set +o verbose
 

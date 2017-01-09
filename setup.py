@@ -17,18 +17,19 @@ extras_require = {
 }
 
 requires = [
-    'Django==1.10.2',
+    'Django==1.10.4',
     'dj-database-url==0.4.1',
     'django-autofixture==0.12.1',
     'django-braces==1.9.0',
     'django-configurations==2.0',
     'django-crispy-forms==1.6.0',
     'django-extra-views==0.8.0',
+    'django-filter==1.0.1',
     'django-lockdown==1.3',
     'django-model-utils==2.5.1',
     'docutils==0.12',
     'envdir==0.7',
-    'fake-factory==0.6.0',
+    'Faker==0.7.6',
     'psycopg2==2.6.2',
     'pytz==2016.6.1',
     'django-import-export==0.5.1',
@@ -47,7 +48,7 @@ if os.path.dirname(os.path.abspath(__file__)) == '/vagrant':
 
 setup(
     name='absys',
-    version='0.7.0',
+    version='0.8.0',
     description='Abrechnungssystem der SLSH und LZH.',
     long_description=read(BASE_DIR, 'README.rst'),
     author='IMTB',

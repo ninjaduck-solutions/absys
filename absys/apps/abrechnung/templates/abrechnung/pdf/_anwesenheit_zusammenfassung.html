@@ -1,0 +1,147 @@
+{% load abrechnung_tags %}
+
+<h3>Zusammenfassung der Schüleranwesenheiten im Rechnungszeitraum für {{ einrichtungsrechnung.einrichtung }}</h2>
+{# REVIEW Öffnendes und schließendes Tag stimmen nicht überein. #}
+{% with darstellungszeitraeume=einrichtungsrechnung|get_darstellungszeitraeume  schuelerdaten=einrichtungsrechnung|get_schuelerdaten %}
+{% for zeitraum in darstellungszeitraeume %}
+{% with anfang_ende=zeitraum|zeitraum_anfang_ende %}
+<h4>Zusammenfassung für den Darstellungszeitraum {{ anfang_ende.0|date }} bis {{ anfang_ende.1|date }}</h3>
+{% endwith %}
+<table class="table">
+  <thead>
+    <tr>
+      <th></th>
+      {% with monate=zeitraum|monatsueberschriften %}
+      {% for monat, zellen in monate.items %}
+      <th colspan="{{ zellen }}">{{ monat|monatsname}}</th>
+      {% endfor %}
+      {% endwith %}
+    </tr>
+    <tr>
+      <th>Schüler</th>
+      {% for tag, kontext in zeitraum %}
+      <th class="{% if kontext %}zeitraum-kontext{% elif tag|ist_wochenende %}weekend{% endif %}">{{ tag.day }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for schueler, daten in schuelerdaten.items %}
+    <tr>
+      <td>{{ schueler }}</td>
+      {% for tag, kontext in zeitraum %}
+        {% with position=daten.0|get_item:tag anwesenheit=daten.1|get_item:tag %}
+        {% if kontext %}
+          <td class="zeitraum-kontext">
+            {% if anwesenheit and not anwesenheit.anwesend %}K{% else %}A{% endif %}
+          </td>
+        {% else %}
+          <td class="{% if position.vermindert %}vermindert{% elif tag|ist_wochenende %}weekend{% endif %}">
+            {% if not position %}--{% elif position.abwesend %}K{% else %}A{% endif %}
+          </td>
+        {% endif %}
+        {% endwith %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div style="page-break-before:always;"></div>
+{% endfor %}
+{% endwith %}
+
+{% comment %}
+
+REVIEW Ob Code in Template-Tags und -Filtern, Views oder Models geschrieben
+wird, hängt von dem zu lösenden Problem und der jeweiligen Philosophie des
+Entwicklers ab. Trotzdem gibt es ein paar Dinge, die immer Beachtung finden
+sollten:
+
+1. Zum Zugriff auf die Daten des ORMs sollten, soweit möglich, auch die Python
+   Objekte des ORMs benutzt werden. Das bedeutet, dass der Aufbau neuer
+   Datenstrukturen, z.B. mit dict oder list, nur wenn wirklich nötig erfolgen
+   sollte. Dies verhindert oft zusätzliche Queries und macht Optimierungen
+   einfacher.
+
+2. Bei Projekten mit Fat Models sollten die schon existierenden Methoden und
+   Properties genutzt und weiter ausgebaut werden.
+
+3. In Templates sollte so wenig Logik wie nur möglich enthalten sein, um die
+   Ausführung teurer Operationen in den Models oder ggf. Views vornehmen zu
+   können. Dies gilt auch für Template-Tags und -Filter, denn dieser Funktionen
+   sind oft nicht außerhalb der Templates einsetzbar.
+
+Nach dem Review des Codes unter Berücksichtigung dieser drei Punkte bin ich der
+Meinung, dass es ein Problem mit den Punkten 1. und 3. gibt.
+
+Durch den Aufbau einer eigenen Datenstruktur für die Tage mit Hilfe der
+Template-Filter wird die Benutzung von schon existierendem Code erschwert. Die
+intensive Verwendung von with bringt sehr viel Logik in das Template.
+
+In der Dokumentation für das with Template-Tag steht:
+
+  Caches a complex variable under a simpler name. This is useful when accessing
+  an “expensive” method (e.g., one that hits the database) multiple times.
+
+with wird hier nicht dafür benutzt, auf die neue Variable mehrfach zuzugreifen
+und dadurch Queries zu sparen. Statt dessen erstellen viele der with-Aufrufe
+neue Datenstrukturen und führen so zu zusätzlichen Queries, besonders der
+Aufruf von get_schuelerdaten. Der Grund dafür scheint in der neu erstellten
+Datenstruktur für die Tage zu liegen.
+
+Bei näherer Betrachtung sieht die Anforderung an dieses Template wie eine
+Einrichtungsrechnung aus, die statt der einzelnen Zahlen und Summen die Tage
+aus der Schülerrechnung horizontal darstellt. Schematisch könnte das so
+aussehen:
+
+{% with einrichtungsrechnung.positionen.first as kopfdaten %}
+  {% if kopfdaten %}
+    {# kopfdaten ist eine einrichtungsposition, die zur Erzeugung des Tabellenkopfs genutzt wird. #}
+    <table>
+      <thead>
+        <tr>
+          <td>Schüler</td>
+          {% for schuelerposition in kopfdaten %}
+            <td>{{ schuelerposition.datum|date:"j" }}</td>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
+          <tr>
+            <td>{{ einrichtungsposition.name_schueler }}</td>
+            {% for schuelerposition in einrichtungsposition.detailabrechnung.all %}
+              <td>Auswertung von {{ schuelerposition.abwesend }} und {{ schuelerposition.vermindet }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endwith %}
+
+Neu ist die Markierung der Wochenenden. Dies kann durch den entsprechenden
+Filter passieren.
+
+Die Darstellung der Randtage kann durch Einfügen entsprechender
+Funktionsaufrufe vor bzw. nach dem Schreiben der Kerndaten erfolgen. Dazu
+könnte eine Instanz von EinrichtungKonfiguration365 genutzt werden, die an
+einrichtungsrechnung.einrichtung.konfiguration verfügbar ist. Diese hat schon
+entsprechende Methoden. Diese geben aktuell einen Integer mit der Anzahl der
+Zahlen zurück. Der Code zum Erzeugen des QuerySets könnte aber extrahiert
+werden und hier mit einem neuen Template-Tag aufgerufen werden.
+
+Zusätzlich wird die Anforderung gestellt, dass pro Seite immer nur ein Monat
+dargestellt werden soll. Dazu wäre es möglich RechnungEinrichtungQuerySet
+einzuführen und mit einer Methode auszustatten, die die
+RechnungsPositionEinrichtung-Instanzen nach Monaten aufteilt, z.B.
+RechnungEinrichtungQuerySet.monatlich(). Diese neue Methode könnte dann an
+einrichtungsrechnung.positionen aufgerufen werden. Jedes zurückgegebene
+QuerySet wird dann mit dem oben skizzierten Template gerendert.
+
+Außerdem müssen die Überschriften und für Tabelle und Monate eingefügt werden.
+Dazu kann auch das kopfdaten-Objekt genutzt werden, denn es kann über seine
+Relationen auf RechnungSozialamt zugreifen. So kann der aktuelle Monat sowie
+der vorhergehende und folgende festgestellt werden.
+
+{% endcomment %}

@@ -42,7 +42,7 @@ class Einrichtung(TimeStampedModel):
         "Konfiguration",
         choices=EINRICHTUNGS_KONFIGURATIONEN_CHOICES
     )
-    pers_bkz= models.BooleanField("Einrichtung mit persönlichen BKZ?", 
+    pers_bkz= models.BooleanField("Einrichtung mit persönlichen BKZ?",
         default=False)
 
     class Meta:
@@ -59,7 +59,7 @@ class Einrichtung(TimeStampedModel):
                 {'titel': self._meta.get_field('titel').help_text},
                 code='title_zu_lang'
             )
-        if self.pers_bkz:
+        if self.pk and self.pers_bkz:
             for schueler in self.schueler.all():
                 if schueler and not schueler.aktenzeichen:
                     msg = (
@@ -275,6 +275,8 @@ class Ferien(TimeStampedModel):
         verbose_name='Einrichtungen',
         related_name='ferien'
     )
+
+    objects = managers.FerienQuerySet.as_manager()
 
     class Meta:
         verbose_name = "Ferien"

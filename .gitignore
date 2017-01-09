@@ -20,6 +20,7 @@ develop-eggs
 .installed.cfg
 lib
 lib64
+wheelhouse
 
 # envdirs
 envs/*
@@ -33,7 +34,6 @@ absys/static_root/*
 
 # Logs
 *.log
-!setup/history.log
 *.log.*
 pip-log.txt
 

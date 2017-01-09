@@ -80,6 +80,13 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
         )
 
 
+class FerienQuerySet(models.QuerySet):
+
+    def jahr(self, jahr):
+        """Liefere alle ``Ferien`` welche im gegebenen jahr anfangen oder enden."""
+        return self.filter(startdatum__year=jahr, enddatum__year=jahr)
+
+
 class EinrichtungHatPflegesatzQuerySet(models.QuerySet):
 
     def zeitraum(self, startdatum, enddatum):

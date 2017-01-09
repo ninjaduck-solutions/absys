@@ -1,6 +1,6 @@
-from datetime import timedelta
+from datetime import timedelta, date
 
-from braces.views import LoginRequiredMixin
+from braces.views import LoginRequiredMixin, MultiplePermissionsRequiredMixin
 from dateutil.parser import parse
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -16,15 +16,17 @@ from . import forms
 from .models import Anwesenheit
 
 
-class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
+class AnwesenheitslisteFormSetView(LoginRequiredMixin, MultiplePermissionsRequiredMixin,
+        extra_views.FormSetView):
 
     form_class = forms.AnwesenheitForm
     extra = 0
     template_name = 'anwesenheitsliste/schueler_list.html'
 
-    login_url = "/anmeldung/"
-    redirect_field_name = "anmeldung"
-    raise_exception = False
+    permissions = {"all": ('anwesenheitsliste.add_anwesenheit',
+                           'anwesenheitsliste.change_anwesenheit')
+                   }
+    raise_exception = True
 
     def dispatch(self, request, *args, **kwargs):
         if not self.ist_datum_erlaubt(self.datum):
@@ -83,6 +85,10 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
         return timezone.make_aware(parse(self.kwargs['datum'])).date()
 
     @cached_property
+    def heute(self):
+        return date.today()
+
+    @cached_property
     def gestern(self):
         gestern = self.datum + timedelta(-1)
         if self.ist_datum_erlaubt(gestern):
@@ -94,6 +100,24 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, extra_views.FormSetView):
         morgen = self.datum + timedelta(1)
         if self.ist_datum_erlaubt(morgen):
             return morgen
+        return None
+
+    @cached_property
+    def aktueller_monat_anfang(self):
+        return date.today().replace(day = 1)
+
+    @cached_property
+    def vormonat_anfang(self):
+        """
+        Liefere den den 1ten des Monats vor 'heute'
+
+        Returns:
+            date: Datum des ersten Tages des Vormonats relativ zu 'heute'.
+                Liefert ``None`` falls dieses Datum 'nicht erlaubt' ist.
+        """
+        anfang = (date.today().replace(day=1) - timedelta(days=1)).replace(day=1)
+        if self.ist_datum_erlaubt(anfang):
+            return anfang
         return None
 
     @cached_property

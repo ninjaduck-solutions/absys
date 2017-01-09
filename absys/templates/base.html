@@ -45,11 +45,18 @@
           {% endblock %}
           {% if user.is_authenticated %}
             <ul class="nav navbar-nav navbar-left">
-              <li><a href="{% url 'abrechnung_rechnungsozialamt_form' %}">Rechnungen</a>
-              </li>
-              <li><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}">Anwesenheiten</a>
-              </li>
+              {% if perms.change_benachrichtigung %}
+                <li><a href="{% url 'benachrichtigungen_benachrichtigung_list' %}">Benachrichtigungen</a>
+              {% endif %}
+              {% if perms.abrechnung.add_rechnungsozialamt %}
+              <li><a href="{% url 'abrechnung_rechnungsozialamt_form' %}">Rechnungen</a></li>
+              {% endif %}
+              {% if perms.anwesenheitsliste.add_anwesenheit and perms.anwesenheitsliste.change_anwesenheit %}
+              <li><a href="{% url "anwesenheitsliste_anwesenheit_heute" %}">Anwesenheiten</a></li>
+              {% endif %}
+              {% if user.is_staff %}
               <li><a href="{% url 'admin:index' %}">Verwaltung</a>
+              {% endif %}
               </li>
               <li><a href="{% url 'admin:password_change' %}">Passwort ändern</a>
               </li>
@@ -89,6 +96,6 @@
 
         <script src="{% static "js/main.js" %}"></script>
 
-        <!-- AbSys 0.7.0 powered by Django {{ django_version }} -->
+        <!-- AbSys 0.8.0 powered by Django {{ django_version }} -->
     </body>
 </html>
