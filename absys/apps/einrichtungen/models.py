@@ -276,6 +276,8 @@ class Ferien(TimeStampedModel):
         related_name='ferien'
     )
 
+    objects = managers.FerienQuerySet.as_manager()
+
     class Meta:
         verbose_name = "Ferien"
         verbose_name_plural = "Ferien"

@@ -173,6 +173,7 @@ class Common(Configuration):
     INSTALLED_APPS = (
         'django.contrib.auth',
         'django.contrib.contenttypes',
+        'django_filters',
         'django.contrib.sessions',
         'django.contrib.sites',
         'django.contrib.messages',
@@ -192,6 +193,7 @@ class Common(Configuration):
         'absys.apps.schueler.apps.SchuelerConfig',
         'absys.apps.dashboard.apps.DashboardConfig',
         'absys.apps.buchungskennzeichen.apps.BuchungskennzeichenConfig',
+        'absys.apps.benachrichtigungen.apps.BenachrichtigungenConfig',
     )
 
     CACHES = values. DictValue({
@@ -228,6 +230,22 @@ class Common(Configuration):
         message_constants.WARNING: 'warning',
         message_constants.ERROR: 'danger',
     }
+
+    # Anzahl der Buchungskennzeichen die unterschritten werden muss um eine
+    # 'Bucheungskennzeichen gehen aus' Benachrichtigung zu veranlassen.
+    ABSYS_BUCHUNGSKENNZEICHEN_MIN_VERBLEIBEND = values.IntegerValue(30)
+
+    # Anzahl der Tage die ein Schüler noch in einer Einrichtung verbleibend ist
+    # bevor eine Benachrichtigung ausgelöst wird.
+    ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE = values.IntegerValue(30)
+
+    # Anzahl der Tage für ``EinrichtungHatPflegesatz.pflegesatz_enddatum``
+    # die wenn unterschritten eine Bennachrichtigung auslöst.
+    ABSYS_EINRICHTUNG_HAT_PFLEGESATZ_MIN_VERBLEIBENDE_TAGE = values.IntegerValue(30)
+
+    # Anzahl der Tage für ``Bettengeldsatz.enddatum`` die wenn unterschritten
+    # eine Bennachrichtigung auslöst.
+    ABSYS_BETTENGELDSATZ_MIN_VERBLEIBENDE_TAGE = values.IntegerValue(30)
 
     # Anzahl der Tage, die im aktuellen Monat für rückwirkende Änderungen der
     # Anwesenheitsliste im Frontend zur Verfügung stehen.

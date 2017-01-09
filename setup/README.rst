@@ -21,6 +21,7 @@ Servern nötig:
    Environment zu erstellen, in das alle Python Pakete später installiert
    werden können. Die Erstellung des Python Virtual Environments wird in der
    Datei ``000-default.conf`` beschrieben.
+
 4. Die Apache Site ``000-default.conf`` muss aktiviert werden:
 
     $ sudo sudo a2ensite 000-default
@@ -32,6 +33,8 @@ Servern nötig:
 7. Die in ``install.sh`` definierte Variable ``PACKAGE_PATH`` muss den Pfad zum
    Verzeichnis ``wheelhouse`` enthalten. Dieses Verzeichnis enthält alle zur
    Installation benötigten Python Pakete als Wheels.
+
 8. Konfiguration in ``install.sh`` anpassen, dann Skript starten. Das Python
    Virtual Environment wird automatisch aktiviert.
+
 9. Fertig! :-)
