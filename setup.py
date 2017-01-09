@@ -24,7 +24,7 @@ requires = [
     'django-configurations==2.0',
     'django-crispy-forms==1.6.0',
     'django-extra-views==0.8.0',
-    'django-filters==0.2.1',
+    'django-filter==1.0.1',
     'django-lockdown==1.3',
     'django-model-utils==2.5.1',
     'docutils==0.12',
@@ -48,7 +48,7 @@ if os.path.dirname(os.path.abspath(__file__)) == '/vagrant':
 
 setup(
     name='absys',
-    version='0.7.0',
+    version='0.8.0',
     description='Abrechnungssystem der SLSH und LZH.',
     long_description=read(BASE_DIR, 'README.rst'),
     author='IMTB',
