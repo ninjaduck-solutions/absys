@@ -1,6 +1,9 @@
 import datetime
 
 import pytest
+from freezegun import freeze_time
+
+from absys.apps.einrichtungen import models
 
 
 @pytest.mark.django_db
@@ -138,3 +141,24 @@ class TestSchuelerInEinrichtungQuerySet:
         assert len(betreuungstage[schueler_in_einrichtung]) == 2
         assert len(betreuungstage[schueler_in_einrichtung_2]) == 1
         assert betreuungstage[schueler_in_einrichtung_2][0] == betreuungstage_ende - datetime.timedelta(2)
+
+
+class TestFerienQuerySet:
+
+    @pytest.mark.django_db
+    @freeze_time('2015-06-02 14:00')
+    @pytest.mark.parametrize('jahr_gleich', (True, False))
+    def test_jahr_start_ende_jahr_identisch(self, ferien, jahr_gleich):
+        """Stelle sicher das nur Ferien mit im selben Jahr zurück gegeben werden."""
+        if jahr_gleich:
+            jahr = ferien.startdatum.year
+        else:
+            jahr = ferien.startdatum.year - 1
+        assert bool(models.Ferien.objects.jahr(jahr)) is jahr_gleich
+
+    @pytest.mark.django_db
+    @pytest.mark.parametrize(('jahr', 'erwartung'), ((2015, True), (2016, False)))
+    def test_jahr_start_ende_jahr_verschieden(self, ferien_factory, jahr, erwartung):
+        """Stelle sicher das nur Ferien mit im selben Jahr zurück agegeben werden."""
+        ferien_factory.create(startdatum=datetime.date(2015, 10, 20))
+        assert bool(models.Ferien.objects.jahr(jahr)) is erwartung

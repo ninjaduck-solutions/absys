@@ -56,7 +56,6 @@ class EinrichtungFactory(factory.DjangoModelFactory):
         model = models.Einrichtung
 
 
-
 class BettengeldsatzFactory(factory.DjangoModelFactory):
 
     einrichtung = factory.SubFactory(EinrichtungFactory)

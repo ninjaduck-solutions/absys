@@ -11,15 +11,22 @@ from .abrechnung.factories import RechnungSozialamtFactory, RechnungsPositionSch
 from .anwesenheitsliste.factories import AnwesenheitFactory
 from .buchungskennzeichen.factories import BuchungskennzeichenFactory
 from .einrichtungen.factories import (EinrichtungFactory, EinrichtungHatPflegesatzFactory,
-    FerienFactory, SchuelerAngemeldetInEinrichtungFactory, SchuelerInEinrichtungFactory,
-    StandortFactory)
+    FerienFactory, BettengeldsatzFactory, SchuelerAngemeldetInEinrichtungFactory, SchuelerInEinrichtungFactory,
+    StandortFactory, SchliesstagFactory)
 from .schueler.factories import GruppeFactory, SchuelerFactory, SozialamtFactory
+from .benachrichtigungen.factories import (BuchungskennzeichenBenachrichtigungFactory,
+                                           SchuelerInEinrichtungLaeuftAusBenachrichtigungFactory,
+                                           EinrichtungHatPflegesatzLaeuftAusBenachrichtigungFactory,
+                                           BettengeldsatzLaeuftAusBenachrichtigungFactory,
+                                           FerienBenachrichtigungFactory,
+                                           SchliesstageBenachrichtigungFactory)
 
 register(RechnungSozialamtFactory)
 register(RechnungsPositionSchuelerFactory)
 register(AnwesenheitFactory)
 register(BuchungskennzeichenFactory)
 register(EinrichtungFactory)
+register(BettengeldsatzFactory)
 register(EinrichtungHatPflegesatzFactory)
 register(FerienFactory)
 register(GruppeFactory)
@@ -28,6 +35,13 @@ register(SchuelerFactory)
 register(SchuelerInEinrichtungFactory)
 register(SozialamtFactory)
 register(StandortFactory)
+register(SchliesstagFactory)
+register(BuchungskennzeichenBenachrichtigungFactory)
+register(SchuelerInEinrichtungLaeuftAusBenachrichtigungFactory)
+register(EinrichtungHatPflegesatzLaeuftAusBenachrichtigungFactory)
+register(BettengeldsatzLaeuftAusBenachrichtigungFactory)
+register(FerienBenachrichtigungFactory)
+register(SchliesstageBenachrichtigungFactory)
 
 
 @pytest.fixture
