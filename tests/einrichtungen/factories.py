@@ -2,6 +2,7 @@ import datetime
 
 import factory
 from django.utils.timezone import now
+from django.conf import settings
 
 from absys.apps.einrichtungen import models
 from ..schueler.factories import SchuelerFactory
@@ -102,8 +103,26 @@ class SchuelerInEinrichtungFactory(factory.DjangoModelFactory):
         model = models.SchuelerInEinrichtung
 
     class Params:
-        tage_angemeldet = 25
-        tage_pers_pflegesatz = 10
+        tage_angemeldet = settings.ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE
+        tage_pers_pflegesatz = settings.ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE
+
+        # Trait für das Austrittsdatum relativ zum Schwellwert
+        austritt_laeuft_aus = factory.Trait(
+            austritt=factory.LazyAttribute(
+                lambda obj: obj.eintritt + datetime.timedelta(
+                    settings.ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE - 1
+                )
+            )
+        )
+
+        # Trait für das Ende des pers. Pflegesatzes relativ zum Schwellwert
+        pers_pflegesatz_laeuft_aus = factory.Trait(
+            pers_pflegesatz_enddatum=factory.LazyAttribute(
+                lambda obj: obj.eintritt + datetime.timedelta(
+                )
+            )
+        )
+
 
 
 class SchuelerAngemeldetInEinrichtungFactory(SchuelerFactory):
