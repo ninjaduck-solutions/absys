@@ -17,7 +17,10 @@ class Benachrichtigung(models.Model):
 
 
 class BuchungskennzeichenBenachrichtigung(Benachrichtigung):
-    objects = managers.BuchungskennzeichenBenachrichtigungManager()
+    """Benachrichtigung über auslaufende Buchungskennzeichen."""
+
+    objects = managers.BuchungskennzeichenBenachrichtigungManager.from_queryset(
+        managers.BuchungskennzeichenQuerySet)()
 
     def _settext(self):
         self.text = (
@@ -32,9 +35,12 @@ class BuchungskennzeichenBenachrichtigung(Benachrichtigung):
 
 
 class SchuelerInEinrichtungLaeuftAusBenachrichtigung(Benachrichtigung):
+    """Benachrichtigung über auslaufenden Zeitraum für ``SchuelerInEinchrichtung`` Instanz."""
+
     schueler_in_einrichtung = models.ForeignKey(SchuelerInEinrichtung,
         related_name='auslauf_benachrichtigungen')
-    objects = managers.SchuelerInEinrichtungLaeuftAusBenachrichtigungManager()
+    objects = managers.SchuelerInEinrichtungLaeuftAusBenachrichtigungManager.from_queryset(
+        managers.SchuelerInEinrichtungLaeuftAusBenachrichtigungQuerySet)()
 
     def _settext(self):
         self.text = (
@@ -48,59 +54,72 @@ class SchuelerInEinrichtungLaeuftAusBenachrichtigung(Benachrichtigung):
 
 
 class EinrichtungHatPflegesatzLaeuftAusBenachrichtigung(Benachrichtigung):
+    """Benachrichtigung über auslaufenden Zeitraum für ``EinrichtungHatPflegesatz`` Instanz."""
+
     einrichtung_hat_pflegesatz = models.ForeignKey(EinrichtungHatPflegesatz,
         related_name='auslauf_benachrichtigungen')
-    objects = managers.EinrichtungHatPflegesatzLaeuftAusBenachrichtigungManager()
+    objects = managers.EinrichtungHatPflegesatzLaeuftAusBenachrichtigungManager.from_queryset(
+        managers.EinrichtungHatPflegesatzLaeuftAusBenachrichtigungQuerySet)()
 
     def _settext(self):
         self.text = (
             "'EinrichtungInPflegesatz' {} läuft aus.".format(self.einrichtung_hat_pflegesatz)
         )
 
-
     def save(self, *args, **kwargs):
         self._settext()
         super().save(*args, **kwargs)
 
+
 class BettengeldsatzLaeuftAusBenachrichtigung(Benachrichtigung):
+    """Benachrichtigung über auslaufenden Zeitraum für ``Bettensatz`` Instanz."""
+
     bettengeldsatz = models.ForeignKey(Bettengeldsatz, related_name='auslauf_benachrichtigungen')
-    objects = managers.BettengeldsatzLaeuftAusBenachrichtigungManager()
+    objects = managers.BettengeldsatzLaeuftAusBenachrichtigungManager.from_queryset(
+        managers.BettengeldsatzLaeuftAusBenachrichtigungQuerySet)()
 
     def _settext(self):
         self.text = (
             "'Bettensatz [{}] läuft aus.".format(self.bettengeldsatz.pk)
         )
 
-
     def save(self, *args, **kwargs):
         self._settext()
         super().save(*args, **kwargs)
+
 
 class FerienBenachrichtigung(Benachrichtigung):
+    """Benachrichtigung das für ein bestimmtes Jahr noch keinerlei Ferien definiert wurden."""
+
     einrichtung = models.ForeignKey(Einrichtung, related_name='ferien_benachrichtigungen')
     jahr = models.IntegerField()
-    objects = managers.FerienBenachrichtigungManager()
+    objects = managers.FerienBenachrichtigungManager.from_queryset(
+        managers.FerienBenachrichtigungQuerySet)()
 
     def _settext(self):
         self.text = (
-            "Für die Einrichtung {} wurden im laufenden Jahr noch keinerlei Ferien"
-            "definiert.".format(self.einrichtung)
+            "Für die Einrichtung {einrichtung} wurden für das Jahr {jahr} noch keinerlei Ferien"
+            " definiert.".format(einrichtung=self.einrichtung, jahr=self.jahr)
         )
-
 
     def save(self, *args, **kwargs):
         self._settext()
         super().save(*args, **kwargs)
 
+
 class SchliesstageBenachrichtigung(Benachrichtigung):
+    """
+    Benachrichtigung das für ein bestimmtes Jahr noch keinerlei Schliesstage definiert wurden.
+    """
     einrichtung = models.ForeignKey(Einrichtung, related_name='schliesstage_benachrichtigungen')
     jahr = models.IntegerField()
-    objects = managers.FerienBenachrichtigungManager()
+    objects = managers.SchliesstageBenachrichtigungManager.from_queryset(
+        managers.SchliesstageBenachrichtigungQuerySet)()
 
     def _settext(self):
         self.text = (
-            "Für die Einrichtung {} wurden im laufenden Jahr noch keinerlei Schließtage"
-            "definiert.".format(self.einrichtung)
+            "Für die Einrichtung {einrichtung} wurden für das Jahr {jahr} noch keinerlei"
+            " Schliesstage definiert.".format(einrichtung=self.einrichtung, jahr=self.jahr)
         )
 
     def save(self, *args, **kwargs):
