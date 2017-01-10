@@ -83,7 +83,7 @@ class SchuelerInEinrichtungQuerySet(models.QuerySet):
 class FerienQuerySet(models.QuerySet):
 
     def jahr(self, jahr):
-        """Liefere alle ``Ferien`` welche im gegebenen jahr anfangen oder enden."""
+        """Liefere alle ``Ferien`` welche im gegebenen jahr anfangen und enden."""
         return self.filter(startdatum__year=jahr, enddatum__year=jahr)
 
 
