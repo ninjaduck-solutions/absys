@@ -25,6 +25,13 @@ class SchliesstagFactory(factory.DjangoModelFactory):
     class Meta:
         model = models.Schliesstag
 
+    class Params:
+        vorjahr = factory.Trait(
+            datum=factory.LazyAttribute(
+                lambda obj: now().date().replace(year=now().year - 1)
+            )
+        )
+
 
 class StandortFactory(factory.DjangoModelFactory):
 
@@ -61,11 +68,24 @@ class BettengeldsatzFactory(factory.DjangoModelFactory):
 
     einrichtung = factory.SubFactory(EinrichtungFactory)
     startdatum = factory.LazyAttribute(lambda obj: now().date() - datetime.timedelta(2))
-    enddatum = factory.LazyAttribute(lambda obj: now().date() + datetime.timedelta(2))
+    enddatum = factory.LazyAttribute(lambda obj: now().date() + datetime.timedelta(
+        obj.dauer))
     satz = 12
 
     class Meta:
         model = models.Bettengeldsatz
+
+    class Params:
+            dauer = settings.ABSYS_BETTENGELDSATZ_MIN_VERBLEIBENDE_TAGE + 10
+
+            # Trait für das Enddatum relativ zum Schwellwert
+            laeuft_aus = factory.Trait(
+                enddatum=factory.LazyAttribute(
+                    lambda obj: obj.startdatum + datetime.timedelta(
+                        settings.ABSYS_BETTENGELDSATZ_MIN_VERBLEIBENDE_TAGE - 1
+                    )
+                )
+            )
 
 
 class EinrichtungHatPflegesatzFactory(factory.DjangoModelFactory):
@@ -82,7 +102,16 @@ class EinrichtungHatPflegesatzFactory(factory.DjangoModelFactory):
         model = models.EinrichtungHatPflegesatz
 
     class Params:
-        pflegesatz_dauer = 25
+        pflegesatz_dauer = settings.ABSYS_EINRICHTUNG_HAT_PFLEGESATZ_MIN_VERBLEIBENDE_TAGE + 10
+
+        # Trait für das Enddatum relativ zum Schwellwert
+        laeuft_aus = factory.Trait(
+            pflegesatz_enddatum=factory.LazyAttribute(
+                lambda obj: obj.pflegesatz_startdatum + datetime.timedelta(
+                    settings.ABSYS_EINRICHTUNG_HAT_PFLEGESATZ_MIN_VERBLEIBENDE_TAGE - 1
+                )
+            )
+        )
 
 
 class SchuelerInEinrichtungFactory(factory.DjangoModelFactory):
@@ -103,7 +132,7 @@ class SchuelerInEinrichtungFactory(factory.DjangoModelFactory):
         model = models.SchuelerInEinrichtung
 
     class Params:
-        tage_angemeldet = settings.ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE
+        tage_angemeldet = settings.ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE + 10
         tage_pers_pflegesatz = settings.ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE
 
         # Trait für das Austrittsdatum relativ zum Schwellwert
@@ -124,7 +153,6 @@ class SchuelerInEinrichtungFactory(factory.DjangoModelFactory):
         )
 
 
-
 class SchuelerAngemeldetInEinrichtungFactory(SchuelerFactory):
 
     angemeldet = factory.RelatedFactory(SchuelerInEinrichtungFactory, 'schueler')
@@ -133,7 +161,7 @@ class SchuelerAngemeldetInEinrichtungFactory(SchuelerFactory):
 class FerienFactory(factory.DjangoModelFactory):
 
     name = factory.Faker('word')
-    startdatum = factory.LazyAttribute(lambda obj: now().date())
+    startdatum = factory.LazyAttribute(lambda obj: datetime.date(obj.jahr, 2, 2))
     enddatum = factory.LazyAttribute(lambda obj: obj.startdatum + datetime.timedelta(obj.dauer))
 
     @factory.post_generation
@@ -149,3 +177,14 @@ class FerienFactory(factory.DjangoModelFactory):
 
     class Params:
         dauer = 15
+        jahr = now().year
+
+        start_vorjahr = factory.Trait(
+            startdatum=factory.LazyAttribute(lambda obj: now().date().replace(
+                year=now().year - 1)),
+            enddatum=factory.LazyAttribute(lambda obj: now().date())
+        )
+
+        ende_folgejahr = factory.Trait(
+            enddatum=factory.LazyAttribute(lambda obj: datetime.date(obj.jahr + 1, 12, 30))
+        )
