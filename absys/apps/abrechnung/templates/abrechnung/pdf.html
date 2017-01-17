@@ -9,16 +9,17 @@
   <div>
     {# DECKBLATT #}
     <h1><b> Rechnung </b></h1>
-    <br>
     <h3>
       <b>an</b><br>
-      {{ rechnungsozialamt.name_sozialamt }}<br>
       {{ rechnungsozialamt.anschrift_sozialamt|linebreaks }}<br>
       <br>
       <b>von</b><br>
         {{ view.adresse_schule|linebreaks }}
       <br>
       <b>Rechnungsnummer:</b> {{ rechnungsozialamt.nummer }} <br>
+      {% if rechnungsozialamt.sozialamt.sbkz %}
+        <b>BKZ des Sozialamts:</b> {{ rechnungsozialamt.sozialamt.sbkz }} <br>
+        {% endif %}
       <b>Abrechnungszeitraum:</b>
       {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
       -
