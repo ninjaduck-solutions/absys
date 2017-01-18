@@ -15,6 +15,14 @@
   .table td.vermindert {
     background-color: red !important;
   }
+
+  /*
+   Einzelne 'Tagesoisition' in der 'Schülerdetailansicht'.
+   Da hier min. 31 Tage auf eine Seite passen müssen sparen wir am padding.
+   */
+  table tr.schuelerposition td {
+    padding: 1px !important;
+  }
 }
 
 .dark input {
