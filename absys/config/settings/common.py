@@ -232,7 +232,7 @@ class Common(Configuration):
     }
 
     # Anzahl der Buchungskennzeichen die unterschritten werden muss um eine
-    # 'Bucheungskennzeichen gehen aus' Benachrichtigung zu veranlassen.
+    # 'Buchungskennzeichen gehen aus' Benachrichtigung zu veranlassen.
     ABSYS_BUCHUNGSKENNZEICHEN_MIN_VERBLEIBEND = values.IntegerValue(30)
 
     # Anzahl der Tage die ein Schüler noch in einer Einrichtung verbleibend ist

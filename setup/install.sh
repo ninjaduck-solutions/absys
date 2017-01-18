@@ -96,6 +96,23 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Feste Adresse der Schule
 # echo 'Musterschule\nMusterstr. 42\n23232 Musterstadt' | sudo tee /var/envdir/absys/DJANGO_ABSYS_ADRESSE_SCHULE
 
+# Konfiguration der automatierten 'Hintergrundprüfungen'/Benachrichtigungen.
+# Anzahl der Buchungskennzeichen die unterschritten werden muss um eine
+# 'Buchungskennzeichen gehen aus' Benachrichtigung zu veranlassen.
+# echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_BUCHUNGSKENNZEICHEN_MIN_VERBLEIBEND
+
+# Anzahl der Tage die ein Schüler noch in einer Einrichtung verbleibend ist
+# bevor eine Benachrichtigung ausgelöst wird.
+# echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE
+
+# Anzahl der Tage für ``EinrichtungHatPflegesatz.pflegesatz_enddatum``
+# die wenn unterschritten eine Bennachrichtigung auslöst.
+# echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_EINRICHTUNG_HAT_PFLEGESATZ_MIN_VERBLEIBENDE_TAGE
+
+# Anzahl der Tage für ``Bettengeldsatz.enddatum`` die wenn unterschritten
+# eine Bennachrichtigung auslöst.
+# echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_BETTENGELDSATZ_MIN_VERBLEIBENDE_TAGE
+
 # SaxMBS Konfiguration
 # SaxMBS Ebene 1 - String, muss acht Stellen haben
 # echo '01      ' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_EBENE_1
