@@ -13,9 +13,8 @@
   {% include 'abrechnung/pdf/_anwesenheit_zusammenfassung.html' %}
 {% endif %}
 
-<div style="page-break-before:always;"></div>
-
 {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
+  <div style="page-break-before:always;"></div>
   {% include 'abrechnung/pdf/_schuelerposition_kopf.html' %}
   {% include 'abrechnung/pdf/_schuelerposition_liste.html' %}
 {% endfor %}
