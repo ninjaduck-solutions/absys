@@ -146,13 +146,18 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, MultiplePermissionsRequir
 
     @classmethod
     def ist_vormonat_erlaubt(cls, datum):
-        """Überprüft, ob das Datum berechtigt den Vormonat zu bearbeiten."""
+        """
+        Überprüft, ob das Datum berechtigt den Vormonat zu bearbeiten.
+
+        Note:
+            Entgegen des Methodennamens soll hier per Anforderung auch geprüft
+            werden das das Datum im Vormonat liegt!
+        """
         heute_ok = timezone.now().date().day <= settings.ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT
-        monat_ok = datum.month == (
-            timezone.now().date() - timedelta(settings.ABSYS_ANWESENHEIT_TAGE_VORMONAT_ERLAUBT + 1)
-        ).month
-        jahr_ok = datum.year == timezone.now().date().year
-        return heute_ok and monat_ok and jahr_ok
+        vormonat_ende = timezone.now().date().replace(day=1) - timedelta(1)
+        vormonat_start = vormonat_ende.replace(day=1)
+        datum_in_vormonat_ok = vormonat_start <= datum <= vormonat_ende
+        return heute_ok and datum_in_vormonat_ok
 
     @classmethod
     def ist_nicht_in_zukunft(cls, datum):
