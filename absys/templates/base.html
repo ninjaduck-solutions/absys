@@ -67,7 +67,7 @@
     </div>
   {% endblock %}
 
-    <div class="container">
+    <div class="{% block main_container_class %}container{% endblock %}">
       {% block messages %}
         <div class="flash-messages">
           {% for message in messages %}
