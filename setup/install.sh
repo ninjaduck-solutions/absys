@@ -148,6 +148,10 @@ sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py migrat
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py collectstatic --noinput
 sudo systemctl reload apache2.service
 
+# Täglichen cron job für Benachrichtigungen anlegen
+echo -e "#! /bin/sh\n${VENV_PATH}/bin/envdir /var/envdir/absys $VENV_PATH/bin/manage.py benachrichtige" | sudo tee /etc/cron.daily/absys_benachrichtigungen
+sudo chmod +x /etc/cron.daily/absys_benachrichtigungen
+
 set +o verbose
 
 echo
@@ -158,6 +162,8 @@ echo
 echo "Folgende Umgebungsvariablen werden JETZT in /var/envdir/absys zur Konfiguration benutzt:"
 echo
 sudo ls -1 /var/envdir/absys
+echo
+echo "Es wurde ein neuer täglicher cron job unter /etc/cron.daily/absys_benachrichtigungen hinzugefügt!"
 echo
 echo "Nach der initialen Installation folgenden Befehle ausführen, um die Daten für das"
 echo "Website Model zu laden und einen neuen Superuser zu erstellen:"
