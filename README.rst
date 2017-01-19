@@ -237,6 +237,16 @@ Tipps
 		>>> import imp
 		>>> imp.reload(<Datei-/Modulname>)
 
+.. note::
+
+    Versucht man in einer frischen Umgebung nach dem Anlegen einiger Daten
+    Rechnungen als PDF zu erzeugen scheitert ``wkhtmltopdf``. Dies passiert dann
+    wenn auf dem System noch nicht ``envdir env/dev ./manage.py collectstatic``
+    ausgeführt wurde da dann einige für die Generation relevante Assets noch
+    nicht vorliegen. Beim Installieren auf Production oder Staging wird in der
+    install.sh jedoch ``collectstatic`` aufgerufen, so dass dort dieser Problem
+    nicht auftritt.
+
 Setup-Paket erstellen
 =====================
 
