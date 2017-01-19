@@ -114,8 +114,10 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_BETTENGELDSATZ_MIN_VERBLEIBENDE_TAGE
 
 # SaxMBS Konfiguration
+# SaxMBS Anord-Kz - "J" oder "N"
+# echo 'J' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_ANORDKZ
 # SaxMBS Ebene 1 - String, muss acht Stellen haben
-# echo '01      ' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_EBENE_1
+# echo '        ' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_EBENE_1
 # SaxMBS Kapitel - Integer, darf maximal fünf Stellen haben; OHNE FÜHRENDE NULLEN ANGEBEN!
 # echo '12345' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_KAPITEL
 # SaxMBS Mahnschlüssel - Integer, darf maximal zwei Stellen haben
