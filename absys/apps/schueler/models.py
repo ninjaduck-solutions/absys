@@ -27,6 +27,11 @@ class Sozialamt(TimeStampedModel):
         "Zahlungspartnernummer",
         max_length=7
     )
+    sbkz = models.CharField(
+        "Sozialamts-buchungskennzeichen",
+        max_length=12,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "Sozialamt"

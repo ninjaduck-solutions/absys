@@ -96,9 +96,28 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Feste Adresse der Schule
 # echo 'Musterschule\nMusterstr. 42\n23232 Musterstadt' | sudo tee /var/envdir/absys/DJANGO_ABSYS_ADRESSE_SCHULE
 
+# Konfiguration der automatierten 'Hintergrundprüfungen'/Benachrichtigungen.
+# Anzahl der Buchungskennzeichen die unterschritten werden muss um eine
+# 'Buchungskennzeichen gehen aus' Benachrichtigung zu veranlassen.
+# echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_BUCHUNGSKENNZEICHEN_MIN_VERBLEIBEND
+
+# Anzahl der Tage die ein Schüler noch in einer Einrichtung verbleibend ist
+# bevor eine Benachrichtigung ausgelöst wird.
+# echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_EINRICHTUNG_MIN_VERBLEIBENDE_TAGE
+
+# Anzahl der Tage für ``EinrichtungHatPflegesatz.pflegesatz_enddatum``
+# die wenn unterschritten eine Bennachrichtigung auslöst.
+# echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_EINRICHTUNG_HAT_PFLEGESATZ_MIN_VERBLEIBENDE_TAGE
+
+# Anzahl der Tage für ``Bettengeldsatz.enddatum`` die wenn unterschritten
+# eine Bennachrichtigung auslöst.
+# echo '30' | sudo tee /var/envdir/absys/DJANGO_ABSYS_BETTENGELDSATZ_MIN_VERBLEIBENDE_TAGE
+
 # SaxMBS Konfiguration
+# SaxMBS Anord-Kz - "J" oder "N"
+# echo 'J' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_ANORDKZ
 # SaxMBS Ebene 1 - String, muss acht Stellen haben
-# echo '01      ' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_EBENE_1
+# echo '        ' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_EBENE_1
 # SaxMBS Kapitel - Integer, darf maximal fünf Stellen haben; OHNE FÜHRENDE NULLEN ANGEBEN!
 # echo '12345' | sudo tee /var/envdir/absys/DJANGO_ABSYS_SAX_KAPITEL
 # SaxMBS Mahnschlüssel - Integer, darf maximal zwei Stellen haben
@@ -131,6 +150,10 @@ sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py migrat
 sudo ${VENV_PATH}/bin/envdir /var/envdir/absys ${VENV_PATH}/bin/manage.py collectstatic --noinput
 sudo systemctl reload apache2.service
 
+# Täglichen cron job für Benachrichtigungen anlegen
+echo -e "#! /bin/sh\n${VENV_PATH}/bin/envdir /var/envdir/absys $VENV_PATH/bin/manage.py benachrichtige" | sudo tee /etc/cron.daily/absys_benachrichtigungen
+sudo chmod +x /etc/cron.daily/absys_benachrichtigungen
+
 set +o verbose
 
 echo
@@ -141,6 +164,8 @@ echo
 echo "Folgende Umgebungsvariablen werden JETZT in /var/envdir/absys zur Konfiguration benutzt:"
 echo
 sudo ls -1 /var/envdir/absys
+echo
+echo "Es wurde ein neuer täglicher cron job unter /etc/cron.daily/absys_benachrichtigungen hinzugefügt!"
 echo
 echo "Nach der initialen Installation folgenden Befehle ausführen, um die Daten für das"
 echo "Website Model zu laden und einen neuen Superuser zu erstellen:"

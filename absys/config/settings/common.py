@@ -232,7 +232,7 @@ class Common(Configuration):
     }
 
     # Anzahl der Buchungskennzeichen die unterschritten werden muss um eine
-    # 'Bucheungskennzeichen gehen aus' Benachrichtigung zu veranlassen.
+    # 'Buchungskennzeichen gehen aus' Benachrichtigung zu veranlassen.
     ABSYS_BUCHUNGSKENNZEICHEN_MIN_VERBLEIBEND = values.IntegerValue(30)
 
     # Anzahl der Tage die ein Schüler noch in einer Einrichtung verbleibend ist
@@ -262,8 +262,11 @@ class Common(Configuration):
     ABSYS_ADRESSE_SCHULE = values.Value('Musterschule\nMusterstr. 42\n23232 Musterstadt')
 
     # Start SaxMBS Konfiguration
+    # SaxMBS Anord-Kz - "J" oder "N"
+    ABSYS_SAX_ANORDKZ = values.Value('J')
+
     # SaxMBS Ebene 1 - String, muss acht Stellen haben
-    ABSYS_SAX_EBENE_1 = values.Value('01      ')
+    ABSYS_SAX_EBENE_1 = values.Value('        ')
 
     # SaxMBS Kapitel - Integer, darf maximal fünf Stellen haben; OHNE FÜHRENDE NULLEN EINGEBEN!
     ABSYS_SAX_KAPITEL = values.IntegerValue(554)

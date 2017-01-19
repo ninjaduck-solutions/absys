@@ -7,6 +7,8 @@ from django.contrib.auth import views as auth_views
 from django.core.urlresolvers import reverse_lazy
 
 urlpatterns = [
+    url(r'^passwort_aendern/$', auth_views.password_change, {'post_change_redirect': '/'},
+        name='absys_passwort_aendern'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^anwesenheitsliste/', include('absys.apps.anwesenheitsliste.urls')),

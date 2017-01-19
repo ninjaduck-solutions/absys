@@ -10,7 +10,7 @@ class AnwesenheitenResource(resources.ModelResource):
 
     class Meta:
         model = models.Anwesenheit
-        fields = ('id', 'schueler__nachname', 'schueler__vorname', 'datum', 'abwesend')
+        fields = ('id', 'schueler', 'schueler__nachname', 'schueler__vorname', 'datum', 'abwesend')
 
     def before_import(self, dataset, using_transactions, dry_run, **kwargs):
         """
@@ -28,7 +28,7 @@ class AnwesenheitenResource(resources.ModelResource):
         """
         data = dataset[:]
         dataset.wipe()
-        dataset.headers = ['id', 'schueler', 'datum', 'abwesend']
+        dataset.headers = ['id', 'schueler', 'schueler__nachname', 'schueler__vorname', 'datum', 'abwesend']
         year = int(data[0][0])
         month = int(data[0][1])
         days = list(map(int, data[1][4:]))
@@ -53,4 +53,4 @@ class AnwesenheitenResource(resources.ModelResource):
                     int(row[day + 3])
                 except ValueError:
                     abwesend = True
-                dataset.append([id, schueler.id, datum, abwesend])
+                dataset.append([id, schueler.id, schueler.nachname, schueler.vorname, datum, abwesend])

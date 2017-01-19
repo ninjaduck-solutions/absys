@@ -22,7 +22,7 @@
   </thead>
   <tbody>
     {% for schuelerposition in einrichtungsposition.detailabrechnung.all %}
-      <tr>
+      <tr class="schuelerposition">
         <td>{{ schuelerposition.datum|date:"SHORT_DATE_FORMAT" }} </td>
         <td>{{ schuelerposition.tag_art }}</td>
         <td>

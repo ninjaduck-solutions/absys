@@ -48,7 +48,6 @@
           <b>Betreuungstage:</b> {{ einrichtungsrechnung.betreuungstage }} <br><br>
           <b>gegenüber:</b>
           <br>
-          {{ rechnungsozialamt.sozialamt }} <br>
           {{ rechnungsozialamt.anschrift_sozialamt|linebreaksbr }}
         </p>
       </td>
@@ -59,7 +58,7 @@
 
             <b>Buchungskennzeichen: </b>
               {% if einrichtungsrechnung.einrichtung.pers_bkz %}
-                Bitte persönliche Aktenzeichen der Schüler verwenden<br>
+                Bitte persönliche Aktenzeichen der Schüler verwenden.<br>
               {% else %}
                 {{ einrichtungsrechnung.buchungskennzeichen }}<br>
               {% endif %}

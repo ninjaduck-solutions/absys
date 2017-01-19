@@ -58,7 +58,7 @@
               <li><a href="{% url 'admin:index' %}">Verwaltung</a>
               {% endif %}
               </li>
-              <li><a href="{% url 'admin:password_change' %}">Passwort ändern</a>
+              <li><a href="{% url 'absys_passwort_aendern' %}">Passwort ändern</a>
               </li>
             </ul>
           {% endif %}
@@ -67,7 +67,7 @@
     </div>
   {% endblock %}
 
-    <div class="container">
+    <div class="{% block main_container_class %}container{% endblock %}">
       {% block messages %}
         <div class="flash-messages">
           {% for message in messages %}
@@ -96,6 +96,6 @@
 
         <script src="{% static "js/main.js" %}"></script>
 
-        <!-- AbSys 0.8.0 powered by Django {{ django_version }} -->
+        <!-- AbSys 0.9.0 powered by Django {{ django_version }} -->
     </body>
 </html>
