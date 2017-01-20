@@ -45,7 +45,7 @@
           {% endblock %}
           {% if user.is_authenticated %}
             <ul class="nav navbar-nav navbar-left">
-              {% if perms.change_benachrichtigung %}
+              {% if perms.benachrichtigungen.change_benachrichtigung %}
                 <li><a href="{% url 'benachrichtigungen_benachrichtigung_list' %}">Benachrichtigungen</a>
               {% endif %}
               {% if perms.abrechnung.add_rechnungsozialamt %}
