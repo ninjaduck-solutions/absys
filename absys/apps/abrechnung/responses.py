@@ -14,7 +14,7 @@ class SaxMBSResponse(HttpResponse):
     TEMPLATE_SICHERUNGSDATENSATZ = '{% load abrechnung_tags %}{# 1 5 #}+0925{# 2 4 #}EEEE{# 3 6 #}ABSYS {# 4 6 #}SAXMBS{# 5 12 Dateiname#}{{ rechnungsozialamt.nummer }}.DAT {# 6 7, lückenlos aufsteigende Nummer, führende Nullen #}{{ counter|stringformat:"+07d" }}{# 7-11 82 Leer #}                                                                                  {# 12 5 Mittelwert (abgerundet) aller Kapitel #}{{ rechnungsozialamt.mittelwert_kapitel|stringformat:"05d" }}{# 13 2 leer #}  {# 14 5 Mittelwert (abgerundet) aller Titel #}{{ mittelwert_titel|stringformat:"05d" }}{# 15-26 101 leer #}                                                                                                     {# 27 12 Mittelwert Buchungsbetraege (abgerundet) mit 00 am Ende #}{{ mittelwert_summe|stringformat:"+010i" }}00{# 28-75 677 leer #}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      '
 
     def __init__(self, rechnung_sozialamt):
-        super().__init__(content_type='text/plain')
+        super().__init__(content_type='text/plain', charset='iso-8859-1')
         self['Content-Disposition'] = 'attachment; filename="{0}.DAT"'.format(
             rechnung_sozialamt.nummer
         )
@@ -48,11 +48,20 @@ class SaxMBSResponse(HttpResponse):
             mittelwert_titel = int(summe_titel / (counter - 1))
             mittelwert_summe = int(summe_geld / (counter - 1))
             print(self.zeile_sicherungsdatensatz(counter, mittelwert_titel, mittelwert_summe), file=output)
-            return output.getvalue()
+            # Entsprechend der saxmbs Spezifikation müssen wir ein iso-8859-1 string
+            # zurück geben. Es ist ferner gewünscht nicht kodierbare Zeichen
+            # durch ``?`` zu ersetzen.
+            # Daddurch das wir hier an dieser Stelle bereits in bytes umwandeln
+            # vermeiden wir das ``make_bytes`` der Elternklasse getriggert wird
+            # und wir Probleme mit dem encoding bekommen. Der Hauptgrund warum
+            # wir nicht einfach ``charset=`` in ``__init__`` die ganze Arbeit
+            # überlassen ist das wir so keine Möglichkeit für ``errors=replace``
+            # hätten. Das wir das ``charset`` dennoch übergeben geschieht
+            # ausschließlich um es expliziter zu machen.
+            return output.getvalue().encode('iso-8859-1', errors='replace')
 
     def render_to_string(self, template, context):
         return self.engine.from_string(template).render(Context(context))
-
     def zeile_rechnung_einrichtung(self, rechnung_einrichtung, counter, extra_context=None, template=None):
         context = {
             'rechnungeinrichtung': rechnung_einrichtung,
