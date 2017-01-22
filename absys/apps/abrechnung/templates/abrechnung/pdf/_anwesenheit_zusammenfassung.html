@@ -33,11 +33,11 @@
         {% with position=daten.0|get_item:tag anwesenheit=daten.1|get_item:tag %}
         {% if kontext %}
           <td class="zeitraum-kontext">
-            {% if anwesenheit and not anwesenheit.anwesend %}K{% else %}A{% endif %}
+            {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
           </td>
         {% else %}
           <td class="{% if position.vermindert %}vermindert{% elif tag|ist_wochenende %}weekend{% endif %}">
-            {% if not position %}--{% elif position.abwesend %}K{% else %}A{% endif %}
+            {% if not position %}--{% elif position.abwesend %}H{% else %}1{% endif %}
           </td>
         {% endif %}
         {% endwith %}

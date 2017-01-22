@@ -8,10 +8,10 @@ Urheberrecht und Lizenz
 =======================
 
 Das Urheberrecht für den hier vorliegenden Programmcode liegt bei den Firmen
-`IMTB <http://www.imtb.de/>`_ und `transcode <http://www.transcode.de/>`_ (2016-2017).
-Dieses Packet (sein Quellcode sowie möglicherweise kompilierte Binärpakete) sind
-lizensiert unter der EUPL V.1.1. Der vollständige Lizenztext liegt in der Datei
-`LICENSE` vor.
+`IMTB <http://www.imtb.de/>`_ und `transcode <http://www.transcode.de/>`_
+(2016-2017). Dieses Paket (sein Quellcode sowie möglicherweise kompilierte
+Binärpakete) sind lizensiert unter der EUPL V.1.1. Der vollständige Lizenztext
+liegt in der Datei ``LICENSE`` vor.
 
 Voraussetzungen
 ===============

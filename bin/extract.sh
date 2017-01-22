@@ -12,4 +12,4 @@ grep --color=never --only-matching --perl-regexp "${PKG_NAME_REGEXP}" /var/log/a
 cp --verbose /etc/apache2/conf-available/wsgi.conf /vagrant/setup
 cp --verbose /etc/apache2/sites-available/000-default.conf /vagrant/setup
 cp --verbose /etc/postgresql/9.5/main/pg_hba.conf /vagrant/setup
-tar czvf /vagrant/setup.tar.gz -C /vagrant/setup . -C /vagrant wheelhouse
+tar czvf /vagrant/setup.tar.gz -C /vagrant/setup . -C /vagrant wheelhouse -C /vagrant LICENSE
