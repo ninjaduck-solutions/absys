@@ -396,3 +396,32 @@ class Bargeldsatz(TimeStampedModel):
 
     def __str__(self):
         return "{s.lebensjahr}. Lebensjahr: {s.betrag} €".format(s=self)
+
+
+# [FIXME]
+# Finsterer workaround auf Kundenwunsch um unmittelbar trotz #228 deployen zu
+# können.
+class Schulanschrift(TimeStampedModel):
+    """
+    Model welches den Namen der Schule speichert.abs
+
+    Dies ist ein Not-Hack da das ENVVAR basierte setup kurz vor dem finalen
+    deployment nicht mit non-ascii chars funktionieren wollte und der Kunde
+    das Problem auf diese Weise vorrübergehend fixen will.
+
+    Zu beachten ist das immer die erste Instanz dieses Models genutzt wird.
+    """
+    anschrift = models.TextField(
+        help_text=(
+            "Dies ist die Adresse welche auf der Rechnung als Absender eingetragen wird."
+            " Brechen Sie die Zeilen mit 'Enter' um."
+        ),
+        default='Musterschule\nMusterstr. 42\n23232 Musterstadt'
+    )
+
+    class Meta:
+        verbose_name = "Schulanschrift"
+        verbose_name_plural = "Schulanschriften"
+
+    def __str__(self):
+        return self.anschrift
