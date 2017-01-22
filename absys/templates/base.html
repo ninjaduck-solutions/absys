@@ -1,4 +1,5 @@
 {% load static from staticfiles %}
+{% load benachrichtigungen_tags %}
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -46,7 +47,7 @@
           {% if user.is_authenticated %}
             <ul class="nav navbar-nav navbar-left">
               {% if perms.benachrichtigungen.change_benachrichtigung %}
-                <li><a href="{% url 'benachrichtigungen_benachrichtigung_list' %}">Benachrichtigungen</a>
+              <li><a href="{% url 'benachrichtigungen_benachrichtigung_list' %}">{% benachrichtigungen_string %}</a>
               {% endif %}
               {% if perms.abrechnung.add_rechnungsozialamt %}
               <li><a href="{% url 'abrechnung_rechnungsozialamt_form' %}">Rechnungen</a></li>
