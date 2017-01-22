@@ -1,5 +1,4 @@
 import datetime
-from dateutil import parser
 from import_export import resources
 
 from . import models
@@ -35,7 +34,7 @@ class AnwesenheitenResource(resources.ModelResource):
         for row in data[2:]:
             schueler = Schueler.objects.get(
                 nachname=row[2].split(",")[0].strip(),
-                geburtsdatum=parser.parse(row[3]).date()
+                geburtsdatum=datetime.datetime.strptime(row[3], '%d.%m.%Y').date()
             )
             existing_days = dict(
                 schueler.anwesenheit.filter(datum__range=(
