@@ -142,15 +142,39 @@ class SchuelerInEinrichtung(TimeStampedModel):
     )
     eintritt = models.DateField("Eintritt")
     austritt = models.DateField("Austritt", help_text="Der Austritt muss nach dem Eintritt erfolgen.")
-    pers_pflegesatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    pers_pflegesatz_ferien = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    pers_pflegesatz_startdatum = models.DateField(blank=True, null=True)
-    pers_pflegesatz_enddatum = models.DateField(blank=True, null=True)
+    pers_pflegesatz = models.DecimalField(
+        "Persönlicher Pflegesatz",
+        help_text=
+        "Wenn der Schüler keinen persönlichen Pflegesatz zugewiesen bekommen hat, "
+        "muss in diesem Feld '0' stehen bleiben.",
+        max_digits=5, 
+        decimal_places=2, 
+        default=0,
+    )
+    pers_pflegesatz_ferien = models.DecimalField(
+        "Persönlicher Pflegesatz Ferien",
+        help_text=
+        "Wenn der Schüler keinen persönlichen Pflegesatz für Ferien zugewiesen bekommen hat, "
+        "muss in diesem Feld '0' stehen bleiben.",
+        max_digits=5, 
+        decimal_places=2, 
+        default=0,
+    )
+    pers_pflegesatz_startdatum = models.DateField(
+        "Startdatum persönlicher Pflegesatz",
+        blank=True, 
+        null=True,
+    )
+    pers_pflegesatz_enddatum = models.DateField(
+        "Enddatum persönlicher Pflegesatz",
+        blank=True, 
+        null=True,
+    )
     fehltage_erlaubt = models.PositiveIntegerField(default=45)
     anteile_bargeld = models.IntegerField(
         "Anteile Bargeld",
         choices=ANTEILE_BARGELD_CHOICES,
-        default=BARGELD_VOLLER_SATZ
+        default=BARGELD_VOLLER_SATZ,
     )
 
     objects = managers.SchuelerInEinrichtungQuerySet.as_manager()
