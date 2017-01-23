@@ -14,7 +14,6 @@ from extra_views import FormSetView, InlineFormSet, UpdateWithInlinesView
 from wkhtmltopdf.views import PDFTemplateView
 
 from absys.apps.schueler.models import Sozialamt
-from absys.apps.einrichtungen.models import Schulanschrift
 from . import forms, models, responses
 
 
@@ -174,11 +173,7 @@ class AbrechnungPDFView(LoginRequiredMixin, MultiplePermissionsRequiredMixin, Ba
 
     @property
     def adresse_schule(self):
-        # [FIXME]
-        # Dies ist teil des überaus finsteren workaround für #228
-        # Eigentlich sollte hier die settings variable (welche wiederum aus
-        # einer ENVVAR gespeisst werden sollte abgerufen werden.
-        return Schulanschrift.objects.first()
+        return settings.ABSYS_ADRESSE_SCHULE
 
     @property
     def filename(self):
