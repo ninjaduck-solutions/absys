@@ -62,7 +62,7 @@ setup(
     classifiers=[
         'Framework :: Django',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: European Union Public Licence 1.1 (EUPL 1.1)',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
