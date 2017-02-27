@@ -78,6 +78,9 @@ class Common(Configuration):
 
     ALLOWED_HOSTS = values.ListValue(['www.example.com'])
 
+    # Invalidate session after 120 minutes
+    SESSION_COOKIE_AGE = values.IntegerValue(7200)
+
     SITE_ID = values.IntegerValue(1)
 
     # Internationalization
