@@ -9,13 +9,13 @@
       <th>Anwesenheit</th>
 
       {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
-        <th>Bettengeldsatz</th>
+        <th>Bettensatz</th>
       {% endif %}
 
       <th>
-        Angewendete(r) Pflegesatz
+        Pflegesatz
         {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 280 %} / Abwesenheitsvergütung{% endif %}
-        {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %} / (Vermindertes) Bettengeld{% endif %}
+        {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %} / Bettengeld{% endif %}
       </th>
 
     </tr>
@@ -32,7 +32,7 @@
         {% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
           <td>
             {% if schuelerposition.abwesend %}
-              {{ schuelerposition.vermindert|yesno:"vermindert,normal" }}
+              {{ schuelerposition.vermindert|yesno:"ja,nein" }}
             {% endif %}
         {% endif %}
 
