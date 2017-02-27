@@ -192,7 +192,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
     datum = models.DateField("Datum")
     abgerechnet = models.BooleanField("abgerechnet", default=False)
     name_schueler = models.CharField("Name des Schülers", max_length=62)
-    name_einrichtung = models.CharField("Einrichtung", max_length=20)
+    name_einrichtung = models.CharField("Einrichtung", max_length=30)
     tag_art = models.CharField("Schul- oder Ferientag", choices=TAG_ART, default=TAG_ART.schule, max_length=20)
     abwesend = models.BooleanField("Abwesenheit", default=False)
     vermindert = models.BooleanField("Verminderter Pflegesatz (Bettengeldsatz)", default=False)
