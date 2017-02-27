@@ -7,7 +7,7 @@ general-pkgs:
 postgresql-pkgs:
   pkg.installed:
     - pkgs:
-      - libpq-dev: 9.5.5*
+      - libpq-dev: 9.5.*
 
 lxml-pkgs:
   pkg.installed:
