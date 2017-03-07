@@ -48,7 +48,7 @@ if os.path.dirname(os.path.abspath(__file__)) == '/vagrant':
 
 setup(
     name='absys',
-    version='1.0.0',
+    version='1.1.0',
     description='Abrechnungssystem der SLSH und LZH.',
     long_description=read(BASE_DIR, 'README.rst'),
     author='IMTB',
@@ -62,7 +62,7 @@ setup(
     classifiers=[
         'Framework :: Django',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: European Union Public Licence 1.1 (EUPL 1.1)',
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python',

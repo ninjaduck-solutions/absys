@@ -79,6 +79,9 @@ echo "${HOME}/static_root" | sudo tee /var/envdir/absys/DJANGO_STATIC_ROOT
 # Bei fehlerhafter Konfiguration ist "Bad Request (400)" im Browser zu sehen.
 echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 
+# Sessionlänge in Sekunden. Nach Ablauf wird der user "ausgeloggt".
+# echo "7200" | sudo tee /var/envdir/absys/DJANGO_SESSION_COOKIE_AGE
+
 # Liste von Administratoren, die über Fehler via E-Mail informiert werden.
 # echo "'Ada Lovelace',ada@example.com;'Bea Blue',bea@example.com" | sudo tee /var/envdir/absys/DJANGO_ADMINS
 
@@ -92,6 +95,9 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 
 # Anzahl der Tage bis zur Fälligkeit einer Rechnung einer Einrichtung
 # echo '31' | sudo tee /var/envdir/absys/DJANGO_ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
+
+# Feste Adresse der Schule
+# echo 'Musterschule\nMusterstr. 42\n23232 Musterstadt' | sudo tee /var/envdir/absys/DJANGO_ABSYS_ADRESSE_SCHULE
 
 # Konfiguration der automatierten 'Hintergrundprüfungen'/Benachrichtigungen.
 # Anzahl der Buchungskennzeichen die unterschritten werden muss um eine
