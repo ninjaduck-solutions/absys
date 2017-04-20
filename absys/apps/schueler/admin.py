@@ -12,6 +12,12 @@ class SchuelerAdmin(ImportExportActionModelAdmin):
     search_fields = ['vorname', 'nachname']
 
 
+
+class SozialamtAdmin(admin.ModelAdmin):
+
+    ordering = ('name',)
+
+
 admin.site.register(models.Gruppe)
 admin.site.register(models.Schueler, SchuelerAdmin)
-admin.site.register(models.Sozialamt)
+admin.site.register(models.Sozialamt, SozialamtAdmin)
