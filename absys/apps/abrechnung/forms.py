@@ -24,7 +24,7 @@ class RechnungSozialamtForm(forms.Form):
         super().__init__(*args, **kwargs)
         # Wir weisen das queryset in __init__ zu um sicherzugehen das es bei
         # jeder Formgenerierung neu evaluiert wird.
-        self.fields['sozialaemter'].queryset = models.Sozialamt.objects.all()
+        self.fields['sozialaemter'].queryset = models.Sozialamt.objects.order_by('name')
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
