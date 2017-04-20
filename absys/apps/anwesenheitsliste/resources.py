@@ -32,8 +32,12 @@ class AnwesenheitenResource(resources.ModelResource):
         month = int(data[0][1])
         days = list(map(int, data[1][4:]))
         for row in data[2:]:
+            nachname, vorname = row[2].split(",", 1)
+            vorname = vorname.strip()
+            nachname = nachname.strip()
             schueler = Schueler.objects.get(
-                nachname=row[2].split(",")[0].strip(),
+                vorname=vorname,
+                nachname=nachname,
                 geburtsdatum=datetime.datetime.strptime(row[3], '%d.%m.%Y').date()
             )
             existing_days = dict(
