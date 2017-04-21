@@ -1,7 +1,6 @@
 {% load abrechnung_tags %}
 
-<h3>Zusammenfassung der Schüleranwesenheiten im Rechnungszeitraum für {{ einrichtungsrechnung.einrichtung }}</h2>
-{# REVIEW Öffnendes und schließendes Tag stimmen nicht überein. #}
+<h3>Zusammenfassung der Schüleranwesenheiten im Rechnungszeitraum für {{ einrichtungsrechnung.einrichtung }}</h3>
 {% with darstellungszeitraeume=einrichtungsrechnung|get_darstellungszeitraeume  schuelerdaten=einrichtungsrechnung|get_schuelerdaten %}
 {% for zeitraum in darstellungszeitraeume %}
 {% with anfang_ende=zeitraum|zeitraum_anfang_ende %}
