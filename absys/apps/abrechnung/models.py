@@ -340,7 +340,10 @@ class RechnungEinrichtung(TimeStampedModel):
         Erzeugt relevante Datenstrukturen für die 'Zusammenfassung' einer Einrichtungsrechnung.
 
         Returns:
-            tuple: (Zeitraum, Monatsüberschriften)
+            list: Liste von Zeiträumen. Zeiträume sind ``deque`` Instanzen deren
+                Elemente ``(datum, kontext)-Tuple sind. ``datum`` ist ein
+                datetime.date im Darstellungszeitraum und ``kontext`` ein ``bool``
+                welcher anzeigt ob es sich um einen 'Kontexttag' handelt oder nicht.
         """
 
         def get_tage():
@@ -454,6 +457,7 @@ class RechnungEinrichtung(TimeStampedModel):
             # berücksichtigt. Würde es nicht ausreichen nur diese drei Tage zu
             # betrachten?
             anwesenheiten = position.schueler.anwesenheit.filter(datum__gte=start, datum__lte=ende)
+            # [FIXME]
             # REVIEW Hier dürfen nicht in jedem Fall die Anwesenheiten (aus
             # absys.apps.anwesenheitsliste) abgefragt werden. Die
             # Anwesenheitensdaten werden schon während des Rechnungslaufs erfasst

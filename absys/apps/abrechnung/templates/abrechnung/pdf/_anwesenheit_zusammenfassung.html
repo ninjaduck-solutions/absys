@@ -18,8 +18,8 @@
       </tr>
       <tr>
         <th>Schüler</th>
-        {% for datum, kontext in zeitraum %}
-        <th class="{% zusammenfassung_klasse datum kontext %}">{{ datum.day }}</th>
+        {% for datum, ist_kontext in zeitraum %}
+        <th class="{% zusammenfassung_klasse datum ist_kontext %}">{{ datum.day }}</th>
         {% endfor %}
       </tr>
     </thead>

@@ -12,20 +12,23 @@ def zeitraum_anfang_ende(zeitraum):
     """
     Liefert das Anfangs- und Enddatum eines Zeitraums.
 
-    Zu beachten ist hier das evtl. vorhandene "Kontext" Daten *nicht* berücksichtigt werden da
-    sie im Sinne unserer Definition nicht zum 'Darstellungszeitraum' gehören.
+    Zu beachten ist hier das evtl. vorhandene "Kontext" Daten *nicht*
+    berücksichtigt werden da sie im Sinne unserer Definition nicht zum
+    'Darstellungszeitraum' gehören.
 
     Returns:
         tuple: (Anfang, Ende)
     """
     def get_start(zeitraum):
         i = 0
+        # Zähle die 'Kontexttage' von Beginn an.
         while zeitraum[i][1] is True:
             i += 1
         return zeitraum[i][0]
 
     def get_ende(zeitraum):
         i = -1
+        # Zähle die 'Kontexttage' vom Ende an.
         while zeitraum[i][1] is True:
             i -= 1
         return zeitraum[i][0]
