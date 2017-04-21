@@ -422,6 +422,69 @@ class RechnungEinrichtung(TimeStampedModel):
         add_suffix(result[-1])
         return result
 
+    def get_schuelerdaten(self):
+        """
+        Erstelle ein dict welches uns für jeden schüler die Tagespositionen liefert.
+
+        Returns:
+            dict: {Schüler: ({Tag: Schuelerposition}, {Tag: Anwesenheit}}
+        """
+        def get_anwesenheit(position):
+            """
+            Liefere alle bekannten Anwesenheiten eines Schuelers in einem Zeitfenster.
+
+            Der berücksichtigte Zeitraum beginnt/endet 30 Tage vor/nach dem
+            Rechnungszeitraum.
+
+            Args:
+                RechnungsPositionEinrichtung: Schüler spezifische Rechnungsposten.
+
+            Returns:
+                dict: {datetime.date: bool}, wobei ``bool`` der Anwesenheitsstatus ist.
+            """
+            # Der Grund hierfür ist das so die Anwesenheiten für die "Kontextage"
+            # zur Verfügung stehen. Dafür können wir leider nicht auf die
+            # ``RechnungsPositionSchueler`` zurückgreifen. Leider erhöht dies die
+            # Zahl unserer Queries beachtlich.
+
+            start = self.rechnung_sozialamt.startdatum - datetime.timedelta(days=30)
+            ende = self.rechnung_sozialamt.enddatum + datetime.timedelta(days=30)
+            # REVIEW Warum wird 30 Tage vor und nach dem Rechnungszeitraum nach
+            # Anwesenheiten gesucht? Für Randtage werden doch nur jeweils drei Tage
+            # berücksichtigt. Würde es nicht ausreichen nur diese drei Tage zu
+            # betrachten?
+            anwesenheiten = position.schueler.anwesenheit.filter(datum__gte=start, datum__lte=ende)
+            # REVIEW Hier dürfen nicht in jedem Fall die Anwesenheiten (aus
+            # absys.apps.anwesenheitsliste) abgefragt werden. Die
+            # Anwesenheitensdaten werden schon während des Rechnungslaufs erfasst
+            # und an RechnungsPositionSchueler gespeichert. Der Grund dafür ist,
+            # dass Anwesenheitensdaten im Admin geändert werden können. Die
+            # Rechnungsdaten können aber nicht bearbeitet werden und bleiben so
+            # konsistent. Daher dürfen in einer Rechnung nie Daten aus
+            # absys.apps.anwesenheitsliste benutzt werden, wenn diese auch in
+            # absys.apps.abrechnung zur Verfügung stehen. Sonst kann die
+            # Darstellung inkonsistent sein, wenn die Anwesenheitensdaten
+            # nachträglich verändert wurden.
+            #
+            # Hier muss ähnlich wie in
+            # absys.apps.einrichtungen.configurations.EinrichtungKonfiguration365
+            # verfahren werden:
+            #
+            # - Für Randtage, die vor den abgerechneten Tagen liegen, muss die
+            #   vorhergehende Rechnung benutzt werden, sofern diese existiert.
+            #
+            # - Für Randtage, die nach den abgerechneten Tagen liegen, muss die
+            #   Anwesenheitsliste benutzt werden. Dies ist dann aber nur eine
+            #   Prognose.
+
+            return {anwesenheit.datum: anwesenheit.abwesend for anwesenheit in anwesenheiten}
+
+        def get_tagesdaten(position):
+            return {sposition.datum: sposition for sposition in position.detailabrechnung}
+
+        positionen = self.positionen.all()
+        return {p.schueler: (get_tagesdaten(p), get_anwesenheit(p)) for p  in positionen}
+
 class RechnungsPositionEinrichtung(TimeStampedModel):
     """
     Daten einer Rechnungsposition für einen Schüler in einer Einrichtung in einem bestimmten Zeitraum.

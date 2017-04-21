@@ -2,7 +2,7 @@
 {% load abrechnung_tags %}
 
 <h3>Zusammenfassung der Schüleranwesenheiten im Rechnungszeitraum für {{ einrichtungsrechnung.einrichtung }}</h3>
-{% with schuelerdaten=einrichtungsrechnung|get_schuelerdaten darstellungszeitraeume=einrichtungsrechnung.get_darstellungszeitraeume %}
+{% with schuelerdaten=einrichtungsrechnung.get_schuelerdaten darstellungszeitraeume=einrichtungsrechnung.get_darstellungszeitraeume %}
 {% for zeitraum in darstellungszeitraeume %}
   {% zeitraum_anfang_ende zeitraum as anfang_ende %}
   <h4>Zusammenfassung für den Darstellungszeitraum {{ anfang_ende.0|date }} bis {{ anfang_ende.1|date }}</h3>
