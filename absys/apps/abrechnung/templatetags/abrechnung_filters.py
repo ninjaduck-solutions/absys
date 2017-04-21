@@ -1,7 +1,8 @@
+from collections import OrderedDict
+
 from django import template
 import datetime
 from django.template.defaultfilters import date as date_filter
-from collections import deque, OrderedDict
 
 register = template.Library()
 
@@ -33,94 +34,6 @@ def monatsname(number):
     weiterreichen können.
     """
     return date_filter(datetime.date(2016, number, 1), 'F')
-
-
-@register.filter
-def get_darstellungszeitraeume(rechnung):
-    """
-    Erzeugt relevante Datenstrukturen für die 'Zusammenfassung' einer Einrichtungsrechnung.
-
-    Args:
-        rechnung (RechnungEinrichtung): Einrichtungsrechnung die zusammengefasst werden soll.
-
-    Returns:
-        tuple: (Zeitraum, Monatsüberschriften)
-    """
-
-    def get_tage():
-        """
-        Liefert eine Liste von (datetime.date, bool) Tupeln.
-
-        Jedes Tupel/Datum ist teil des relevanten Zeitraums.
-        Der 'Kontext' boolean zeigt an ob es sich um einen Tag vor/nach dem eigentlichen
-        Rechnungszeitraum handelt.
-
-        Returns:
-            tuple: (Datum, Kontext)
-        """
-        start = rechnung.rechnung_sozialamt.startdatum
-        end = rechnung.rechnung_sozialamt.enddatum
-        delta = end - start
-        result = []
-        for i in range(delta.days + 1):
-            tag = start + datetime.timedelta(i)
-            result.append((tag, False))
-        return result
-        # REVIEW Wir benutzen arrow schon in den Tests. Wenn arrow in die
-        # setup.py eingetragen werden würde, könnte es auch hier benutzt
-        # werden:
-        #
-        # tage = arrow.Arrow.range(
-        #     'day',
-        #     arrow.get(rechnung.rechnung_sozialamt.startdatum),
-        #     arrow.get(rechnung.rechnung_sozialamt.enddatum)
-        # )
-        # return list(zip([t.date() for t in tage], [False] * len(tage)))
-        #
-        # Natürlich liefern beide Möglichkeiten das gleiche Ergebnis. IMHO ist
-        # die Lesbarkeit mit arrow besser, vor allem bei den beiden folgenden
-        # Beispielen, die replace() nutzen.
-
-    def add_prefix(zeitraum):
-        """Erweitere einen Zeitraum um 3 vorhergehende Tage."""
-        offset = 3
-        start = rechnung.rechnung_sozialamt.startdatum - datetime.timedelta(offset)
-        prefix = [(start + datetime.timedelta(i), True) for i in range(offset)]
-        zeitraum.extendleft(sorted(prefix, reverse=True))
-        # REVIEW Hier könnte auch arrow genutzt werden:
-        #
-        # tage = arrow.Arrow.range(
-        #     'day',
-        #     arrow.get(rechnung.rechnung_sozialamt.startdatum).replace(days=-3),
-        #     limit=3
-        # )
-        # zeitraum.extendleft(zip(reversed([t.date() for t in tage]), [True] * len(tage)))
-
-    def add_suffix(zeitraum):
-        """Erweitere einen Zeitraum um 3 nachfolgende Tage."""
-        offset = 3
-        end = rechnung.rechnung_sozialamt.enddatum
-        suffix = [(end + datetime.timedelta(i), True) for i in range(1, 1 + offset)]
-        zeitraum.extend(suffix)
-        # REVIEW Hier könnte auch arrow genutzt werden:
-        #
-        # tage = arrow.Arrow.range(
-        #     'day',
-        #     arrow.get(rechnung.rechnung_sozialamt.enddatum).replace(days=+1),
-        #     limit=3
-        # )
-        # zeitraum.extend(zip([t.date() for t in tage]), [True] * len(tage))
-
-    tage = get_tage()
-    result = []
-    while tage:
-        zeitraum = deque()
-        while ((len(zeitraum) < 31) and tage):
-            zeitraum.append(tage.pop(0))
-        result.append(zeitraum)
-    add_prefix(result[0])
-    add_suffix(result[-1])
-    return result
 
 
 @register.filter

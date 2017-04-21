@@ -2,74 +2,56 @@
 {% load abrechnung_tags %}
 
 <h3>Zusammenfassung der Schüleranwesenheiten im Rechnungszeitraum für {{ einrichtungsrechnung.einrichtung }}</h3>
-{% with darstellungszeitraeume=einrichtungsrechnung|get_darstellungszeitraeume  schuelerdaten=einrichtungsrechnung|get_schuelerdaten %}
+{% with schuelerdaten=einrichtungsrechnung|get_schuelerdaten darstellungszeitraeume=einrichtungsrechnung.get_darstellungszeitraeume %}
 {% for zeitraum in darstellungszeitraeume %}
-{% zeitraum_anfang_ende zeitraum as anfang_ende %}
-<h4>Zusammenfassung für den Darstellungszeitraum {{ anfang_ende.0|date }} bis {{ anfang_ende.1|date }}</h3>
-<table class="table">
-  <thead>
-    <tr>
-      <th></th>
-      {% with monate=zeitraum|monatsueberschriften %}
-      {% for monat, zellen in monate.items %}
-      <th colspan="{{ zellen }}">{{ monat|monatsname}}</th>
-      {% endfor %}
-      {% endwith %}
-    </tr>
-    <tr>
-      <th>Schüler</th>
-      {% for datum, kontext in zeitraum %}
-      <th class="{% zusammenfassung_klasse datum kontext %}">{{ datum.day }}</th>
-      {% endfor %}
-    </tr>
-  </thead>
+  {% zeitraum_anfang_ende zeitraum as anfang_ende %}
+  <h4>Zusammenfassung für den Darstellungszeitraum {{ anfang_ende.0|date }} bis {{ anfang_ende.1|date }}</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th></th>
+        {% with monate=zeitraum|monatsueberschriften %}
+        {% for monat, zellen in monate.items %}
+          <th colspan="{{ zellen }}">{{ monat|monatsname}}</th>
+        {% endfor %}
+        {% endwith %}
+      </tr>
+      <tr>
+        <th>Schüler</th>
+        {% for datum, kontext in zeitraum %}
+        <th class="{% zusammenfassung_klasse datum kontext %}">{{ datum.day }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
 
-  <tbody>
-    {% for schueler, daten in schuelerdaten.items %}
-    <tr>
-      <td>{{ schueler }}</td>
-      {% for datum, kontext in zeitraum %}
-      {% get_item daten.0 datum as position %}
-      {% get_item daten.1 datum as anwesenheit %}
-      <td class="{% zusammenfassung_klasse datum kontext position.vermindert %}">
-      {% if kontext %}
-        {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
-      {% else %}
-        {% if not position %}--{% elif position.abwesend %}H{% else %}1{% endif %}
-      </td>
-      {% endif %}
+    <tbody>
+      {% for schueler, daten in schuelerdaten.items %}
+      <tr>
+        <td>{{ schueler }}</td>
+        {% for datum, kontext in zeitraum %}
+        {% get_item daten.0 datum as position %}
+        {% get_item daten.1 datum as anwesenheit %}
+        <td class="{% zusammenfassung_klasse datum kontext position.vermindert %}">
+        {% if kontext %}
+          {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
+        {% else %}
+          {% if not position %}--{% elif position.abwesend %}H{% else %}1{% endif %}
+        </td>
+        {% endif %}
+        {% endfor %}
+      </tr>
       {% endfor %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-<div style="page-break-before:always;"></div>
+    </tbody>
+  </table>
+  <div style="page-break-before:always;"></div>
 {% endfor %}
 {% endwith %}
 
 {% comment %}
-
-REVIEW Ob Code in Template-Tags und -Filtern, Views oder Models geschrieben
-wird, hängt von dem zu lösenden Problem und der jeweiligen Philosophie des
-Entwicklers ab. Trotzdem gibt es ein paar Dinge, die immer Beachtung finden
-sollten:
-
-1. Zum Zugriff auf die Daten des ORMs sollten, soweit möglich, auch die Python
-   Objekte des ORMs benutzt werden. Das bedeutet, dass der Aufbau neuer
-   Datenstrukturen, z.B. mit dict oder list, nur wenn wirklich nötig erfolgen
-   sollte. Dies verhindert oft zusätzliche Queries und macht Optimierungen
-   einfacher.
-
-2. Bei Projekten mit Fat Models sollten die schon existierenden Methoden und
-   Properties genutzt und weiter ausgebaut werden.
-
-3. In Templates sollte so wenig Logik wie nur möglich enthalten sein, um die
-   Ausführung teurer Operationen in den Models oder ggf. Views vornehmen zu
-   können. Dies gilt auch für Template-Tags und -Filter, denn dieser Funktionen
-   sind oft nicht außerhalb der Templates einsetzbar.
-
-Nach dem Review des Codes unter Berücksichtigung dieser drei Punkte bin ich der
-Meinung, dass es ein Problem mit den Punkten 1. und 3. gibt.
+ In Templates sollte so wenig Logik wie nur möglich enthalten sein, um die
+ Ausführung teurer Operationen in den Models oder ggf. Views vornehmen zu
+ können. Dies gilt auch für Template-Tags und -Filter, denn dieser Funktionen
+ sind oft nicht außerhalb der Templates einsetzbar.
 
 Durch den Aufbau einer eigenen Datenstruktur für die Tage mit Hilfe der
 Template-Filter wird die Benutzung von schon existierendem Code erschwert. Die
