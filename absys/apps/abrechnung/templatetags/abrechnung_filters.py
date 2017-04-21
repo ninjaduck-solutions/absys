@@ -36,15 +36,6 @@ def monatsname(number):
 
 
 @register.filter
-
-
-@register.filter
-def ist_wochenende(datum):
-    """Liefere ``True`` wenn das datum ein Wochenendstag ist."""
-    return datum.weekday() in (5, 6)
-
-
-@register.filter
 def get_darstellungszeitraeume(rechnung):
     """
     Erzeugt relevante Datenstrukturen für die 'Zusammenfassung' einer Einrichtungsrechnung.

@@ -31,3 +31,26 @@ def zeitraum_anfang_ende(zeitraum):
         return zeitraum[i][0]
 
     return (get_start(zeitraum), get_ende(zeitraum))
+
+
+@register.simple_tag
+def zusammenfassung_klasse(datum, kontext=None, vermindert=None):
+    """
+    Liefere die passende Klasse für ein gegebenes Datum.
+
+    Das wir eine Tag nehmen hat den Vorteil das die Logik und die Klassen-
+    namen nur einmal zentral bestimmt werden müssen.
+    """
+    def ist_wochenende(datum):
+        return datum.weekday() in (5, 6)
+
+    if kontext:
+        result = 'zeitraum-kontext'
+    elif vermindert:
+        result = 'vermindert'
+    elif ist_wochenende(datum):
+        result = 'weekend'
+    else:
+        result = ''
+
+    return result

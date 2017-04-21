@@ -18,8 +18,8 @@
     </tr>
     <tr>
       <th>Schüler</th>
-      {% for tag, kontext in zeitraum %}
-      <th class="{% if kontext %}zeitraum-kontext{% elif tag|ist_wochenende %}weekend{% endif %}">{{ tag.day }}</th>
+      {% for datum, kontext in zeitraum %}
+      <th class="{% zusammenfassung_klasse datum kontext %}">{{ datum.day }}</th>
       {% endfor %}
     </tr>
   </thead>
@@ -28,18 +28,16 @@
     {% for schueler, daten in schuelerdaten.items %}
     <tr>
       <td>{{ schueler }}</td>
-      {% for tag, kontext in zeitraum %}
-        {% get_item daten.0 tag as position %}
-        {% get_item daten.1 tag as anwesenheit %}
-        {% if kontext %}
-          <td class="zeitraum-kontext">
-            {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
-          </td>
-        {% else %}
-          <td class="{% if position.vermindert %}vermindert{% elif tag|ist_wochenende %}weekend{% endif %}">
-            {% if not position %}--{% elif position.abwesend %}H{% else %}1{% endif %}
-          </td>
-        {% endif %}
+      {% for datum, kontext in zeitraum %}
+      {% get_item daten.0 datum as position %}
+      {% get_item daten.1 datum as anwesenheit %}
+      <td class="{% zusammenfassung_klasse datum kontext position.vermindert %}">
+      {% if kontext %}
+        {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
+      {% else %}
+        {% if not position %}--{% elif position.abwesend %}H{% else %}1{% endif %}
+      </td>
+      {% endif %}
       {% endfor %}
     </tr>
     {% endfor %}
