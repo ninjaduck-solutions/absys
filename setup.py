@@ -17,6 +17,7 @@ extras_require = {
 }
 
 requires = [
+    'arrow==0.10.0',
     'Django==1.10.4',
     'dj-database-url==0.4.1',
     'django-autofixture==0.12.1',

@@ -47,7 +47,7 @@ def monatsueberschriften(zeitraum):
     counter = 1
     vorheriger_tag = None
     result = OrderedDict()
-    for tag, kontext in zeitraum:
+    for tag in zeitraum:
         if vorheriger_tag:
             if tag.day > vorheriger_tag.day:
                 counter += 1
@@ -56,3 +56,42 @@ def monatsueberschriften(zeitraum):
         result[tag.month] = counter
         vorheriger_tag = tag
     return result
+
+
+@register.filter
+def zusammenfassung_anwesenheitssymbol(position, daten):
+    """Rendere das passende Zeichen zur Darstellung der Anwesenheit eines Schülers."""
+    def ist_anfahrt(datum, daten):
+        """Liefere ``True`` wenn das datum davor 'abwesend' war."""
+        result = False
+        vortag = datum - datetime.timedelta(1)
+        vortag_daten = daten.get(vortag)
+        # Es ist nicht garantiert das für den Vortag überhaupt eine Position
+        # vorliegt.
+        if vortag_daten:
+            result = vortag_daten.abwesend
+        return result
+
+    def ist_abfahrt(datum, daten):
+        """Liefere ``True`` wenn das datum dannach 'abwesend' war."""
+        result = False
+        folgetag = datum + datetime.timedelta(1)
+        folgetag_daten = daten.get(folgetag)
+        # Es ist nicht garantiert das für den Folgetag überhaupt eine Position
+        # vorliegt.
+        if folgetag_daten:
+            result = folgetag_daten.abwesend
+        return result
+
+    if position:
+        if position.abwesend:
+            result = 'H'
+        else:
+            if ist_anfahrt(position.datum, daten) or ist_abfahrt(position.datum, daten):
+                result = 'A'
+            else:
+                result = '1'
+    else:
+        result = '--'
+    return result
+

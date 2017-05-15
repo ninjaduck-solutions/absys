@@ -2,125 +2,111 @@
 {% load abrechnung_tags %}
 
 <h3>Zusammenfassung der Schüleranwesenheiten im Rechnungszeitraum für {{ einrichtungsrechnung.einrichtung }}</h3>
-{% with schuelerdaten=einrichtungsrechnung.get_schuelerdaten darstellungszeitraeume=einrichtungsrechnung.get_darstellungszeitraeume %}
+{% with schuelerdaten=einrichtungsrechnung.get_schuelerdaten darstellungszeitraeume=einrichtungsrechnung.rechnung_sozialamt.get_tage %}
 {% for zeitraum in darstellungszeitraeume %}
-  {% zeitraum_anfang_ende zeitraum as anfang_ende %}
-  <h4>Zusammenfassung für den Darstellungszeitraum {{ anfang_ende.0|date }} bis {{ anfang_ende.1|date }}</h3>
+
+  {# Wir erstellen die Pre/Suffixe hier um sie nicht wiederholt generieren zu müssen. #}
+  {% if forloop.first %}
+    {% get_prefix zeitraum as prefix_zeitraum %}
+    {% get_prefixdaten einrichtungsrechnung prefix_zeitraum as prefix_schuelerdaten %}
+  {% endif %}
+  {% if forloop.last %}
+    {% get_suffix zeitraum as suffix_zeitraum %}
+    {% get_suffixdaten einrichtungsrechnung suffix_zeitraum as suffix_schuelerdaten %}
+  {% endif %}
+
+  {% with start=zeitraum.0 ende=zeitraum|last %}
+  <h4>Zusammenfassung für den Darstellungszeitraum {{ start|date }} bis {{ ende|date }}</h3>
+  {% endwith %}
+
   <table class="table">
     <thead>
+      {# Zeile für Monatsnamen #}
       <tr>
         <th></th>
+        {% if forloop.first %}
+          {# Stelle Monatsnamen für Kontexttage vorran. #}
+          {% with monate=prefix_zeitraum|monatsueberschriften %}
+          {% for monat, zellen in monate.items %}
+            <th colspan="{{ zellen }}">{{ monat|monatsname}}</th>
+          {% endfor %}
+          {% endwith %}
+        {% endif %}
+
         {% with monate=zeitraum|monatsueberschriften %}
         {% for monat, zellen in monate.items %}
           <th colspan="{{ zellen }}">{{ monat|monatsname}}</th>
         {% endfor %}
         {% endwith %}
+
+        {% if forloop.last %}
+          {# Stelle Monatsnamen für Kontexttage hinten an. #}
+          {% with monate=suffix_zeitraum|monatsueberschriften %}
+          {% for monat, zellen in monate.items %}
+            <th colspan="{{ zellen }}">{{ monat|monatsname}}</th>
+          {% endfor %}
+          {% endwith %}
+        {% endif %}
       </tr>
+      {# Zeile für Monatstage #}
       <tr>
         <th>Schüler</th>
-        {% for datum, ist_kontext in zeitraum %}
+        {% if forloop.first %}
+          {# Stelle Kontexttage vorran. #}
+          {% for datum in prefix_zeitraum %}
+          <th class="zeitraum-kontext">{{ datum.day }}</th>
+          {% endfor %}
+        {% endif %}
+
+        {% for datum in zeitraum %}
         <th class="{% zusammenfassung_klasse datum ist_kontext %}">{{ datum.day }}</th>
         {% endfor %}
+
+        {% if forloop.last %}
+          {# Stelle Kontexttage hinten an. #}
+          {% for datum in suffix_zeitraum %}
+          <th class="zeitraum-kontext">{{ datum.day }}</th>
+          {% endfor %}
+        {% endif %}
       </tr>
     </thead>
 
     <tbody>
-      {% for schueler, daten in schuelerdaten.items %}
       <tr>
-        <td>{{ schueler }}</td>
-        {% for datum, kontext in zeitraum %}
-        {% get_item daten.0 datum as position %}
-        {% get_item daten.1 datum as anwesenheit %}
-        <td class="{% zusammenfassung_klasse datum kontext position.vermindert %}">
-        {% if kontext %}
-          {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
+        {% if forloop.first %}
+          {% for schueler, daten in prefix_schuelerdaten.items %}
+            <td>{{ schueler }}</td>
+            {% for datum in prefix_zeitraum %}
+              {% get_item daten datum as anwesenheit %}
+              <td class="zeitraum-kontext">
+                {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
+              </td>
+            {% endfor %}
+          {# Continue with regular positionen #}
+          {# {% for schueler, daten in schuelerdaten.items %} #}
+            {% get_item schuelerdaten schueler as daten %}
+            {% for datum in zeitraum %}
+              {% get_item daten datum as position %}
+              <td class="{% zusammenfassung_klasse datum vermindert=position.vermindert %}">
+                {{ position|zusammenfassung_anwesenheitssymbol:daten }}
+              </td>
+            {% endfor %}
+          {% endfor %}
         {% else %}
-          {% if not position %}--{% elif position.abwesend %}H{% else %}1{% endif %}
-        </td>
+        {# Regulär #}
+          {% for schueler, daten in schuelerdaten.items %}
+            <td>{{ schueler }}</td>
+            {% for datum in zeitraum %}
+              {% get_item daten datum as position %}
+              <td class="{% zusammenfassung_klasse datum vermindert=position.vermindert %}">
+                {{ position|zusammenfassung_anwesenheitssymbol:daten }}
+              </td>
+            {% endfor %}
+          {% endfor %}
         {% endif %}
-        {% endfor %}
       </tr>
-      {% endfor %}
     </tbody>
   </table>
   <div style="page-break-before:always;"></div>
 {% endfor %}
 {% endwith %}
-
-{% comment %}
- In Templates sollte so wenig Logik wie nur möglich enthalten sein, um die
- Ausführung teurer Operationen in den Models oder ggf. Views vornehmen zu
- können. Dies gilt auch für Template-Tags und -Filter, denn dieser Funktionen
- sind oft nicht außerhalb der Templates einsetzbar.
-
-Durch den Aufbau einer eigenen Datenstruktur für die Tage mit Hilfe der
-Template-Filter wird die Benutzung von schon existierendem Code erschwert. Die
-intensive Verwendung von with bringt sehr viel Logik in das Template.
-
-In der Dokumentation für das with Template-Tag steht:
-
-  Caches a complex variable under a simpler name. This is useful when accessing
-  an “expensive” method (e.g., one that hits the database) multiple times.
-
-with wird hier nicht dafür benutzt, auf die neue Variable mehrfach zuzugreifen
-und dadurch Queries zu sparen. Statt dessen erstellen viele der with-Aufrufe
-neue Datenstrukturen und führen so zu zusätzlichen Queries, besonders der
-Aufruf von get_schuelerdaten. Der Grund dafür scheint in der neu erstellten
-Datenstruktur für die Tage zu liegen.
-
-Bei näherer Betrachtung sieht die Anforderung an dieses Template wie eine
-Einrichtungsrechnung aus, die statt der einzelnen Zahlen und Summen die Tage
-aus der Schülerrechnung horizontal darstellt. Schematisch könnte das so
-aussehen:
-
-{% with einrichtungsrechnung.positionen.first as kopfdaten %}
-  {% if kopfdaten %}
-    {# kopfdaten ist eine einrichtungsposition, die zur Erzeugung des Tabellenkopfs genutzt wird. #}
-    <table>
-      <thead>
-        <tr>
-          <td>Schüler</td>
-          {% for schuelerposition in kopfdaten %}
-            <td>{{ schuelerposition.datum|date:"j" }}</td>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for einrichtungsposition in einrichtungsrechnung.positionen.all %}
-          <tr>
-            <td>{{ einrichtungsposition.name_schueler }}</td>
-            {% for schuelerposition in einrichtungsposition.detailabrechnung.all %}
-              <td>Auswertung von {{ schuelerposition.abwesend }} und {{ schuelerposition.vermindet }}</td>
-            {% endfor %}
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
-{% endwith %}
-
-Neu ist die Markierung der Wochenenden. Dies kann durch den entsprechenden
-Filter passieren.
-
-Die Darstellung der Randtage kann durch Einfügen entsprechender
-Funktionsaufrufe vor bzw. nach dem Schreiben der Kerndaten erfolgen. Dazu
-könnte eine Instanz von EinrichtungKonfiguration365 genutzt werden, die an
-einrichtungsrechnung.einrichtung.konfiguration verfügbar ist. Diese hat schon
-entsprechende Methoden. Diese geben aktuell einen Integer mit der Anzahl der
-Zahlen zurück. Der Code zum Erzeugen des QuerySets könnte aber extrahiert
-werden und hier mit einem neuen Template-Tag aufgerufen werden.
-
-Zusätzlich wird die Anforderung gestellt, dass pro Seite immer nur ein Monat
-dargestellt werden soll. Dazu wäre es möglich RechnungEinrichtungQuerySet
-einzuführen und mit einer Methode auszustatten, die die
-RechnungsPositionEinrichtung-Instanzen nach Monaten aufteilt, z.B.
-RechnungEinrichtungQuerySet.monatlich(). Diese neue Methode könnte dann an
-einrichtungsrechnung.positionen aufgerufen werden. Jedes zurückgegebene
-QuerySet wird dann mit dem oben skizzierten Template gerendert.
-
-Außerdem müssen die Überschriften und für Tabelle und Monate eingefügt werden.
-Dazu kann auch das kopfdaten-Objekt genutzt werden, denn es kann über seine
-Relationen auf RechnungSozialamt zugreifen. So kann der aktuelle Monat sowie
-der vorhergehende und folgende festgestellt werden.
-
-{% endcomment %}
