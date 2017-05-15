@@ -14,8 +14,15 @@
     {% get_suffix zeitraum as suffix_zeitraum %}
     {% get_suffixdaten einrichtungsrechnung suffix_zeitraum as suffix_schuelerdaten %}
   {% endif %}
+  {% with prefix=forloop.first suffix=forloop.last %}
+  {% comment %}
+  Der Grund warum wir extra pre/suffix variablen einführen ist der das wir so auch noch Zugriff
+  auf die Information haben wenn die Hauptschhleife (für den Darstellungszeitraum) weitere
+  geschachtelte Schleifen beinhaltet. Hier wäre es nicht ohne weiteres möglich auf die
+  Elternschleife zuzugreifen. Dadurch vereinfacht sich unser Templatecode beachtlich.
+  {% endcomment %}
 
-  {% with start=zeitraum|last ende=zeitraum|last %}
+  {% with start=zeitraum|first ende=zeitraum|last %}
   <h4>Zusammenfassung für den Darstellungszeitraum {{ start|date }} bis {{ ende|date }}</h3>
   {% endwith %}
 
@@ -24,7 +31,7 @@
       {# Zeile für Monatsnamen #}
       <tr>
         <th></th>
-        {% if forloop.first %}
+        {% if prefix %}
           {# Stelle Monatsnamen für Kontexttage vorran. #}
           {% with monate=prefix_zeitraum|monatsueberschriften %}
           {% for monat, zellen in monate.items %}
@@ -39,7 +46,7 @@
         {% endfor %}
         {% endwith %}
 
-        {% if forloop.last %}
+        {% if suffix %}
           {# Stelle Monatsnamen für Kontexttage hinten an. #}
           {% with monate=suffix_zeitraum|monatsueberschriften %}
           {% for monat, zellen in monate.items %}
@@ -51,7 +58,7 @@
       {# Zeile für Monatstage #}
       <tr>
         <th>Schüler</th>
-        {% if forloop.first %}
+        {% if prefix %}
           {# Stelle Kontexttage vorran. #}
           {% for datum in prefix_zeitraum %}
           <th class="zeitraum-kontext">{{ datum.day }}</th>
@@ -62,7 +69,7 @@
         <th class="{% zusammenfassung_klasse datum ist_kontext %}">{{ datum.day }}</th>
         {% endfor %}
 
-        {% if forloop.last %}
+        {% if suffix %}
           {# Stelle Kontexttage hinten an. #}
           {% for datum in suffix_zeitraum %}
           <th class="zeitraum-kontext">{{ datum.day }}</th>
@@ -73,40 +80,39 @@
 
     <tbody>
       <tr>
-        {% if forloop.first %}
-          {% for schueler, daten in prefix_schuelerdaten.items %}
-            <td>{{ schueler }}</td>
-            {% for datum in prefix_zeitraum %}
-              {% get_item daten datum as anwesenheit %}
-              <td class="zeitraum-kontext">
-                {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
-              </td>
-            {% endfor %}
-          {# Continue with regular positionen #}
-          {# {% for schueler, daten in schuelerdaten.items %} #}
-            {% get_item schuelerdaten schueler as daten %}
-            {% for datum in zeitraum %}
-              {% get_item daten datum as position %}
-              <td class="{% zusammenfassung_klasse datum vermindert=position.vermindert %}">
-                {{ position|zusammenfassung_anwesenheitssymbol:daten }}
-              </td>
-            {% endfor %}
-          {% endfor %}
-        {% else %}
-        {# Regulär #}
-          {% for schueler, daten in schuelerdaten.items %}
-            <td>{{ schueler }}</td>
-            {% for datum in zeitraum %}
-              {% get_item daten datum as position %}
-              <td class="{% zusammenfassung_klasse datum vermindert=position.vermindert %}">
-                {{ position|zusammenfassung_anwesenheitssymbol:daten }}
-              </td>
-            {% endfor %}
+      {% for schueler, daten in schuelerdaten.items %}
+        <td>{{ schueler }}</td>
+        {% if prefix %}
+          {% get_item prefix_schuelerdaten schueler as prefix_daten %}
+          {% for datum in prefix_zeitraum %}
+            {% get_item prefix_daten datum as anwesenheit %}
+            <td class="zeitraum-kontext">
+              {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
+            </td>
           {% endfor %}
         {% endif %}
+
+        {% for datum in zeitraum %}
+          {% get_item daten datum as position %}
+          <td class="{% zusammenfassung_klasse datum vermindert=position.vermindert %}">
+            {{ position|zusammenfassung_anwesenheitssymbol:daten }}
+          </td>
+        {% endfor %}
+
+        {% if suffix %}
+          {% get_item suffix_schuelerdaten schueler as suffix_daten %}
+          {% for datum in suffix_zeitraum %}
+            {% get_item suffix_daten datum as anwesenheit %}
+            <td class="zeitraum-kontext">
+              {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
+            </td>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
       </tr>
     </tbody>
   </table>
   <div style="page-break-before:always;"></div>
+  {% endwith %}
 {% endfor %}
 {% endwith %}
