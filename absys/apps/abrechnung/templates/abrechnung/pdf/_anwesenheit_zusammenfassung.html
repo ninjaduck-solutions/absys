@@ -15,7 +15,7 @@
     {% get_suffixdaten einrichtungsrechnung suffix_zeitraum as suffix_schuelerdaten %}
   {% endif %}
 
-  {% with start=zeitraum.0 ende=zeitraum|last %}
+  {% with start=zeitraum|last ende=zeitraum|last %}
   <h4>Zusammenfassung für den Darstellungszeitraum {{ start|date }} bis {{ ende|date }}</h3>
   {% endwith %}
 
