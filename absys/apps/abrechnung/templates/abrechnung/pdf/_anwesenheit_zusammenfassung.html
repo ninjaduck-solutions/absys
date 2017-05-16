@@ -83,7 +83,7 @@
           {% for datum in prefix_zeitraum %}
             {% get_item prefix_daten datum as anwesenheit %}
             <td class="zeitraum-kontext">
-              {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
+              {{ anwesenheit|zusammenfassung_kontext_anwesenheitssymbol }}
             </td>
           {% endfor %}
         {% endif %}
@@ -100,7 +100,7 @@
           {% for datum in suffix_zeitraum %}
             {% get_item suffix_daten datum as anwesenheit %}
             <td class="zeitraum-kontext">
-              {% if anwesenheit and not anwesenheit.anwesend %}H{% else %}1{% endif %}
+              {{ anwesenheit|zusammenfassung_kontext_anwesenheitssymbol }}
             </td>
           {% endfor %}
         {% endif %}

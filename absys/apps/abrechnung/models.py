@@ -407,43 +407,40 @@ class RechnungEinrichtung(TimeStampedModel):
 
     def get_prefixdaten(self, zeitraum):
         """
-        Liefer ein dict der Anwesenheiten im Zeitraum für alle Schüler der Einrichtungsrechnung.
+        Liefere ein dict der Anwesenheiten  für alle Schüler.
+
+        Wichtig ist hier das die Anwesenheiten anhand evtl. vorhandener Vorgängerrechnungen
+        bestimmt wird da nur so eine durchgehende Konsistenz gewährleistet ist
+        (``apps.anwesenheitsliste.models.Anwesenheit`` Instanzen könnten evlt. noch nach
+        Rechnungserstellung verändert werden).
 
         Args:
             zeitraum (tuple): Die Prefix-Tage.
 
         Returns:
-            dict: {Schüler: {Datum: Anwesenheit}}.
+            dict: {Schüler: {Datum: RechnungsPositionSchueler}}.
         """
-        # [FIXME]
-        # Statt über die die Abwesenheiten zu gehen muss hier auf evtl.
-        # vorhandene Vorgängerrechnung bezug genommen werden.
-        # REVIEW Hier dürfen nicht in jedem Fall die Anwesenheiten (aus
-        # absys.apps.anwesenheitsliste) abgefragt werden. Die
-        # Anwesenheitensdaten werden schon während des Rechnungslaufs erfasst
-        # und an RechnungsPositionSchueler gespeichert. Der Grund dafür ist,
-        # dass Anwesenheitensdaten im Admin geändert werden können. Die
-        # Rechnungsdaten können aber nicht bearbeitet werden und bleiben so
-        # konsistent. Daher dürfen in einer Rechnung nie Daten aus
-        # absys.apps.anwesenheitsliste benutzt werden, wenn diese auch in
-        # absys.apps.abrechnung zur Verfügung stehen. Sonst kann die
-        # Darstellung inkonsistent sein, wenn die Anwesenheitensdaten
-        # nachträglich verändert wurden.
-        # Siehe ABSYS-9
 
-        def get_anwesenheit(schueler, zeitraum):
-            start = zeitraum[0]
-            ende = zeitraum[-1]
-            anwesenheiten = schueler.anwesenheit.filter(datum__gte=start, datum__lte=ende)
-            return {anwesenheit.datum: anwesenheit.abwesend for anwesenheit in anwesenheiten}
+        def get_spositionen(schueler, anfang, ende):
+            spositionen = schueler.positionen_schueler.filter(
+                einrichtung=self.einrichtung,
+                rechnung_sozialamt__sozialamt=self.rechnung_sozialamt.sozialamt,
+                datum__gte=anfang, datum__lte=ende
+            )
+            return {sposition.datum: sposition.abwesend for sposition in spositionen}
 
+        anfang = zeitraum[0]
+        ende = zeitraum[-1]
         schueler = [position.schueler for position in self.positionen.all()]
-        return {s: get_anwesenheit(s, zeitraum) for s in schueler}
-
+        return {s: get_spositionen(s, anfang, ende) for s in schueler}
 
     def get_suffixdaten(self, zeitraum):
         """
-        Liefer ein dict der Anwesenheiten im Zeitraum für alle Schüler der Einrichtungsrechnung.
+        Liefere ein dict der Anwesenheiten im Zeitraum für alle Schüler der Einrichtungsrechnung.
+
+        Zu beachten ist das sich Anwesenheiten nach Rechnungserstellung ändern können.
+        Desweiteren werden 'Anwesenheiten' nicht einrichtungsspezifisch erfasst. Folglich
+        kann es sich bei den hier ausgewiesen Anwesenheiten nur um eine 'Prognose' handeln.
 
         Args:
             zeitraum (tuple): Die Suffix-Tage.
@@ -451,18 +448,15 @@ class RechnungEinrichtung(TimeStampedModel):
         Returns:
             dict: {Schüler: {Datum: Anwesenheit}}.
         """
-        # REVIEW
-        # - Für Randtage, die nach den abgerechneten Tagen liegen, muss die
-        #   Anwesenheitsliste benutzt werden. Dies ist dann aber nur eine
-        #   Prognose.
-        def get_anwesenheit(schueler, zeitraum):
-            start = zeitraum[0]
-            ende = zeitraum[-1]
-            anwesenheiten = schueler.anwesenheit.filter(datum__gte=start, datum__lte=ende)
+        def get_anwesenheit(schueler, anfang, ende):
+            anwesenheiten = schueler.anwesenheit.filter(datum__gte=anfang, datum__lte=ende)
             return {anwesenheit.datum: anwesenheit.abwesend for anwesenheit in anwesenheiten}
 
+        anfang = zeitraum[0]
+        ende = zeitraum[-1]
         schueler = [position.schueler for position in self.positionen.all()]
-        return {s: get_anwesenheit(s, zeitraum) for s in schueler}
+        return {s: get_anwesenheit(s, anfang, ende) for s in schueler}
+
 
 class RechnungsPositionEinrichtung(TimeStampedModel):
     """

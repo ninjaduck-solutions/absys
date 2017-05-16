@@ -95,3 +95,13 @@ def zusammenfassung_anwesenheitssymbol(position, daten):
         result = '--'
     return result
 
+
+@register.filter
+def zusammenfassung_kontext_anwesenheitssymbol(anwesenheit):
+    if anwesenheit is None:
+        result = '--'
+    elif anwesenheit is False:
+        result = 'H'
+    else:
+        result = '1'
+    return result
