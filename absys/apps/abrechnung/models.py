@@ -192,13 +192,13 @@ class RechnungSozialamt(TimeStampedModel):
         return result
 
     def get_prefix_tage(self, length=3):
-        """Liefe eine Liste von Daten die unmittelbar vor dem Rechnungsdatum liegen."""
+        """Liefere eine Liste von Daten die unmittelbar vor dem Rechnungsdatum liegen."""
         start = self.startdatum - datetime.timedelta(length)
         prefix = [start + datetime.timedelta(i) for i in range(length)]
         return prefix
 
     def get_suffix_tage(self, length=3):
-        """Liefe eine Liste von Daten die unmittelbar nach dem Rechnungsdatum liegen."""
+        """Liefere eine Liste von Daten die unmittelbar nach dem Rechnungsdatum liegen."""
         end = self.enddatum
         suffix = [end + datetime.timedelta(i) for i in range(1, 1 + length)]
         return suffix
@@ -398,11 +398,11 @@ class RechnungEinrichtung(TimeStampedModel):
         return {p.schueler: get_tagesdaten(p) for p in self.positionen.all()}
 
     def get_prefix_tage(self, length=3):
-        """Liefe eine Liste von Daten die unmittelbar vor dem Rechnungsdatum liegen."""
+        """Liefere eine Liste von Daten die unmittelbar vor dem Rechnungsdatum liegen."""
         return self.rechnung_sozialamt.get_prefix_tage(length)
 
     def get_suffix_tage(self, length=3):
-        """Liefe eine Liste von Daten die unmittelbar nach dem Rechnungsdatum liegen."""
+        """Liefere eine Liste von Daten die unmittelbar nach dem Rechnungsdatum liegen."""
         return self.rechnung_sozialamt.get_suffix_tage(length)
 
     def get_prefixdaten(self, zeitraum):
