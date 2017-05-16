@@ -3,17 +3,13 @@
 
 <h3>Zusammenfassung der Schüleranwesenheiten im Rechnungszeitraum für {{ einrichtungsrechnung.einrichtung }}</h3>
 {% with schuelerdaten=einrichtungsrechnung.get_schuelerdaten darstellungszeitraeume=einrichtungsrechnung.rechnung_sozialamt.get_tage %}
+{% with prefix_zeitraum=einrichtungsrechnung.get_prefix_tage suffix_zeitraum=einrichtungsrechnung.get_suffix_tage %}
+{# Wir nutzen ein zweites 'with tag' um die Zeilenlänge vertretbar zu halten. Es ist nicht wirklich notwendig. #}
+{% get_prefixdaten einrichtungsrechnung prefix_zeitraum as prefix_schuelerdaten %}
+{% get_suffixdaten einrichtungsrechnung suffix_zeitraum as suffix_schuelerdaten %}
+
 {% for zeitraum in darstellungszeitraeume %}
 
-  {# Wir erstellen die Pre/Suffixe hier um sie nicht wiederholt generieren zu müssen. #}
-  {% if forloop.first %}
-    {% get_prefix zeitraum as prefix_zeitraum %}
-    {% get_prefixdaten einrichtungsrechnung prefix_zeitraum as prefix_schuelerdaten %}
-  {% endif %}
-  {% if forloop.last %}
-    {% get_suffix zeitraum as suffix_zeitraum %}
-    {% get_suffixdaten einrichtungsrechnung suffix_zeitraum as suffix_schuelerdaten %}
-  {% endif %}
   {% with prefix=forloop.first suffix=forloop.last %}
   {% comment %}
   Der Grund warum wir extra pre/suffix variablen einführen ist der das wir so auch noch Zugriff
@@ -115,4 +111,5 @@
   <div style="page-break-before:always;"></div>
   {% endwith %}
 {% endfor %}
+{% endwith %}
 {% endwith %}
