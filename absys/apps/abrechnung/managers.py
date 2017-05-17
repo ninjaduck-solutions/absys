@@ -266,6 +266,20 @@ class RechnungEinrichtungManager(models.Manager):
         :model:`einrichtungen.Einrichtung` schon eine Rechnung existieren wird
         diese zurückgegeben und keine neue erstellt.
         """
+        def get_buchungskennzeichen():
+            """
+            Beziehe ein Buchungskennzeichen.
+
+            Je nach Umgebung kann dies entweder aus dem eingespielzen BKz-Pool
+            geschehen oder es kann das BKz des zugehörigen Sozialamtes verwendet werden.
+            """
+
+            if settings.ABSYS_NUTZE_SOZIALAMTS_BUCHUNGSKENNZEICHEN:
+                result = rechnung_sozialamt.sozialamt.sbkz
+            else:
+                result = Buchungskennzeichen.objects.benutzen()
+            return result
+
         tage_faelligkeit = datetime.timedelta(
             settings.ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG
         )
@@ -281,6 +295,6 @@ class RechnungEinrichtungManager(models.Manager):
                 rechnung_sozialamt.startdatum,
                 rechnung_sozialamt.enddatum
             ))
-            rechnung.buchungskennzeichen = Buchungskennzeichen.objects.benutzen()
+            rechnung.buchungskennzeichen = get_buchungskennzeichen()
             rechnung.save()
         return rechnung
