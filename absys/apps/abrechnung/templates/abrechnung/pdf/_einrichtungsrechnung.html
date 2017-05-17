@@ -9,7 +9,7 @@
 
 <div style="page-break-before:always;"></div>
 
-{% if einrichtungsrechnung.einrichtung.konfiguration.tage == 365 %}
+{% if einrichtungsrechnung.einrichtung.konfiguration.zusammenfassungs_tabelle  %}
   {% include 'abrechnung/pdf/_anwesenheit_zusammenfassung.html' %}
 {% endif %}
 

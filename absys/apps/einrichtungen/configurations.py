@@ -71,6 +71,11 @@ class EinrichtungKonfigurationBase:
     Sonntag ist 7.
     """
 
+    zusammenfassungs_tabelle = False
+    """
+    bool: Ob in Einrichtungsrechnungen die "Zusammenfassungstabelle" dargestellt werden soll.
+    """
+
     def fehltage_abrechnen(self, rechnungs_pos_schueler, schueler_in_einrichtung):
         """
         Methode zum Abrechnen eines Zeitraums für einen Schüler in einer Einrichtung.
@@ -105,6 +110,7 @@ class EinrichtungKonfiguration250(EinrichtungKonfigurationBase):
 
     tage = 250
     feste_schliesstage = (6, 7)
+    zusammenfassungs_tabelle = False
 
     def fehltage_abrechnen(self, rechnungs_pos_schueler, schueler_in_einrichtung):
         """
@@ -138,6 +144,7 @@ class EinrichtungKonfiguration280(EinrichtungKonfigurationBase):
     bargeldauszahlung = True
     bekleidungsgeld = True
     feste_schliesstage = (6,)
+    zusammenfassungs_tabelle = True
 
     def fehltage_abrechnen(self, rechnungs_pos_schueler, schueler_in_einrichtung):
         for rechnung_pos in rechnungs_pos_schueler:
@@ -165,6 +172,7 @@ class EinrichtungKonfiguration365(EinrichtungKonfigurationBase):
     fehltage_immer_abrechnen = True
     bargeldauszahlung = True
     bekleidungsgeld = True
+    zusammenfassungs_tabelle = True
 
     def fehltage_gruppieren(self, rechnungs_pos_schueler):
         """
