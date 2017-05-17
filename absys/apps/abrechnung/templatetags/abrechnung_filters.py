@@ -62,7 +62,7 @@ def monatsueberschriften(zeitraum):
 def zusammenfassung_anwesenheitssymbol(position, daten):
     """Rendere das passende Zeichen zur Darstellung der Anwesenheit eines Schülers."""
     def ist_anfahrt(datum, daten):
-        """Liefere ``True`` wenn das datum davor 'abwesend' war."""
+        """Liefere ``True`` wenn das Datum davor 'abwesend' war."""
         result = False
         vortag = datum - datetime.timedelta(1)
         vortag_daten = daten.get(vortag)
@@ -73,7 +73,7 @@ def zusammenfassung_anwesenheitssymbol(position, daten):
         return result
 
     def ist_abfahrt(datum, daten):
-        """Liefere ``True`` wenn das datum dannach 'abwesend' war."""
+        """Liefere ``True`` wenn das Datum danach 'abwesend' war."""
         result = False
         folgetag = datum + datetime.timedelta(1)
         folgetag_daten = daten.get(folgetag)
