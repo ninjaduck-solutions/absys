@@ -99,6 +99,11 @@ echo '127.0.0.1,localhost' | sudo tee /var/envdir/absys/DJANGO_ALLOWED_HOSTS
 # Feste Adresse der Schule
 # echo 'Musterschule\nMusterstr. 42\n23232 Musterstadt' | sudo tee /var/envdir/absys/DJANGO_ABSYS_ADRESSE_SCHULE
 
+# Ob das Buchungskennzeichen des Sozialamtes der Sozialamtsrechnung für alle ihre
+# Einrichtungsrechnungen verwendet werden soll.
+# echo 'False' | sudo tee /var/envdir/absys/DJANGO_ABSYS_NUTZE_SOZIALAMTS_BUCHUNGSKENNZEICHEN
+
+
 # Konfiguration der automatierten 'Hintergrundprüfungen'/Benachrichtigungen.
 # Anzahl der Buchungskennzeichen die unterschritten werden muss um eine
 # 'Buchungskennzeichen gehen aus' Benachrichtigung zu veranlassen.
