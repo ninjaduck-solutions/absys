@@ -264,6 +264,10 @@ class Common(Configuration):
     # Feste Adresse der Schule
     ABSYS_ADRESSE_SCHULE = values.Value('Musterschule\nMusterstr. 42\n23232 Musterstadt')
 
+    # Ob das BKz des Sozialamtes der Sozialamtsrechcnung für alle ihre Einrichtungsrechnungen
+    # verwendet werden soll.
+    ABSYS_NUTZE_SOZIALAMTS_BUCHUNGSKENNZEICHEN = values.BooleanValue(False)
+
     # Start SaxMBS Konfiguration
     # SaxMBS Anord-Kz - "J" oder "N"
     ABSYS_SAX_ANORDKZ = values.Value('J')
