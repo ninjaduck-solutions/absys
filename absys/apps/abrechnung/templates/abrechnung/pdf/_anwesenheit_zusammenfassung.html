@@ -75,8 +75,8 @@
     </thead>
 
     <tbody>
-      <tr>
       {% for schueler, daten in schuelerdaten.items %}
+      <tr>
         <td>{{ schueler }}</td>
         {% if prefix %}
           {% get_item prefix_schuelerdaten schueler as prefix_daten %}
@@ -104,8 +104,8 @@
             </td>
           {% endfor %}
         {% endif %}
-      {% endfor %}
       </tr>
+      {% endfor %}
     </tbody>
   </table>
   <div style="page-break-before:always;"></div>
