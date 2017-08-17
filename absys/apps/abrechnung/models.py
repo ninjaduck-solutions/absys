@@ -350,6 +350,13 @@ class RechnungEinrichtung(TimeStampedModel):
                 einrichtung=self.einrichtung,
                 abgerechnet=True
             ).summen()
+
+            # [FIXME]
+            # This is just quick and dirty fix dealing with ``ABSYS-47``.
+            # See corresponding issue for details
+            if not summen['aufwaende']:
+                summen['aufwaende'] = 0
+
             return self.positionen.create(
                 schueler=schueler,
                 name_schueler=schueler.voller_name,
