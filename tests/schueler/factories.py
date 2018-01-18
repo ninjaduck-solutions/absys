@@ -29,6 +29,7 @@ class SchuelerFactory(factory.DjangoModelFactory):
     geburtsdatum = factory.LazyAttribute(lambda obj: now().date())
     gruppe = factory.SubFactory(GruppeFactory)
     sozialamt = factory.SubFactory(SozialamtFactory)
+    inaktiv = False
 
     class Meta:
         model = Schueler

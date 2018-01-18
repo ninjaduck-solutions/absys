@@ -6,9 +6,9 @@ from . import models
 
 
 class SchuelerAdmin(ImportExportActionModelAdmin):
-    list_display = ('nachname', 'vorname', 'geburtsdatum', 'gruppe')
+    list_display = ('nachname', 'vorname', 'geburtsdatum', 'gruppe', 'inaktiv')
     list_display_links = ('nachname', 'vorname')
-    list_filter = ('gruppe',)
+    list_filter = ('inaktiv', 'gruppe',)
     search_fields = ['vorname', 'nachname']
 
 
