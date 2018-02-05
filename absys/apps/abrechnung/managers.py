@@ -126,7 +126,7 @@ class RechnungSozialamtManager(models.Manager):
                 schueler_in_einrichtung,
                 rechnung_sozialamt
             )
-            rechnung_sozialamt.fehltage_abrechnen(schueler_in_einrichtung)
+            neu_abgerechnete_fehltage = rechnung_sozialamt.fehltage_abrechnen(schueler_in_einrichtung)
             rechnung_einrichtung = RechnungEinrichtung.objects.erstelle_rechnung(
                 rechnung_sozialamt, schueler_in_einrichtung.einrichtung
             )
@@ -140,7 +140,8 @@ class RechnungSozialamtManager(models.Manager):
                 schueler_in_einrichtung.bargeldbetrag(
                     rechnung_sozialamt.startdatum, rechnung_sozialamt.enddatum
                 ),
-                bekleidungsgeld.get(schueler_in_einrichtung.pk)
+                bekleidungsgeld.get(schueler_in_einrichtung.pk),
+                neu_abgerechnete_fehltage
             )
         for rechnung_einrichtung in einrichtungs_rechnungen.values():
             rechnung_einrichtung.abschliessen()

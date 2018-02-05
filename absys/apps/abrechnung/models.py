@@ -139,13 +139,43 @@ class RechnungSozialamt(TimeStampedModel):
         return "S{:06d}".format(self.pk)
 
     def fehltage_abrechnen(self, schueler_in_einrichtung):
-        """Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen."""
+        """
+        Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen.
+
+        Args:
+            schueler_in_einrichtung (SchuelerInEinrichtung): Instanz für die abgerechnet werden
+                soll.
+
+        Returns:
+            list: Liste jener in diesem Ducrhgang abgerechneter Fehltage welche aus vorhergehenden
+                Rechnungen stammen. D.h. 'nachträglich abgerechnete' Fehltage
+
+        Note:
+            Im Gegensatz zum 'generischen' ``fehltage_abrechnen`` ist diese Methode an einen
+            konkreten Zeitraum 'gebunden'. Daraus ergibt sich das wir zwei verschiedene 'Sorten
+            abgerechneter Fehltage' unterscheiden müssen:
+                - Fehltage innerhalb des Rechnungszeitraums. Diese sind offensichtlich
+                trivial als solche identifizierbar.
+                - Fehltage aus vorhergehenden Rechnungen welche jedoch (aufgrund
+                des Überschreitens des Grenzwertes) noch nicht abgerechnet wurden, jetzt aber
+                bei *diesem* Rechnungslauf (weil ggf. erhöhter Schwellwert) abgerechnet wurden.
+            Alte nicht abgerechnete Fehltage werden zwar problemlos von ``fehltage_abrechnen`` der
+            Konfiguration abgerechnet, jedoch können sie danach nicht mehr von jenen Fehltagen
+            unterschieden werden welche bereits in vorherigen Rechnungen abgerechnet wurden. Dies
+            ist jedoch eine wesentliche Größe zur Berechnung der 'Zahltage'.
+        """
+
         qs = RechnungsPositionSchueler.objects.nicht_abgerechnet(
             schueler_in_einrichtung, self.enddatum
         )
-        schueler_in_einrichtung.einrichtung.konfiguration.fehltage_abrechnen(
+        abgerechnete_fehltage = schueler_in_einrichtung.einrichtung.konfiguration.fehltage_abrechnen(
             qs, schueler_in_einrichtung
         )
+        nachtraeglich_abgerechnete_fehltage = []
+        for position in abgerechnete_fehltage:
+            if position.rechnung_sozialamt != self:
+                nachtraeglich_abgerechnete_fehltage.append(position)
+        return nachtraeglich_abgerechnete_fehltage
 
     @cached_property
     def mittelwert_kapitel(self):
@@ -329,7 +359,7 @@ class RechnungEinrichtung(TimeStampedModel):
     def nummer(self):
         return "ER{:06d}".format(self.pk)
 
-    def abrechnen(self, schueler, eintritt, tage, tage_abwesend, bargeldbetrag, bekleidungsgeld=None):
+    def abrechnen(self, schueler, eintritt, tage, tage_abwesend, bargeldbetrag, bekleidungsgeld=None, neu_abgerechnete_fehltage=None):
         """Erstellt für den Schüler eine Rechnungsposition.
 
         Die Abrechnung erfolgt für die übergebenen Anwesenheits- und
@@ -343,6 +373,16 @@ class RechnungEinrichtung(TimeStampedModel):
             fehltage_uebertrag = schueler.positionen_einrichtung.fehltage_uebertrag(
                 tage[0].year, eintritt, self.rechnung_sozialamt.sozialamt, self.einrichtung
             )
+            if neu_abgerechnete_fehltage is None:
+                neu_abgerechnete_fehltage = []
+
+            def berechne_aufwaende_neu_abgerechneter_fehltage(positionen):
+                summe = 0
+                for position in positionen:
+                    summe += position.pflegesatz
+                return summe
+            summe_alte_fehltage = berechne_aufwaende_neu_abgerechneter_fehltage(neu_abgerechnete_fehltage)
+
             if bekleidungsgeld is None:
                 bekleidungsgeld = decimal.Decimal()
             summen = schueler.positionen_schueler.filter(
@@ -357,6 +397,8 @@ class RechnungEinrichtung(TimeStampedModel):
             if not summen['aufwaende']:
                 summen['aufwaende'] = 0
 
+
+
             return self.positionen.create(
                 schueler=schueler,
                 name_schueler=schueler.voller_name,
@@ -365,11 +407,11 @@ class RechnungEinrichtung(TimeStampedModel):
                 fehltage=fehltage,
                 fehltage_uebertrag=fehltage_uebertrag,
                 fehltage_gesamt=fehltage + fehltage_uebertrag,
-                fehltage_abrechnung=summen['fehltage'],
-                zahltage=summen['zahltage'],
+                fehltage_abrechnung=summen['fehltage'] + len(neu_abgerechnete_fehltage),
+                zahltage=summen['zahltage'] + len(neu_abgerechnete_fehltage),
                 bargeldbetrag=bargeldbetrag,
                 bekleidungsgeld=bekleidungsgeld,
-                summe=summen['aufwaende'] + bargeldbetrag + bekleidungsgeld
+                summe=summen['aufwaende'] + summe_alte_fehltage + bargeldbetrag + bekleidungsgeld
             )
         return None
 
