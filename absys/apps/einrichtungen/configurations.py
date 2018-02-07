@@ -84,10 +84,14 @@ class EinrichtungKonfigurationBase:
         zu bestimmen welche Tage nach welchen Regeln abgerechnet werden.
 
         Args:
-            rechnungs_pos_schueler(RechnungsPositionSchuelerQuerySet):
-                Rechnungsposition für einen Schüler
+            rechnungs_pos_schueler (RechnungsPositionSchuelerQuerySet): Gesamtheit aller abzurechnenden
+                Einzelpositionen. Faktisch sollten dies die nicht abgerechneten Positionen eines
+                gegebenen Zeitraums sein.
             schueler_in_einrichtung (SchuelerInEinrichtung):
                 Anmeldung für einen Schüler in einer Einrichtung
+
+        Returns:
+            list: Liste aller (neu) abgerechneten ``RechnungsPositionSchueler``-Instanzen.
         """
         raise NotImplementedError
 
@@ -116,7 +120,9 @@ class EinrichtungKonfiguration250(EinrichtungKonfigurationBase):
         """
         Nicht abgerechnete Rechnungspositionen pro Schüler seit Eintritt in die Einrichtung abrechnen, bis Limit erreicht.
 
-        Das ``limit`` ist die Anzahl der erlaubten Fehltage minus der bisher abgerechneten Fehltage.
+        Note:
+            Das ``limit`` ist die Anzahl der erlaubten Fehltage minus der bisher abgerechneten
+            Fehltage.
         """
         limit = 0
         if len(rechnungs_pos_schueler):
@@ -126,9 +132,12 @@ class EinrichtungKonfiguration250(EinrichtungKonfigurationBase):
             ).count()
             if fehltage_abgerechnet <= schueler_in_einrichtung.fehltage_erlaubt:
                 limit = schueler_in_einrichtung.fehltage_erlaubt - fehltage_abgerechnet
-        for rechnung_pos in rechnungs_pos_schueler[:limit]:
+
+        neu_abzurechnen = rechnungs_pos_schueler[:limit]
+        for rechnung_pos in neu_abzurechnen:
             rechnung_pos.abgerechnet = True
             rechnung_pos.save()
+        return neu_abzurechnen
 
 
 class EinrichtungKonfiguration280(EinrichtungKonfigurationBase):

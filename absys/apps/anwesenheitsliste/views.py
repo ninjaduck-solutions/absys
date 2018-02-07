@@ -38,7 +38,7 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, MultiplePermissionsRequir
 
     def get_initial(self):
         data = []
-        for schueler in Schueler.objects.filter(gruppe__id=self.gruppe_id):
+        for schueler in Schueler.objects.ist_aktiv().filter(gruppe__id=self.gruppe_id):
             try:
                 abwesend = schueler.anwesenheit.get(datum=self.datum).abwesend
             except schueler.anwesenheit.model.DoesNotExist:

@@ -3,7 +3,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from model_utils.models import TimeStampedModel
 
-from . import validators
+from . import validators, managers
 
 
 class Gruppe(TimeStampedModel):
@@ -53,6 +53,12 @@ class Schueler(TimeStampedModel):
     aktenzeichen = models.CharField("Aktenzeichen", max_length=12, blank=True)
     gruppe = models.ForeignKey(Gruppe, related_name='schueler')
     sozialamt = models.ForeignKey(Sozialamt, related_name='schueler')
+    inaktiv = models.BooleanField(default=False, help_text=(
+        "Schüler können nicht gelöscht, sondern lediglich 'deaktiviert' werden."
+        " Dies hat keinerlei Auswirkungen auf die Abrechnung sondern beinflusst"
+        " lediglich die Darstellung im Frontend, z.B. Gruppenliste.")
+    )
+    objects = managers.SchuelerQuerySet.as_manager()
 
     class Meta:
         ordering = ['nachname', 'vorname']
