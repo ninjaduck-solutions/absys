@@ -86,7 +86,7 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, MessageMixin, FormSet
     """
 
     form_class = forms.ErfassungBekleidungsgeldForm
-    extra = 0
+    factory_kwargs = {'extra': 0}
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
     template_name = 'abrechnung/erfassung_bekleidungsgeld.html'
     permission_required = 'abrechnung.add_rechnungsozialamt'
