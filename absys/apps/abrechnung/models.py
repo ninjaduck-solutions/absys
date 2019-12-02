@@ -265,7 +265,7 @@ class RechnungsPositionSchueler(TimeStampedModel):
         ('schule', "Schultag"),
     )
     rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
-        related_name='positionen_schueler')
+        related_name='positionen_schueler', on_delete=models.CASCADE)
     schueler = models.ForeignKey(Schueler, models.SET_NULL, null=True, verbose_name="Schüler",
         related_name='positionen_schueler')
     einrichtung = models.ForeignKey(Einrichtung, models.SET_NULL, null=True,
@@ -325,7 +325,7 @@ class RechnungEinrichtung(TimeStampedModel):
     """
 
     rechnung_sozialamt = models.ForeignKey(RechnungSozialamt, verbose_name="Sozialamtsrechnung",
-        related_name='rechnungen_einrichtungen')
+        related_name='rechnungen_einrichtungen', on_delete=models.CASCADE)
     einrichtung = models.ForeignKey(Einrichtung, models.SET_NULL, null=True,
         verbose_name="Einrichtung", related_name='rechnungen')
     name_einrichtung = models.CharField("Name der Einrichtung", max_length=30)
@@ -537,7 +537,8 @@ class RechnungsPositionEinrichtung(TimeStampedModel):
     rechnung_einrichtung = models.ForeignKey(
         RechnungEinrichtung,
         verbose_name="Einrichtungs-Rechnung",
-        related_name='positionen'
+        related_name='positionen',
+        on_delete=models.CASCADE
     )
     fehltage_max = models.PositiveIntegerField("Maximale Fehltage")
     anwesend = models.PositiveIntegerField("Anwesend")

@@ -51,8 +51,8 @@ class Schueler(TimeStampedModel):
     )
     bemerkungen = models.TextField(blank=True)
     aktenzeichen = models.CharField("Aktenzeichen", max_length=12, blank=True)
-    gruppe = models.ForeignKey(Gruppe, related_name='schueler')
-    sozialamt = models.ForeignKey(Sozialamt, related_name='schueler')
+    gruppe = models.ForeignKey(Gruppe, related_name='schueler', on_delete=models.CASCADE)
+    sozialamt = models.ForeignKey(Sozialamt, related_name='schueler', on_delete=models.CASCADE)
     inaktiv = models.BooleanField(default=False, help_text=(
         "Schüler können nicht gelöscht, sondern lediglich 'deaktiviert' werden."
         " Dies hat keinerlei Auswirkungen auf die Abrechnung sondern beinflusst"

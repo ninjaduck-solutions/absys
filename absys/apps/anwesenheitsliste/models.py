@@ -7,7 +7,8 @@ from . import managers
 
 class Anwesenheit(models.Model):
 
-    schueler = models.ForeignKey(Schueler, verbose_name="Schüler", related_name='anwesenheit')
+    schueler = models.ForeignKey(Schueler, verbose_name="Schüler", related_name='anwesenheit',
+        on_delete=models.CASCADE)
     datum = models.DateField("Datum", db_index=True)
     abwesend = models.BooleanField("Abwesend", default=False)
 

@@ -36,7 +36,7 @@ class Einrichtung(TimeStampedModel):
         through='SchuelerInEinrichtung',
         related_name='einrichtungen'
     )
-    standort = models.ForeignKey(Standort, related_name='einrichtungen')
+    standort = models.ForeignKey(Standort, related_name='einrichtungen', on_delete=models.CASCADE)
     titel = models.IntegerField("Titel", help_text="Darf maximal fünf Ziffern haben.")
     konfiguration_id = models.IntegerField(
         "Konfiguration",
@@ -125,11 +125,12 @@ class SchuelerInEinrichtung(TimeStampedModel):
         (BARGELD_VOLLER_SATZ, "12 (voller Satz)"),
     )
 
-    schueler = models.ForeignKey(Schueler, related_name='angemeldet_in_einrichtung')
-    einrichtung = models.ForeignKey(Einrichtung, related_name='anmeldungen')
+    schueler = models.ForeignKey(Schueler, related_name='angemeldet_in_einrichtung', on_delete=models.CASCADE)
+    einrichtung = models.ForeignKey(Einrichtung, related_name='anmeldungen', on_delete=models.CASCADE)
     sozialamt = models.ForeignKey(
         Sozialamt,
         related_name='anmeldungen',
+        on_delete=models.CASCADE,
         help_text=
         "<span style=\"font-size: 1.3em\">"
         "Es wird automatisch das aktuelle Sozialamt des Schülers ausgewählt.<br><br>"
@@ -147,8 +148,8 @@ class SchuelerInEinrichtung(TimeStampedModel):
         help_text=
         "Wenn der Schüler keinen persönlichen Pflegesatz zugewiesen bekommen hat, "
         "muss in diesem Feld '0' stehen bleiben.",
-        max_digits=5, 
-        decimal_places=2, 
+        max_digits=5,
+        decimal_places=2,
         default=0,
     )
     pers_pflegesatz_ferien = models.DecimalField(
@@ -156,18 +157,18 @@ class SchuelerInEinrichtung(TimeStampedModel):
         help_text=
         "Wenn der Schüler keinen persönlichen Pflegesatz für Ferien zugewiesen bekommen hat, "
         "muss in diesem Feld '0' stehen bleiben.",
-        max_digits=5, 
-        decimal_places=2, 
+        max_digits=5,
+        decimal_places=2,
         default=0,
     )
     pers_pflegesatz_startdatum = models.DateField(
         "Startdatum persönlicher Pflegesatz",
-        blank=True, 
+        blank=True,
         null=True,
     )
     pers_pflegesatz_enddatum = models.DateField(
         "Enddatum persönlicher Pflegesatz",
-        blank=True, 
+        blank=True,
         null=True,
     )
     fehltage_erlaubt = models.PositiveIntegerField(default=45)
@@ -273,7 +274,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
 
 class EinrichtungHatPflegesatz(TimeStampedModel):
 
-    einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze')
+    einrichtung = models.ForeignKey(Einrichtung, related_name='pflegesaetze', on_delete=models.CASCADE)
     pflegesatz = models.DecimalField("Pflegesatz", max_digits=5, decimal_places=2)
     pflegesatz_ferien = models.DecimalField("Pflegesatz Ferien", max_digits=5, decimal_places=2)
     pflegesatz_startdatum = models.DateField("Startdatum")
@@ -334,7 +335,8 @@ class Bettengeldsatz(TimeStampedModel):
     einrichtung = models.ForeignKey(
         Einrichtung,
         verbose_name="Einrichtung",
-        related_name='bettengeldsaetze'
+        related_name='bettengeldsaetze',
+        on_delete=models.CASCADE
     )
     startdatum = models.DateField("Startdatum")
     enddatum = models.DateField(
