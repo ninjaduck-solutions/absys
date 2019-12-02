@@ -84,7 +84,7 @@ create-db-user:
 	sudo -u postgres psql -d postgres -c "CREATE USER \"absys\" WITH PASSWORD 'absys' CREATEDB;"
 
 createsuperuser:
-	envdir envs/$(ENV) python manage.py createsuperuser --email ada@example.com
+	envdir envs/$(ENV) python3 manage.py createsuperuser --email ada@example.com
 
 drop-db:
 	sudo -u postgres dropdb -i -e absys
@@ -98,7 +98,7 @@ develop:
 	pip install -U -c requirements/constraints.pip -e .
 
 dist: clean
-	python setup.py bdist_wheel
+	python3 setup.py bdist_wheel
 	@echo
 	ls -1 dist/
 
@@ -116,33 +116,33 @@ isort:
 	isort --recursive setup.py absys/ tests/
 
 makemigrations:
-	envdir envs/$(ENV) python manage.py makemigrations
+	envdir envs/$(ENV) python3 manage.py makemigrations
 
 migrate:
-	envdir envs/$(ENV) python manage.py migrate
+	envdir envs/$(ENV) python3 manage.py migrate
 
 modelgraph:
 	git diff --quiet docs
 	git diff --cached --quiet
-	envdir envs/$(ENV) python  manage.py graph_models -a -E -o docs/_static/modelgraph_easy.png
-	envdir envs/$(ENV) python  manage.py graph_models -a -g -o docs/_static/modelgraph_complete.png
+	envdir envs/$(ENV) python3  manage.py graph_models -a -E -o docs/_static/modelgraph_easy.png
+	envdir envs/$(ENV) python33  manage.py graph_models -a -g -o docs/_static/modelgraph_complete.png
 	git add docs
 	git commit -m "docs: Modelgraphen aktualisiert"
 
 runserver:
-	envdir envs/$(ENV) python manage.py runserver 0.0.0.0:$(PORT)
+	envdir envs/$(ENV) python3 manage.py runserver 0.0.0.0:$(PORT)
 
 serve-docs:
-	cd docs/$(BUILDDIR)/html; python -m http.server $(PORT)
+	cd docs/$(BUILDDIR)/html; python3 -m http.server $(PORT)
 
 shell:
-	envdir envs/$(ENV) python manage.py shell
+	envdir envs/$(ENV) python3 manage.py shell
 
 startapp:
 	@read -p "Enter the name of the new Django app: " app_name; \
-	app_name_title=`python -c "import sys; sys.stdout.write(sys.argv[1].title())" $$app_name`; \
+	app_name_title=`python3 -c "import sys; sys.stdout.write(sys.argv[1].title())" $$app_name`; \
 	mkdir -p absys/apps/$$app_name; \
-	envdir envs/$(ENV) python manage.py startapp $$app_name absys/apps/$$app_name --template absys/config/app_template; \
+	envdir envs/$(ENV) python3 manage.py startapp $$app_name absys/apps/$$app_name --template absys/config/app_template; \
 	echo "Don't forget to add 'absys.apps."$$app_name".apps."$$app_name_title"Config' to INSTALLED_APPS in 'absys/config/settings/common.py'!"
 
 glances:
@@ -153,27 +153,27 @@ test:
 	@echo "Use \"PYTEST_ADDOPTS='--cache-clear'\" to clean up the test cache"
 	@echo "Use \"PYTEST_ADDOPTS='--create-db'\" to force recreation of the test database"
 	@echo
-	envdir envs/$(ENV) python -m pytest -m "not slowtest" --reuse-db --last-failed tests/
+	envdir envs/$(ENV) python3 -m pytest -m "not slowtest" --reuse-db --last-failed tests/
 
 test-fresh:
-	envdir envs/$(ENV) python -m pytest -m "not slowtest" --create-db --cache-clear tests/
+	envdir envs/$(ENV) python3 -m pytest -m "not slowtest" --create-db --cache-clear tests/
 
 test-fixtures:
-	envdir envs/$(ENV) python -m pytest --fixtures tests/
+	envdir envs/$(ENV) python3 -m pytest --fixtures tests/
 
 test-all:
 	tox
 
 fixtures:
-	envdir envs/$(ENV) python manage.py loaddata sites.json
-	envdir envs/$(ENV) python manage.py loadtestdata schueler.Gruppe:2
-	envdir envs/$(ENV) python manage.py loadtestdata schueler.Sozialamt:2
-	envdir envs/$(ENV) python manage.py loadtestdata schueler.Schueler:10
-	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.Einrichtung:4
-	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.SchuelerInEinrichtung:80
-	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.EinrichtungHatPflegesatz:8
-	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.Ferien:4
-	envdir envs/$(ENV) python manage.py loadtestdata einrichtungen.Schliesstag:10
-	envdir envs/$(ENV) python manage.py createsuperuser --email ada@example.com
+	envdir envs/$(ENV) python3 manage.py loaddata sites.json
+	envdir envs/$(ENV) python3 manage.py loadtestdata schueler.Gruppe:2
+	envdir envs/$(ENV) python3 manage.py loadtestdata schueler.Sozialamt:2
+	envdir envs/$(ENV) python3 manage.py loadtestdata schueler.Schueler:10
+	envdir envs/$(ENV) python3 manage.py loadtestdata einrichtungen.Einrichtung:4
+	envdir envs/$(ENV) python3 manage.py loadtestdata einrichtungen.SchuelerInEinrichtung:80
+	envdir envs/$(ENV) python3 manage.py loadtestdata einrichtungen.EinrichtungHatPflegesatz:8
+	envdir envs/$(ENV) python3 manage.py loadtestdata einrichtungen.Ferien:4
+	envdir envs/$(ENV) python3 manage.py loadtestdata einrichtungen.Schliesstag:10
+	envdir envs/$(ENV) python3 manage.py createsuperuser --email ada@example.com
 
 reset-db: drop-db create-db migrate
