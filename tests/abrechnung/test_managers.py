@@ -39,16 +39,17 @@ class TestRechnungSozialamtManager:
             datetime.date(2016, 5, 31),
             0,
         ),
-        pytest.mark.xfail(
-            reason="Fehlende EinrichtungHatPflegesatz Instanz wird noch nicht behandelt")(
-            (  # Pflegesatz der Einrichtung liegt nicht im gültigen Zeitraum
-                datetime.date(2016, 6, 1),
-                datetime.date(2016, 6, 30),
-                datetime.date(2016, 5, 1),
-                datetime.date(2016, 5, 31),
-                0,
+        # Pflegesatz der Einrichtung liegt nicht im gültigen Zeitraum
+        pytest.param(
+            datetime.date(2016, 6, 1),
+            datetime.date(2016, 6, 30),
+            datetime.date(2016, 5, 1),
+            datetime.date(2016, 5, 31),
+            0,
+            marks=pytest.mark.xfail(
+                reason="Fehlende EinrichtungHatPflegesatz Instanz wird noch nicht behandelt"
             )
-        ),
+        )
     ])
     def test_rechnungslauf(self, sozialamt, schueler_in_einrichtung, einrichtung_hat_pflegesatz,
             anwesenheit_factory, buchungskennzeichen, anzahl, rechnung_sozialamt_factory):
