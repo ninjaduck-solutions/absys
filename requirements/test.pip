@@ -11,4 +11,4 @@ freezegun
 pytest-django
 pytest-factoryboy
 pytest-faker
-pytest<3
+pytest
