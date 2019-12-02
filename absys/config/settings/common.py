@@ -128,7 +128,7 @@ class Common(Configuration):
         #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
     ])
 
-    MIDDLEWARE_CLASSES = [
+    MIDDLEWARE = [
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
