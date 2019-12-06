@@ -4,7 +4,7 @@ from braces.views import LoginRequiredMixin, MultiplePermissionsRequiredMixin
 from dateutil.parser import parse
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.views.generic import RedirectView

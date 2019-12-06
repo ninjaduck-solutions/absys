@@ -10,7 +10,7 @@ class TestEinrichtungKonfiguration365:
     def test_fehltage_letzte_rechnung(
             self, schueler, einrichtung, rechnungs_position_schueler_factory, einrichtung_factory):
         letzte_rechnung = (arrow.Arrow(2016, 6, 10), arrow.Arrow(2016, 6, 14))
-        startdatum = letzte_rechnung[1].replace(days=+1).date()
+        startdatum = letzte_rechnung[1].shift(days=+1).date()
         conf = configurations.registry[365]
         # Es existieren noch keine RechnungsPositionSchueler.
         assert conf.fehltage_letzte_rechnung(schueler, einrichtung, startdatum) == 0
@@ -39,7 +39,7 @@ class TestEinrichtungKonfiguration365:
 
     def test_fehltage_folgezeitraum(self, schueler, anwesenheit_factory):
         folgezeitraum = (arrow.Arrow(2016, 6, 10), arrow.Arrow(2016, 6, 14))
-        enddatum = folgezeitraum[0].replace(days=-1).date()
+        enddatum = folgezeitraum[0].shift(days=-1).date()
         conf = configurations.registry[365]
         # Es existieren noch keine Anwesenheiten.
         assert conf.fehltage_folgezeitraum(schueler, enddatum) == 0

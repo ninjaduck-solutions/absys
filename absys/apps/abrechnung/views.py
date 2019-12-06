@@ -2,7 +2,7 @@ from braces.views import (LoginRequiredMixin, PermissionRequiredMixin,
                           MultiplePermissionsRequiredMixin, MessageMixin)
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.utils.functional import cached_property
 from django.views.generic import DeleteView, FormView
@@ -86,7 +86,7 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, MessageMixin, FormSet
     """
 
     form_class = forms.ErfassungBekleidungsgeldForm
-    extra = 0
+    factory_kwargs = {'extra': 0}
     success_url = reverse_lazy('abrechnung_rechnungsozialamt_form')
     template_name = 'abrechnung/erfassung_bekleidungsgeld.html'
     permission_required = 'abrechnung.add_rechnungsozialamt'

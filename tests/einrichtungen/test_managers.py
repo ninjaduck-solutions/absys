@@ -70,11 +70,9 @@ class TestSchuelerInEinrichtungQuerySet:
             0
         ),
     ])
-    def test_get_betreuungstage(
-            self, schueler, betreuungstage_start, betreuungstage_ende, schliesstag,
-            schueler_in_einrichtung, count):
-        schliesstag.einrichtungen = [schueler_in_einrichtung.einrichtung]
-        schliesstag.save()
+    def test_get_betreuungstage(self, schueler, betreuungstage_start, betreuungstage_ende,
+            schliesstag, schueler_in_einrichtung, count):
+        schliesstag.einrichtungen.set([schueler_in_einrichtung.einrichtung])
         betreuungstage = schueler.angemeldet_in_einrichtung.get_betreuungstage(
             betreuungstage_start,
             betreuungstage_ende

@@ -38,7 +38,7 @@ class SchuelerInEinrichtungLaeuftAusBenachrichtigung(Benachrichtigung):
     """Benachrichtigung über auslaufenden Zeitraum für ``SchuelerInEinchrichtung`` Instanz."""
 
     schueler_in_einrichtung = models.ForeignKey(SchuelerInEinrichtung,
-        related_name='auslauf_benachrichtigungen')
+        related_name='auslauf_benachrichtigungen', on_delete=models.CASCADE)
     objects = managers.SchuelerInEinrichtungLaeuftAusBenachrichtigungManager.from_queryset(
         managers.SchuelerInEinrichtungLaeuftAusBenachrichtigungQuerySet)()
 
@@ -57,7 +57,7 @@ class EinrichtungHatPflegesatzLaeuftAusBenachrichtigung(Benachrichtigung):
     """Benachrichtigung über auslaufenden Zeitraum für ``EinrichtungHatPflegesatz`` Instanz."""
 
     einrichtung_hat_pflegesatz = models.ForeignKey(EinrichtungHatPflegesatz,
-        related_name='auslauf_benachrichtigungen')
+        related_name='auslauf_benachrichtigungen', on_delete=models.CASCADE)
     objects = managers.EinrichtungHatPflegesatzLaeuftAusBenachrichtigungManager.from_queryset(
         managers.EinrichtungHatPflegesatzLaeuftAusBenachrichtigungQuerySet)()
 
@@ -74,7 +74,8 @@ class EinrichtungHatPflegesatzLaeuftAusBenachrichtigung(Benachrichtigung):
 class BettengeldsatzLaeuftAusBenachrichtigung(Benachrichtigung):
     """Benachrichtigung über auslaufenden Zeitraum für ``Bettensatz`` Instanz."""
 
-    bettengeldsatz = models.ForeignKey(Bettengeldsatz, related_name='auslauf_benachrichtigungen')
+    bettengeldsatz = models.ForeignKey(Bettengeldsatz, related_name='auslauf_benachrichtigungen',
+        on_delete=models.CASCADE)
     objects = managers.BettengeldsatzLaeuftAusBenachrichtigungManager.from_queryset(
         managers.BettengeldsatzLaeuftAusBenachrichtigungQuerySet)()
 
@@ -91,7 +92,8 @@ class BettengeldsatzLaeuftAusBenachrichtigung(Benachrichtigung):
 class FerienBenachrichtigung(Benachrichtigung):
     """Benachrichtigung das für ein bestimmtes Jahr noch keinerlei Ferien definiert wurden."""
 
-    einrichtung = models.ForeignKey(Einrichtung, related_name='ferien_benachrichtigungen')
+    einrichtung = models.ForeignKey(Einrichtung, related_name='ferien_benachrichtigungen',
+        on_delete=models.CASCADE)
     jahr = models.IntegerField()
     objects = managers.FerienBenachrichtigungManager.from_queryset(
         managers.FerienBenachrichtigungQuerySet)()
@@ -111,7 +113,8 @@ class SchliesstageBenachrichtigung(Benachrichtigung):
     """
     Benachrichtigung das für ein bestimmtes Jahr noch keinerlei Schliesstage definiert wurden.
     """
-    einrichtung = models.ForeignKey(Einrichtung, related_name='schliesstage_benachrichtigungen')
+    einrichtung = models.ForeignKey(Einrichtung, related_name='schliesstage_benachrichtigungen',
+        on_delete=models.CASCADE)
     jahr = models.IntegerField()
     objects = managers.SchliesstageBenachrichtigungManager.from_queryset(
         managers.SchliesstageBenachrichtigungQuerySet)()
