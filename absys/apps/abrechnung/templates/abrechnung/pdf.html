@@ -1,50 +1,53 @@
-{% extends "base.html" %}
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <title>AbSys</title>
+    <meta name="description" content="Abrechnungssystem der SLSH und LZH.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% block navigation %}
-{% endblock %}
-
-
-{% block main_container_class %}
-{%endblock %}
-
-
-{% block content %}
-  <div>
-    {# DECKBLATT #}
-    <h1><b> Rechnung </b></h1>
-    <h3>
-      <b>an</b><br>
-      {{ rechnungsozialamt.anschrift_sozialamt|linebreaks }}<br>
-      <br>
-      <b>von</b><br>
-        {{ view.adresse_schule|linebreaks }}
-      <br>
-      <b>Rechnungsnummer:</b> {{ rechnungsozialamt.nummer }} <br>
-      {% if rechnungsozialamt.sozialamt.sbkz %}
-        <b>BKZ des Sozialamts:</b> {{ rechnungsozialamt.sozialamt.sbkz }} <br>
-        {% endif %}
-      <b>Abrechnungszeitraum:</b>
-      {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
-      -
-      {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}<br><br><br>
-      <b>Einrichtungen zur Abrechnung: </b>
-        {% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
-          {{ einrichtungsrechnung.name_einrichtung }}{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    </h3>
-
-    {# Einrichtungsrechnungen #}
-    {% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
-      {% include 'abrechnung/pdf/_einrichtungsrechnung.html' %}
-    {% endfor %}
-
-    {# Footer #}
-    <br><br><br><br>
-    <hr>
-    <h3> <center> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }}
-      FÜR DEN ZEITRAUM VOM {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
-      BIS {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }} </center></h3>
+    <link rel="stylesheet" href="{% static "/css/bootstrap.min.css" %}">
+    <link rel="stylesheet" href="{% static "/css/bootstrap-theme.min.css"%}">
+    <link rel="stylesheet" href="{% static "/css/main.css" %}">
+</head>
+<body>
+<div id="page-1">
+  <h1>Rechnung</h1>
+  <div id="address">
+    <div id="von">
+      <p>{{ view.adresse_schule|linebreaks }}</p>
+    </div>
+    <div id="an">
+      <p>{{ rechnungsozialamt.anschrift_sozialamt|linebreaks }}</p>
+    </div>
   </div>
-{% endblock %}
+  <div id="details">
+    <p><strong>Rechnungsnummer:</strong>{{ rechnungsozialamt.nummer }}<br>
+    {% if rechnungsozialamt.sozialamt.sbkz %}
+      <strong>BKZ des Sozialamts:</strong>{{ rechnungsozialamt.sozialamt.sbkz }}<br>
+    {% endif %}
+    <strong>Abrechnungszeitraum:</strong>
+    {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
+    -
+    {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }}</p>
+    <p><strong>Einrichtungen zur Abrechnung:</strong><br>
+      {% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
+        {{ einrichtungsrechnung.name_einrichtung }}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    </p>
+  </div>
+</div>
 
+{# Einrichtungsrechnungen #}
+{% for einrichtungsrechnung in rechnungsozialamt.rechnungen_einrichtungen.all %}
+<div {% if forloop.first %}id="page-2"{% else %}class="page-subsequent">{% endif %}
+  {% include 'abrechnung/pdf/_einrichtungsrechnung.html' %}
+</div>
+{% endfor %}
 
+{# Footer #}
+<br><br><br><br>
+<hr>
+<h3> <center> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }}
+  FÜR DEN ZEITRAUM VOM {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
+  BIS {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }} </center></h3>
+</body>

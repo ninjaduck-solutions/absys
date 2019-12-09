@@ -1,13 +1,10 @@
 {# Hauptsnippet welches für die Darstellung einer 'Einrichtungsrechnung' verantwortlich ist. #}
 
-<div style="page-break-before:always;"></div>
 
 {% include 'abrechnung/pdf/_einrichtung_kopf.html' %}
 <hr>
 {% include 'abrechnung/pdf/_einrichtung_uebersicht.html' %}
 
-
-<div style="page-break-before:always;"></div>
 
 {% if einrichtungsrechnung.einrichtung.konfiguration.zusammenfassungs_tabelle  %}
   {% include 'abrechnung/pdf/_anwesenheit_zusammenfassung.html' %}
