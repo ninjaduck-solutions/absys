@@ -20,8 +20,8 @@ class AnwesenheitslisteFormSetView(LoginRequiredMixin, MultiplePermissionsRequir
         extra_views.FormSetView):
 
     form_class = forms.AnwesenheitForm
-    extra = 0
     template_name = 'anwesenheitsliste/schueler_list.html'
+    factory_kwargs = {'extra': 0}
 
     permissions = {"all": ('anwesenheitsliste.add_anwesenheit',
                            'anwesenheitsliste.change_anwesenheit')
