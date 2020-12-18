@@ -9,8 +9,8 @@ class Lockdown(object):
         return super().INSTALLED_APPS + ('lockdown',)
 
     @property
-    def MIDDLEWARE_CLASSES(self):
-        return super().MIDDLEWARE_CLASSES + ['lockdown.middleware.LockdownMiddleware']
+    def MIDDLEWARE(self):
+        return super().MIDDLEWARE + ['lockdown.middleware.LockdownMiddleware']
 
     LOCKDOWN_ENABLED = values.BooleanValue(False)
 
