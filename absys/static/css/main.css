@@ -13,7 +13,7 @@
 
   @page :first {
     size: A4 portrait;
-    padding-top: 20mm;
+    padding-top: 5mm;
     padding-left: 20mm;
   }
 
@@ -26,10 +26,15 @@
 
   #address {
     position: absolute;
-    top: 55mm;
+    top: 30mm;
   }
 
   #von {
+    font-size: 6pt;
+  }
+
+  #an {
+    padding-top: 5mm;
     font-size: 10pt;
   }
 
