@@ -57,3 +57,31 @@ def bargeld_zeitraum(bargeldanteil, startdatum, enddatum):
             enddatum
         )
     return bargeldbetrag.quantize(decimal.Decimal(10) ** -2)
+
+
+def get_billable_missing_days(start_date, end_date):
+    def working_days_in_range(from_date, to_date):
+        from_weekday = from_date.weekday()
+        to_weekday = to_date.weekday()
+        # If start date is after Friday, modify it to Monday
+        if from_weekday > 4:
+            from_weekday = 0
+        day_diff = to_weekday - from_weekday
+        whole_weeks = ((to_date - from_date).days - day_diff) / 7
+        workdays_in_whole_weeks = whole_weeks * 5
+        beginning_end_correction = min(day_diff, 5) - (max(to_weekday - 4, 0) % 5)
+        working_days = workdays_in_whole_weeks + beginning_end_correction
+        # Final sanity check (i.e. if the entire range is weekends)
+        return max(0, working_days)
+
+    now = datetime.datetime.now()
+    if end_date.year > now.year:
+        end_date = datetime.datetime(now.year, 31, 12)
+
+    # JUST WEEKDAYS
+    # open_days_total = (end_date - self.eintritt).days + 1
+    open_days_total = working_days_in_range(start_date, end_date)
+    billable_missing_days = decimal.Decimal(open_days_total * 0.18).quantize(
+        1, rounding=decimal.ROUND_HALF_UP)
+    max_number_of_billable_missing_days = 45
+    return int(min(billable_missing_days, max_number_of_billable_missing_days))

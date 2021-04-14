@@ -171,7 +171,7 @@ class SchuelerInEinrichtung(TimeStampedModel):
         blank=True,
         null=True,
     )
-    fehltage_erlaubt = models.PositiveIntegerField(default=45)
+    fehltage_erlaubt = models.PositiveIntegerField(null=False, blank=False)
     anteile_bargeld = models.IntegerField(
         "Anteile Bargeld",
         choices=ANTEILE_BARGELD_CHOICES,
@@ -193,6 +193,10 @@ class SchuelerInEinrichtung(TimeStampedModel):
         if not self.pk:
             self.sozialamt = self.schueler.sozialamt
         super().save(*args, **kwargs)
+
+    @property
+    def fehltage_berechnet(self):
+        return services.get_billable_missing_days(self.eintritt, self.austritt)
 
     def get_pers_pflegesatz(self, datum):
         """

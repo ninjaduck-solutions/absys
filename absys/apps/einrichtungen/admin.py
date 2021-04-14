@@ -46,10 +46,13 @@ from import_export.admin import ImportExportActionModelAdmin
 
 class SchuelerInEinrichtungAdmin(admin.ModelAdmin):
     date_hierarchy = 'eintritt'
+    fields = ('schueler', 'einrichtung', 'eintritt', 'austritt', 'pers_pflegesatz',
+        'pers_pflegesatz_ferien', 'pers_pflegesatz_startdatum', 'pers_pflegesatz_enddatum',
+        'fehltage_berechnet', 'fehltage_erlaubt', 'anteile_bargeld', 'sozialamt')
     list_display = ('schueler', 'einrichtung', 'sozialamt', 'eintritt', 'austritt', 'fehltage_erlaubt',)
     list_filter = ('einrichtung', 'sozialamt',)
     raw_id_fields = ('schueler',)
-    readonly_fields = ('sozialamt',)
+    readonly_fields = ('sozialamt', 'fehltage_berechnet')
     search_fields = ['schueler__nachname', 'schueler__vorname', 'sozialamt__name',]
 
 
