@@ -4,7 +4,7 @@ from . import models
 
 
 class BenachrichtigungFilter(django_filters.FilterSet):
-    #erledigt = django_filters.BooleanFilter(initial=2)
+    erledigt = django_filters.BooleanFilter()
 
     class Meta:
         model = models.Benachrichtigung

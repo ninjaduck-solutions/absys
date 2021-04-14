@@ -22,9 +22,10 @@ class BenachrichtigungListView(PermissionRequiredMixin, ModelFormSetView):
     def filter(self):
         qs = self.model.objects.all()
         data = self.request.GET.copy()
-        print(data)
-        if len(data) == 0:
-            data['erledigt'] = '3'
+        # Set default filter value. Previously this was done in the filter class,
+        # a behavior deprecated by now.
+        if not data.get('erledigt'):
+            data['erledigt'] = 'false'
         return filters.BenachrichtigungFilter(data, queryset=qs)
 
     def get_queryset(self, *args, **kwargs):
