@@ -17,17 +17,6 @@
 </form>
 
 <hr>
-
-
-<form action="" method="POST">
-  {{ formset.management_form }}
-  <input type="submit" class="btn btn-success">
-  <div style="padding-top: 50px">
-  {% for form in formset %}
-    {% crispy form view.helper %}
-  {% endfor %}
-  </div>
-</form>
-
+{% crispy formset view.formset_helper %}
 
 {% endblock content %}

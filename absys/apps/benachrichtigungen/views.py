@@ -15,8 +15,8 @@ class BenachrichtigungListView(PermissionRequiredMixin, ModelFormSetView):
     permission_required = 'benachrichtigungen.change_benachrichtigung'
 
     @property
-    def helper(self):
-        return forms.BenachrichtigungFormHelper()
+    def formset_helper(self):
+        return forms.BenachrichtigungFormSetHelper()
 
     @property
     def filter(self):
