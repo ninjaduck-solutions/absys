@@ -6,12 +6,12 @@ from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.utils.functional import cached_property
 from django.views.generic import DeleteView, FormView
-from django.views.generic.detail import BaseDetailView
+from django.views.generic.detail import BaseDetailView, DetailView
 from django.views.generic.list import MultipleObjectMixin
 from dateutil import parser
 from extra_views import FormSetView, InlineFormSet, UpdateWithInlinesView
 
-from wkhtmltopdf.views import PDFTemplateView
+from django_weasyprint import WeasyTemplateResponseMixin
 
 from absys.apps.schueler.models import Sozialamt
 from . import forms, models, responses
@@ -157,7 +157,7 @@ class ErfassungBekleidungsgeldFormView(LoginRequiredMixin, MessageMixin, FormSet
 
 
 class AbrechnungPDFView(LoginRequiredMixin, MultiplePermissionsRequiredMixin, BaseDetailView,
-        PDFTemplateView):
+        WeasyTemplateResponseMixin):
 
     # TODO: prefetch_related() nutzen
     model = models.RechnungSozialamt
@@ -167,16 +167,16 @@ class AbrechnungPDFView(LoginRequiredMixin, MultiplePermissionsRequiredMixin, Ba
                            'abrechnung.delete_rechnungsozialamt')
                    }
     raise_exception = True
-    cmd_options = {
-        'orientation': 'Landscape',
-    }
+
+    pdf_stylesheets = [
+        settings.STATIC_ROOT + '/css/main.css',
+    ]
 
     @property
     def adresse_schule(self):
         return settings.ABSYS_ADRESSE_SCHULE
 
-    @property
-    def filename(self):
+    def get_pdf_filename(self):
         return '{}-{}_{}-{}.pdf'.format(
             self.object.startdatum,
             self.object.enddatum,

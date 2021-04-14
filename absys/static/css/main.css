@@ -1,9 +1,59 @@
-
-
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
+
 @media print {
+
+  @page {
+    size: A4 landscape;
+    position: relative;
+    margin: 0mm;
+    padding: 5mm 3mm;
+  }
+
+  @page :first {
+    size: A4 portrait;
+    padding-top: 20mm;
+    padding-left: 20mm;
+  }
+
+  #page-1 {
+    page-break-after: always;
+    break-after: always;
+    font-size: 14pt;
+    line-height: normal; /* Is this being applied? */
+  }
+
+  #address {
+    position: absolute;
+    top: 55mm;
+  }
+
+  #von {
+    font-size: 10pt;
+  }
+
+  #details {
+    position: absolute;
+    top: 120mm;
+  }
+
+  #page-2 {
+    page-break-after: always;
+    break-after: always;
+    font-size: 9pt;
+  }
+
+  .page-subsequent {
+    font-size: 9pt;
+  }
+
+  /* Temporary fix. Do not know why Weasyprint is not interpreting the bootstrap.css as intended. This overrides it. */
+  .glyphicon-ok:before {
+    font-family: Arial, Helvetica, sans-serif;
+    content: "\2713"; /* Note that CSS uses hex version! */
+  }
+
   .table th.weekend, .table td.weekend {
     background-color: yellow !important;
   }
@@ -17,7 +67,7 @@
   }
 
   /*
-   Einzelne 'Tagesoisition' in der 'Schülerdetailansicht'.
+   Einzelne 'Tagesposition' in der 'Schülerdetailansicht'.
    Da hier min. 31 Tage auf eine Seite passen müssen sparen wir am padding.
    */
   table tr.schuelerposition td {
