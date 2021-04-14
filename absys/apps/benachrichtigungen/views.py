@@ -8,9 +8,9 @@ from . import filters
 
 class BenachrichtigungListView(PermissionRequiredMixin, ModelFormSetView):
     model = models.Benachrichtigung
-    fields = ('id', 'erledigt',)
+    fields = ('id', 'erledigt')
     template_name = 'benachrichtigungen/benachrichtigung_list.html'
-    extra = 0
+    factory_kwargs = {'extra': 0}
 
     permission_required = 'benachrichtigungen.change_benachrichtigung'
 
