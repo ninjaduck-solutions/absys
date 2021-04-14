@@ -261,7 +261,9 @@ class Common(Configuration):
     ABSYS_TAGE_FAELLIGKEIT_EINRICHTUNG_RECHNUNG = values.IntegerValue(31)
 
     # Feste Adresse der Schule
-    ABSYS_ADRESSE_SCHULE = values.Value('Musterschule mit sehr sehr langem Namen\nMusterstr. 42, 23232 Musterstadt')
+    ABSYS_ADRESSE_SCHULE = values.Value(
+            'Landesschule mit dem Förderschwerpunkt Hören\nFörderzentrum Samuel Heinicke\n Karl-Siegismund-Straße 2 |  04317 Leipzig'
+    )
 
     # Ob das BKz des Sozialamtes der Sozialamtsrechcnung für alle ihre Einrichtungsrechnungen
     # verwendet werden soll.
