@@ -28,6 +28,8 @@ requires = [
     'django-filter',
     'django-lockdown',
     'django-model-utils',
+    'django-weasyprint==0.5.3',
+    # For weasyprint
     #'docutil',
     'envdir',
     'Faker',
