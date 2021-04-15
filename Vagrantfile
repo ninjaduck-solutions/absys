@@ -12,8 +12,8 @@ Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   #config.vm.box = "boxcutter/ubuntu1604"
-  config.vm.box = "ubuntu/xenial64"
-  config.vm.box_version = "20201210.0.0"
+  config.vm.box = "ubuntu/focal64"
+  config.vm.box_version = "20210413.0.0"
 
   config.vm.define "dev", primary: true do |dev|
     config.ssh.forward_agent = true
