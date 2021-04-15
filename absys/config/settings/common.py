@@ -187,7 +187,6 @@ class Common(Configuration):
         'crispy_forms',
         'autofixture',
         'import_export',
-        'wkhtmltopdf',
 
         'absys.apps.abrechnung.apps.AbrechnungConfig',
         'absys.apps.anmeldung.apps.AnmeldungConfig',
