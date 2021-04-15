@@ -5,7 +5,7 @@ base:
     - python3
     - pyvenv
     - postgresql
-    - wkhtmltopdf
+    - weasyprint
   '*-dev':
     - bashrc
     - git

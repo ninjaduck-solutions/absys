@@ -36,7 +36,6 @@ requires = [
     'psycopg2-binary',
     'pytz',
     'django-import-export',
-    'django-wkhtmltopdf',
 ]
 
 # Hard linking doesn't work inside VirtualBox shared folders. This means that

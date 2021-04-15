@@ -187,7 +187,6 @@ class Common(Configuration):
         'crispy_forms',
         'autofixture',
         'import_export',
-        'wkhtmltopdf',
 
         'absys.apps.abrechnung.apps.AbrechnungConfig',
         'absys.apps.anmeldung.apps.AnmeldungConfig',
@@ -206,8 +205,6 @@ class Common(Configuration):
     })
 
     CRISPY_TEMPLATE_PACK = values.Value('bootstrap3')
-
-    WKHTMLTOPDF_CMD = values.Value('xvfb-run -- /usr/bin/wkhtmltopdf')
 
     EMAIL_SUBJECT_PREFIX = '[AbSys]'
 
