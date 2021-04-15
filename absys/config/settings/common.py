@@ -206,8 +206,6 @@ class Common(Configuration):
 
     CRISPY_TEMPLATE_PACK = values.Value('bootstrap3')
 
-    WKHTMLTOPDF_CMD = values.Value('xvfb-run -- /usr/bin/wkhtmltopdf')
-
     EMAIL_SUBJECT_PREFIX = '[AbSys]'
 
     DEFAULT_FROM_EMAIL = values.EmailValue('noreply@example.com')
