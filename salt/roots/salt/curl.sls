@@ -1,3 +1,3 @@
 curl:
   pkg.installed:
-    - version: 7.47.0*
+    - version: 7.68.0*

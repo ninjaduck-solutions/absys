@@ -1,6 +1,5 @@
 nodejs:
   pkg.installed:
     - pkgs:
-      - nodejs: 4.2.6*
-      - nodejs-legacy: 4.2.6*
-      - npm: 3.5.2*
+      - nodejs: 10.19.0*
+      - npm: 6.14.4*

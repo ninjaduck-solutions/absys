@@ -1,6 +1,6 @@
 apache2:
   pkg.installed:
-    - version: 2.4.18*
+    - version: 2.4.41*
   service.running:
     - enable: True
     - watch:
@@ -21,7 +21,7 @@ enable-headers-module:
 
 libapache2-mod-wsgi-py3:
   pkg.installed:
-    - version: 4.3.0*
+    - version: 4.6.8*
     - require:
       - pkg: apache2
 
