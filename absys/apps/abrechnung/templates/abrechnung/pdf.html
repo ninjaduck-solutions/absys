@@ -43,11 +43,4 @@
   {% include 'abrechnung/pdf/_einrichtungsrechnung.html' %}
 </div>
 {% endfor %}
-
-{# Footer #}
-<br><br><br><br>
-<hr>
-<h3> <center> ENDE DER SOZIALAMTRECHNUNG {{ rechnungsozialamt.nummer }}
-  FÜR DEN ZEITRAUM VOM {{ rechnungsozialamt.startdatum|date:"SHORT_DATE_FORMAT" }}
-  BIS {{ rechnungsozialamt.enddatum|date:"SHORT_DATE_FORMAT" }} </center></h3>
 </body>
